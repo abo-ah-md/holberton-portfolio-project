@@ -78,7 +78,7 @@ Provide Saudi students with a safe, convenient, and environmentally conscious wa
 4. MVP Development  
 5. Project Closure  
 
-### **Example Timeline**
+### **Timeline**
 - **Weeks 1–2:** Team formation & idea refinement  
 - **Weeks 3–4:** Project Charter creation  
 - **Weeks 5–6:** Finalize technical documentation  
