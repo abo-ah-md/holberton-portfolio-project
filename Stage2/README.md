@@ -71,17 +71,21 @@ Provide Saudi students with a safe, convenient, and environmentally conscious wa
 
 ## 🗂 High-Level Plan (Timeline & Phases)
 
-### **Project Stages**
-1. **Idea Development** *(Completed)*  
-2. **Project Charter Development** *(Current)*  
-3. Technical Documentation  
-4. MVP Development  
-5. Project Closure  
-
-### **Timeline**
-- **Weeks 1–2:** Team formation & idea refinement  
-- **Weeks 3–4:** Project Charter creation  
-- **Weeks 5–6:** Finalize technical documentation  
-- **Weeks 7–10:** MVP development & iterations  
-- **Weeks 11–12:** Final review, platform launch, and closure  
-
+gantt
+    title Portfolio Project Timeline
+    dateFormat  YYYY-MM-DD
+    
+    section Stage 1
+    Team Formation & Idea Development    :done, stage1, 2025-10-26, 2025-11-08
+    
+    section Stage 2
+    Project Charter Development          :active, stage2, 2025-11-09, 2025-11-22
+    
+    section Stage 3
+    Technical Documentation              :stage3, 2025-11-23, 2025-12-06
+    
+    section Stage 4
+    MVP Development & Iterations         :stage4, 2025-12-07, 2026-01-03
+    
+    section Stage 5
+    Final Review & Closure               :stage5, 2026-01-04, 2026-01-17
