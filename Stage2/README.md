@@ -71,6 +71,7 @@ Provide Saudi students with a safe, convenient, and environmentally conscious wa
 
 ## 🗂 High-Level Plan (Timeline & Phases)
 
+```mermaid
 gantt
     title Portfolio Project Timeline
     dateFormat  YYYY-MM-DD
@@ -89,3 +90,4 @@ gantt
     
     section Stage 5
     Final Review & Closure               :stage5, 2026-01-04, 2026-01-17
+```
