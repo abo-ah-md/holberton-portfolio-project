@@ -47,14 +47,15 @@ Provide Saudi students with a safe, convenient, and environmentally conscious wa
 - University textbook listings  
 - Basic search filtering  
 - User profiles & authentication  
-- CRUD operations for listings  
+- CRUD operations for listings
+- ISBN-based textbook management  
 - Delivery via bookstore partnerships  
 
 ### **Out-of-Scope**
 - University notes, summaries, or study guides  
 - Advanced payment methods (e.g., Tabby, Apple Pay)  
 - Advanced sorting algorithms  
-- ISBN-based textbook management  
+ 
 
 ---
 
@@ -91,3 +92,18 @@ gantt
     section Stage 5
     Final Review & Closure               :stage5, 2026-01-04, 2026-01-17
 ```
+
+## Deliverables
+
+### **Fully functioning book-selling marketplace web platform that includes:**
+- Feature allowing students to post, browse, and search for available used textbooks.
+- Fully implemented payment processing for textbook transactions.
+- Listings management for sellers, including add/edit/delete options.
+- Search and filter by title, ISBN, subject, or course.
+- User-friendly interface for locating books efficiently.
+- Account creation for students (buyer/seller) with secure login.
+- Profile management, including purchase/sale history.
+- Ability for users to create, read, update, and delete their textbook listings.
+- User guides or quick-start docs
+- Process and system to verify the condition of books
+- QA test cases/reports showing coverage of core features.
