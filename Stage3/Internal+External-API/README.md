@@ -12,7 +12,9 @@ file: [Internal-API.yaml](./Internal-API.yaml)
 
 ## External APIs
 To provide additional features and improve user experience, we have integrated the following external APIs:
+
 payment gateway:
 - [Moyasar API Documentation](https://docs.moyasar.com/api/api-introduction)
+
 email service:
 - [Resend Webhooks Documentation](https://resend.com/webhooks)
