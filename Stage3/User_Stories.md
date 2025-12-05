@@ -133,50 +133,9 @@
 
 ---
 
-### Messaging & Communication
-
-**US-014: Send Message to Seller**
-- As a buyer, I want to send a message to a seller, so that I can inquire about a book or negotiate the price.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Message button on book detail page
-  - Message form with text input
-  - Send message confirmation
-  - Message delivered to seller's inbox
-
-**US-015: View Messages**
-- As a user, I want to view all my messages in an inbox, so that I can communicate with buyers/sellers.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Inbox page showing all conversations
-  - Display sender/recipient name and latest message preview
-  - Show timestamp of latest message
-  - Mark messages as read/unread
-  - Conversation count badge on navigation
-
-**US-016: Reply to Message**
-- As a user, I want to reply to messages, so that I can continue conversations with other users.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Open conversation thread view
-  - Message history displayed in chronological order
-  - Reply input field
-  - Send button and confirmation
-
-**US-017: Message Notifications**
-- As a user, I want to receive notifications when I get a new message, so that I can respond promptly.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Notification badge on inbox icon
-  - Browser notification (if enabled)
-  - Real-time message updates in chat
-  - Notification disappears after message is read
-
----
-
 ### Ratings & Reviews
 
-**US-018: Rate a Seller**
+**US-014: Rate a Seller**
 - As a buyer, I want to rate a seller after completing a transaction, so that other students can trust reliable sellers.
 - Priority: MUST HAVE
 - Acceptance Criteria:
@@ -186,7 +145,7 @@
   - Confirmation message
   - Rating reflected on seller's profile
 
-**US-019: View Seller Ratings**
+**US-015: View Seller Ratings**
 - As a buyer, I want to see a seller's average rating and reviews, so that I can assess their reliability.
 - Priority: MUST HAVE
 - Acceptance Criteria:
@@ -199,7 +158,7 @@
 
 ### Book Availability Status
 
-**US-020: Mark Book as Sold**
+**US-016: Mark Book as Sold**
 - As a seller, I want to mark a book as sold, so that buyers know it's no longer available.
 - Priority: MUST HAVE
 - Acceptance Criteria:
@@ -212,7 +171,7 @@
 
 ## SHOULD HAVE (Important but not critical for MVP launch)
 
-**US-021: Advanced Sort Options**
+**US-017: Advanced Sort Options**
 - As a buyer, I want to sort books by price (low-high, high-low), newest listings, or seller rating, so that I can find books more efficiently.
 - Priority: SHOULD HAVE
 - Acceptance Criteria:
@@ -220,7 +179,7 @@
   - Results update when sort selection changes
   - Default sort is "newest first"
 
-**US-022: Wishlist/Favorites**
+**US-018: Wishlist/Favorites**
 - As a buyer, I want to save books to a wishlist, so that I can keep track of books I'm interested in.
 - Priority: SHOULD HAVE
 - Acceptance Criteria:
@@ -230,7 +189,7 @@
   - Remove from wishlist option
   - Wishlist count displayed in profile
 
-**US-023: User Verification Badge**
+**US-019: User Verification Badge**
 - As a verified user, I want a badge on my profile, so that other users can easily identify trustworthy sellers.
 - Priority: SHOULD HAVE
 - Acceptance Criteria:
@@ -238,7 +197,7 @@
   - Badge displayed on profile and listings
   - Explains verification criteria
 
-**US-024: Report Inappropriate Listing**
+**US-020: Report Inappropriate Listing**
 - As a user, I want to report a listing that violates guidelines, so that moderators can remove inappropriate content.
 - Priority: SHOULD HAVE
 - Acceptance Criteria:
@@ -251,23 +210,23 @@
 
 ## COULD HAVE (Nice-to-have features for future iterations)
 
-**US-025: "Demand a Book" Feature**
+**US-021: "Demand a Book" Feature**
 - As a buyer, I want to request a specific book that's not currently available, so that sellers can notify me when they have it.
 - Priority: COULD HAVE
 
-**US-026: Bulk Upload Listings**
+**US-022: Bulk Upload Listings**
 - As a seller, I want to upload multiple book listings at once (via CSV), so that I can list many books quickly.
 - Priority: COULD HAVE
 
-**US-027: Book Recommendation**
+**US-023: Book Recommendation**
 - As a buyer, I want to see recommended books based on my purchase history, so that I can discover new textbooks.
 - Priority: COULD HAVE
 
-**US-028: Payment Integration (Stripe/Apple Pay)**
+**US-024: Payment Integration (Stripe/Apple Pay)**
 - As a buyer, I want to pay for books directly through the platform, so that transactions are secure and convenient.
 - Priority: COULD HAVE
 
-**US-029: Advanced Analytics for Sellers**
+**US-025: Advanced Analytics for Sellers**
 - As a seller, I want to see analytics about my listings (views, clicks, conversions), so that I can optimize my sales strategy.
 - Priority: COULD HAVE
 
