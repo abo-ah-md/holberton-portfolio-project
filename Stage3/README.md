@@ -72,3 +72,25 @@ We use **GitHub** as the version control platform and follow a **Simplified Git 
 3. **Exit criteria:**
    - If all smoke tests pass, the build is considered stable enough for further testing or demo.
    - If any smoke test fails, the build is rejected, issues are logged, and fixes are required before proceeding. 
+
+### Technical Justifications
+The project uses a modern, web‑native architecture with GitHub-based collaboration, an API‑first mindset, and integration-focused QA to align with Holberton’s full‑stack learning goals and the needs of a Saudi student textbook marketplace.
+
+## High-level architecture choices
+
+The system is structured as a full‑stack web platform with a clear separation between the React frontend client, backend APIs, and data storage, which supports real-time listings, search, and secure student transactions. An API‑first backend approach enables future mobile apps and external integrations (such as partner bookstores or verification services) without redesigning the core platform.
+
+## Stack and technology selection
+
+The application uses React on the client side, with Supabase providing backend services, authentication, and a managed PostgreSQL database layer. This React + Supabase combination replaces a traditional custom backend, allowing the team to focus on UI, data modeling, and security policies while Supabase handles infrastructure, instant REST APIs, and real-time features.
+## Domain-specific design decisions
+
+The platform focuses specifically on university textbooks (excluding notes or summaries), with planned features such as ISBN-based cataloging, course-level filters, and university-affiliated user profiles to keep scope narrow and search results highly relevant for Saudi students. Leaving broader academic content and complex payment options out of the MVP reduces regulatory and technical risk while still delivering value through textbook discovery, condition verification, and straightforward secure payments.
+## Process, SCM, and collaboration
+
+A lightweight Git Flow–inspired strategy with a stable `main` branch, an integration-focused `dev` branch, and short‑lived feature branches keeps collaboration manageable while preserving release stability. Pull requests reviewed by one or two teammates promote knowledge sharing and help prevent regressions as different roles (PM, UI/UX, frontend, backend) contribute to overlapping features.
+
+## Quality assurance and API-first testing
+
+The team emphasizes integration testing via Swagger UI and manual smoke tests rather than a large unit-test suite, prioritizing validation of actual HTTP behavior and end‑to‑end user flows.
+Using an OpenAPI/Swagger specification as both documentation and a testing driver maintains a clear contract between frontend, backend, and external services, reducing the chance of subtle API drift as the marketplace evolves.
