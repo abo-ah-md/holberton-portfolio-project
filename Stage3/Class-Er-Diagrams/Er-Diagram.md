@@ -82,4 +82,4 @@ erDiagram
     books ||--o{ book_photos : "has"
     books }o--|| bookstores : "held at"
     orders }o--|| bookstores : "handled by"
-    ```
+```
