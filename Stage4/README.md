@@ -1,7 +1,3 @@
-# 📚 Bookpass
-
-A book management application built with React and Supabase.
-
 ## 🛠️ Tech Stack
 
 - React + Vite
