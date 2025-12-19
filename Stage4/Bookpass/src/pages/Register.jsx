@@ -75,7 +75,96 @@ const Register = () => {
     };
 
     return (
+	     <div className="auth-page">
+      <div className="auth-image"></div>
 
+      <div className="auth-form-container">
+        <div className="auth-logo">
+          <Logo />
+        </div>
+
+        <div className="auth-form-wrapper">
+          <h1>انضم إلينا الآن وابدأ تسوقك</h1>
+
+          {error && <div className="alert alert-error">{error}</div>}
+          {success && <div className="alert alert-success">{success}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="fullName">اسم المستخدم</label>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                placeholder="أدخل اسمك"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">البريد الإلكتروني</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="أدخل بريدك الإلكتروني"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">كلمة المرور</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="أدخل كلمة المرور"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="iban">رقم حساب البنكي للبائع IBAN (إختياري)</label>
+              <input
+                type="text"
+                id="iban"
+                name="iban"
+                value={formData.iban}
+                onChange={handleChange}
+                placeholder="SA00 0000 0000 0000 0000 0000"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="agreeTerms"
+                  checked={formData.agreeTerms}
+                  onChange={handleChange}
+                />
+                <span>أقبل سياسة الخصوصية والشروط</span>
+              </label>
+            </div>
+
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'جاري التسجيل...' : 'التسجيل'}
+            </button>
+          </form>
+
+          <p className="auth-footer">
+	   لديك حساب مسجل ؟ <Link to="/login">سجل الدخول</Link>
+          </p>
+        </div>
+      </div>
+    </div>
     );
 };
 

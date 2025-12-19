@@ -57,7 +57,72 @@ const Login = () => {
     };
 
     return (
+	 <div className="auth-page">
+	    <div className="auth-image"></div>
 
+      <div className="auth-form-container">
+        <div className="auth-logo">
+          <Logo />
+        </div>
+
+        <div className="auth-form-wrapper">
+          <h1>مرحباً بعودتك</h1>
+
+          {error && <div className="alert alert-error">{error}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="email">البريد الإلكتروني</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="أدخل بريدك الإلكتروني"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">كلمة المرور</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="أدخل كلمة المرور"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-group form-row">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="rememberMe"
+                  checked={formData.rememberMe}
+                  onChange={handleChange}
+                />
+                <span>تذكرني</span>
+              </label>
+              <Link to="/forgot-password" className="forgot-link">
+                نسيت كلمة المرور؟
+              </Link>
+            </div>
+
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'جاري الدخول...' : 'تسجيل الدخول'}
+            </button>
+          </form>
+
+          <p className="auth-footer">
+            ليس لديك حساب؟ <Link to="/register">سجل الآن</Link>
+          </p>
+        </div>
+      </div>
+    </div>
     );
 };
 
