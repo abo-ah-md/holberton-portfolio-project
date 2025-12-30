@@ -43,13 +43,7 @@ const Login = () => {
         setLoading(false);
 
         if (signInError) {
-            if (signInError.message.includes('Invalid login credentials')) {
-                setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
-            } else if (signInError.message.includes('Email not confirmed')) {
-                setError('يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول');
-            } else {
-                setError(signInError.message);
-            }
+            setError(signInError || 'فشل تسجيل الدخول');
             return;
         }
 

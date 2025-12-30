@@ -67,11 +67,14 @@ const Register = () => {
         setLoading(false);
 
         if (signUpError) {
-            setError(signUpError.message);
+            setError(signUpError || 'فشل التسجيل');
             return;
         }
 
-        setSuccess('تم التسجيل بنجاح! يرجى التحقق من بريدك الإلكتروني');
+        setSuccess('تم التسجيل بنجاح! تم تسجيل دخولك تلقائياً');
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2000);
     };
 
     return (
@@ -128,6 +131,8 @@ const Register = () => {
                 disabled={loading}
               />
             </div>
+
+            
 
             <div className="form-group">
               <label htmlFor="iban">رقم حساب البنكي للبائع IBAN (إختياري)</label>
