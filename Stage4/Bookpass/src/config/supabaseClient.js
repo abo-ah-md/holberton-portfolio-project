@@ -1,10 +1,9 @@
-import { createClient } from '@supabase/supabase-js'
+/**
+ * Supabase Client Configuration
+ * DEPRECATED: This file is no longer used.
+ * Authentication is now handled via HTTP requests to your custom backend.
+ * See src/services/authService.js for authentication details.
+ */
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables! Check your .env file.')
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// This file is kept for backward compatibility but is not used.
+// All authentication is now handled through HTTP requests.
