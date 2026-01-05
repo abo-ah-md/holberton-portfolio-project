@@ -1,25 +1,20 @@
 import React from 'react';
-import { RibbonBrown } from './BookPassUI';
 import WhiteLogo from './WhiteLogo';
 
 const Hero = ({ title, subtitle, description, primaryButtonText, secondaryButtonText, backgroundImage }) => {
     return (
-        <section className="relative flex-1 flex items-center min-h-[600px] w-full bg-slate-900 overflow-hidden font-sans">
-            {/* Ribbon Logo */}
-            <div className="absolute  left-0 bottom-1/2 z-40 drop-shadow-2xl transform origin-left scale-80">
-                <div className="flex items-center relative">
-                    <div className="relative z-10">
-                        <RibbonBrown />
-                    </div>
-                    <div className="relative inset-0 flex items-center gap-4 z-20 pl-20">
-                        <div className='text-4xl'>
-                            <h3 className="text-white font-bold  whitespace-nowrap">Book Pass</h3>
-                        </div>
-                        <div className="scale-110">
-                            <WhiteLogo />
-                        </div>
-
-
+        <section className="relative flex items-center h-[calc(100vh-64px)] w-full bg-slate-900 overflow-hidden font-sans">
+            {/* Ribbon Logo Group - Left Side */}
+            <div className="absolute left-0 top-8 z-40 drop-shadow-2xl">
+                <div className="relative flex items-center h-20">
+                    {/* Polygon ribbon background - Right to Left with arrow notch */}
+                    <svg className="absolute left-0  h-full w-auto" viewBox="0 0 537 188" fill="none">
+                        <path d="M536.954 9.49459L0.14782 7.62939e-06L-3 177.972L533.807 187.467L416.727 95.1142L536.954 9.49459Z" fill="#C17554" />
+                    </svg>
+                    {/* Text and logo content - LTR to ensure correct visual order */}
+                    <div className="relative left-4 z-10 flex items-center gap-3 px-6" dir="ltr">
+                        <WhiteLogo />
+                        <h3 className="text-white font-bold text-7xl whitespace-nowrap z-10">Book Pass</h3>
                     </div>
                 </div>
             </div>
@@ -37,7 +32,7 @@ const Hero = ({ title, subtitle, description, primaryButtonText, secondaryButton
             <div className="absolute inset-0 bg-slate-900/40 z-10" />
 
             {/* Content Wrapper */}
-            <div className="relative z-20 max-w-6xl mx-auto px-4 md:px-6 py-16 flex flex-col items-center text-center text-white w-full">
+            <div className="relative z-20 max-w-6xl mx-auto px-4 md:px-6 py-8 flex flex-col items-center text-center text-white w-full">
 
                 {/* Heading */}
                 <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold leading-snug tracking-wide mb-6">
@@ -46,13 +41,13 @@ const Hero = ({ title, subtitle, description, primaryButtonText, secondaryButton
                 </h1>
 
                 {/* Description */}
-                <p className="mt-4 max-w-2xl text-base md:text-xl text-gray-200 leading-relaxed font-light mb-10">
+                <p className="mt-4 max-w-2xl text-base md:text-xl text-gray-200 leading-relaxed font-light mb-6">
                     {description || 'وفر حتى 70% من تكلفة كتبك الجامعية من طلاب جامعتك... بيع واشتري بكل سهولة وفي دقائق'}
                 </p>
             </div>
 
             {/* Call To Action Buttons */}
-            <button className="absolute bottom-8 right-8 z-30 bg-[#3A4958] hover:bg-[#2c3844] text-white font-bold py-4 px-10 rounded-lg shadow-lg transition-transform transform hover:scale-105 text-lg">
+            <button className="absolute bottom-50 right-8 z-30 bg-[#3A4958] hover:bg-[#2c3844] text-white font-bold text-center py-5 px-14 rounded-md shadow-lg transition-transform transform hover:scale-105 text-xl min-w-fit">
                 {primaryButtonText || 'ابحث عن كتابك الآن'}
             </button>
 
