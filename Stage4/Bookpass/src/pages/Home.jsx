@@ -1,5 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import BookRating from '../components/BookRating';
 import Footer from '../components/Footer';
 
 const Home = () => {
@@ -25,10 +26,10 @@ const Home = () => {
           </div>
         )}
       </div>
+      <BookRating />
       <Footer />
     </>
   );
 };
 
 export default Home;
-
