@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Cart from './pages/Cart';
@@ -12,7 +12,7 @@ import Register from './pages/Register';
 import ComponentTest from './pages/ComponentTest';
 import TestLoading from './pages/TestLoading';
 import './App.css';
-import './index.css' //
+import './index.css';
 
 import { CartProvider } from './context/CartContext';
 
@@ -51,4 +51,4 @@ function App() {
     );
 }
 
-export default App;
+export default App;                  
