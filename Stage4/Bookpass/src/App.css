@@ -99,13 +99,17 @@ body {
 .auth-form-container::before {
   content: '';
   position: absolute;
-  bottom: -50%;
+  bottom: -60%;
   left: -20%;
   right: -20%;
   height: 70%;
   background-color: #1a2634;
   border-radius: 50% 50% 0 0;
   z-index: 0;
+}
+
+.auth-form-container.sign-in-mode::before {
+  bottom: -50%;
 }
 
 .auth-logo {

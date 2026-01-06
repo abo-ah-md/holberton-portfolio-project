@@ -1,23 +1,42 @@
-import React from 'react';
-import WhiteLogo from './WhiteLogo';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import RibbonLogo from './ribbon-logo';
+import { useAuth } from '../context/AuthContext';
+import AuthRequiredModal from './AuthRequiredModal';
 
 const Hero = ({ title, subtitle, description, primaryButtonText, secondaryButtonText, backgroundImage }) => {
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const [showAuthModal, setShowAuthModal] = useState(false);
+
+    const handleSellClick = () => {
+        if (!user) {
+            setShowAuthModal(true);
+        } else {
+            navigate('/sell');
+        }
+    };
+
     return (
         <section className="relative flex items-center h-[calc(100vh-64px)] w-full bg-slate-900 overflow-hidden font-sans">
+            <style>{`
+                .hero-buttons {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1.5rem;
+                }
+                @media (min-width: 768px) {
+                    .hero-buttons {
+                        flex-direction: row;
+                        gap: 2.5rem;
+                    }
+                }
+            `}</style>
+
             {/* Ribbon Logo Group - Left Side */}
-            <div className="absolute left-0 top-8 z-40 drop-shadow-2xl">
-                <div className="relative flex items-center h-20">
-                    {/* Polygon ribbon background - Right to Left with arrow notch */}
-                    <svg className="absolute left-0  h-full w-auto" viewBox="0 0 537 188" fill="none">
-                        <path d="M536.954 9.49459L0.14782 7.62939e-06L-3 177.972L533.807 187.467L416.727 95.1142L536.954 9.49459Z" fill="#C17554" />
-                    </svg>
-                    {/* Text and logo content - LTR to ensure correct visual order */}
-                    <div className="relative left-4 z-10 flex items-center gap-3 px-6" dir="ltr">
-                        <WhiteLogo />
-                        <h3 className="text-white font-bold text-7xl whitespace-nowrap z-10">Book Pass</h3>
-                    </div>
-                </div>
-            </div>
+
+            <RibbonLogo />
+
 
             {/* Background Image */}
             <div
@@ -41,19 +60,33 @@ const Hero = ({ title, subtitle, description, primaryButtonText, secondaryButton
                 </h1>
 
                 {/* Description */}
-                <p className="mt-4 max-w-2xl text-base md:text-xl text-gray-200 leading-relaxed font-light mb-6">
+                <p className="max-w-2xl text-base md:text-xl text-gray-200 leading-relaxed font-light mb-10">
                     {description || 'وفر حتى 70% من تكلفة كتبك الجامعية من طلاب جامعتك... بيع واشتري بكل سهولة وفي دقائق'}
                 </p>
+
+                {/* Call To Action Buttons - Centered & Flexible */}
+                <div className="hero-buttons items-center justify-center w-full max-w-4xl mt-24">
+                    <button
+                        onClick={() => navigate('/marketplace')}
+                        className="w-full sm:w-auto min-w-[240px] bg-[#3A4958] hover:bg-[#2c3844] text-white font-black py-6 px-12 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl text-2xl tracking-wide border-2 border-[#3A4958]"
+                    >
+                        {primaryButtonText || 'ابحث عن كتابك الآن'}
+                    </button>
+
+                    <button
+                        onClick={handleSellClick}
+                        className="w-full sm:w-auto min-w-[240px] bg-[#C17554] hover:bg-[#a66346] text-white font-black py-6 px-12 rounded-2xl shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl text-2xl tracking-wide border-2 border-[#C17554]"
+                    >
+                        {secondaryButtonText || 'اعرض كتابك للبيع'}
+                    </button>
+                </div>
             </div>
 
-            {/* Call To Action Buttons */}
-            <button className="absolute bottom-50 right-8 z-30 bg-[#3A4958] hover:bg-[#2c3844] text-white font-bold text-center py-5 px-14 rounded-md shadow-lg transition-transform transform hover:scale-105 text-xl min-w-fit">
-                {primaryButtonText || 'ابحث عن كتابك الآن'}
-            </button>
-
-            <button className="absolute bottom-8 left-8 z-30 bg-[#C17554] hover:bg-[#a66346] text-white font-bold py-4 px-10 rounded-lg shadow-lg transition-transform transform hover:scale-105 text-lg">
-                {secondaryButtonText || 'اعرض كتابك للبيع'}
-            </button>
+            <AuthRequiredModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                message="لعرض كتابك للبيع، يرجى تسجيل الدخول أو إنشاء حساب."
+            />
         </section>
     );
 };
