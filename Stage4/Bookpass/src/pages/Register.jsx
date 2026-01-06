@@ -1,84 +1,84 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import Logo from '../assets/Logo';
+import Logo from '../components/Logo';
 
 const Register = () => {
-    const [formData, setFormData] = useState({
-        fullName: '',
-        email: '',
-        password: '',
-        iban: '',
-        agreeTerms: false,
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    iban: '',
+    agreeTerms: false,
+  });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
+
+  const validatePassword = (password) => {
+    if (password.length < 8) return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+    if (!/[A-Z]/.test(password)) return 'كلمة المرور يجب أن تحتوي على حرف كبير';
+    if (!/[a-z]/.test(password)) return 'كلمة المرور يجب أن تحتوي على حرف صغير';
+    if (!/[0-9]/.test(password)) return 'كلمة المرور يجب أن تحتوي على رقم';
+    return null;
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value,
     });
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [loading, setLoading] = useState(false);
+    setError('');
+  };
 
-    const { signUp } = useAuth();
-    const navigate = useNavigate();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
 
-    const validatePassword = (password) => {
-        if (password.length < 8) return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
-        if (!/[A-Z]/.test(password)) return 'كلمة المرور يجب أن تحتوي على حرف كبير';
-        if (!/[a-z]/.test(password)) return 'كلمة المرور يجب أن تحتوي على حرف صغير';
-        if (!/[0-9]/.test(password)) return 'كلمة المرور يجب أن تحتوي على رقم';
-        return null;
-    };
+    if (!formData.fullName || !formData.email || !formData.password) {
+      setError('جميع الحقول مطلوبة');
+      return;
+    }
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value,
-        });
-        setError('');
-    };
+    if (!formData.agreeTerms) {
+      setError('يجب الموافقة على سياسة الخصوصية والشروط');
+      return;
+    }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
 
-        if (!formData.fullName || !formData.email || !formData.password) {
-            setError('جميع الحقول مطلوبة');
-            return;
-        }
+    setLoading(true);
 
-        if (!formData.agreeTerms) {
-            setError('يجب الموافقة على سياسة الخصوصية والشروط');
-            return;
-        }
+    const { data, error: signUpError } = await signUp(
+      formData.email,
+      formData.password,
+      formData.fullName
+    );
 
-        const passwordError = validatePassword(formData.password);
-        if (passwordError) {
-            setError(passwordError);
-            return;
-        }
+    setLoading(false);
 
-        setLoading(true);
+    if (signUpError) {
+      setError(signUpError || 'فشل التسجيل');
+      return;
+    }
 
-        const { data, error: signUpError } = await signUp(
-            formData.email,
-            formData.password,
-            formData.fullName
-        );
+    setSuccess('تم التسجيل بنجاح! تم تسجيل دخولك تلقائياً');
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 2000);
+  };
 
-        setLoading(false);
-
-        if (signUpError) {
-            setError(signUpError || 'فشل التسجيل');
-            return;
-        }
-
-        setSuccess('تم التسجيل بنجاح! تم تسجيل دخولك تلقائياً');
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 2000);
-    };
-
-    return (
-	     <div className="auth-page">
+  return (
+    <div className="auth-page">
       <div className="auth-image"></div>
 
       <div className="auth-form-container">
@@ -132,7 +132,7 @@ const Register = () => {
               />
             </div>
 
-            
+
 
             <div className="form-group">
               <label htmlFor="iban">رقم حساب البنكي للبائع IBAN (إختياري)</label>
@@ -165,12 +165,12 @@ const Register = () => {
           </form>
 
           <p className="auth-footer">
-	   لديك حساب مسجل ؟ <Link to="/login">سجل الدخول</Link>
+            لديك حساب مسجل ؟ <Link to="/login">سجل الدخول</Link>
           </p>
         </div>
       </div>
     </div>
-    );
+  );
 };
 
 export default Register;

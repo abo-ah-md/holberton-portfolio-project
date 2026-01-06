@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Poppins:wght@300;400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
@@ -9,6 +15,54 @@ body {
   background-color: #f5f5f5;
   color: #333;
   line-height: 1.6;
+}
+
+/* Custom responsive classes for navbar (Tailwind v4 fix) */
+.navbar-mobile-only {
+  display: flex;
+}
+
+.navbar-desktop-only {
+  display: none;
+}
+
+.navbar-desktop-user {
+  display: none;
+}
+
+.navbar-search-bar {
+  display: none;
+}
+
+/* Ribbon hidden by default on mobile */
+.ribbon-desktop {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .navbar-search-bar {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .navbar-desktop-only {
+    display: flex;
+  }
+
+  .navbar-desktop-user {
+    display: flex;
+  }
+}
+
+@media (min-width: 1024px) {
+  .navbar-mobile-only {
+    display: none;
+  }
+
+  .ribbon-desktop {
+    display: block;
+  }
 }
 
 /* ========== Auth Page Layout ========== */
@@ -274,7 +328,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ========== Responsive ========== */
@@ -288,22 +344,22 @@ body {
   .auth-page {
     flex-direction: column;
   }
-  
+
   .auth-image {
     flex: none;
     height: 250px;
   }
-  
+
   .auth-form-container {
     flex: 1;
     padding: 30px 24px;
   }
-  
+
   .auth-logo {
     position: static;
     margin-bottom: 24px;
   }
-  
+
   .auth-form-wrapper {
     padding-right: 0;
   }
