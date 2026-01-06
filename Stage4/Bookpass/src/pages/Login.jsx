@@ -54,7 +54,7 @@ const Login = () => {
     <div className="auth-page">
       <div className="auth-image"></div>
 
-      <div className="auth-form-container">
+      <div className="auth-form-container sign-in-mode">
         <div className="auth-logo">
           <Logo />
         </div>

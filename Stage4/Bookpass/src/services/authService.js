@@ -44,40 +44,30 @@ const removeStoredUser = () => {
  * Register a new user
  * POST /api/auth/register
  */
+/**
+ * Register a new user
+ * POST /api/auth/register
+ */
 export const registerUser = async (email, password, firstName, lastName, phoneNumber = '') => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-        firstName,
-        lastName,
-        phoneNumber,
-      }),
-    });
+  console.log("Mock Registering:", { email, password, firstName, lastName });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Registration failed');
-    }
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const data = await response.json();
-    
-    // If token is returned, store it
-    if (data.accessToken || data.token) {
-      const token = data.accessToken || data.token;
-      setToken(token);
-      setStoredUser(data);
-    }
+  // Mock successful response
+  const mockUser = {
+    id: Math.floor(Math.random() * 1000),
+    email,
+    firstName,
+    lastName,
+    role: 'user',
+    token: 'mock-jwt-token-' + Date.now()
+  };
 
-    return { data, error: null };
-  } catch (error) {
-    return { data: null, error: error.message };
-  }
+  setToken(mockUser.token);
+  setStoredUser(mockUser);
+
+  return { data: mockUser, error: null };
 };
 
 /**
@@ -85,36 +75,28 @@ export const registerUser = async (email, password, firstName, lastName, phoneNu
  * POST /api/auth/login
  */
 export const loginUser = async (email, password) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
+  console.log("Mock Logging in:", email);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Login failed');
-    }
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const data = await response.json();
-    
-    // Store token and user data
-    const token = data.accessToken || data.token || data.idToken || data.jwt;
-    if (token) {
-      setToken(token);
-      setStoredUser(data);
-    }
-
-    return { data, error: null };
-  } catch (error) {
-    return { data: null, error: error.message };
+  if (password === 'wrong-password') {
+    return { data: null, error: 'Invalid credentials' };
   }
+
+  const mockUser = {
+    id: 1,
+    email,
+    firstName: 'Test',
+    lastName: 'User',
+    role: 'user',
+    token: 'mock-jwt-token-' + Date.now()
+  };
+
+  setToken(mockUser.token);
+  setStoredUser(mockUser);
+
+  return { data: mockUser, error: null };
 };
 
 /**
@@ -123,7 +105,7 @@ export const loginUser = async (email, password) => {
  */
 export const logoutUser = async () => {
   try {
-    
+
     removeToken();
     removeStoredUser();
     return { error: null };
@@ -136,36 +118,21 @@ export const logoutUser = async () => {
  * Get current user profile
  * GET /api/users/me
  */
+/**
+ * Get current user profile
+ * GET /api/users/me
+ */
 export const getCurrentUser = async () => {
+  // Mock implementation: Return stored user
   try {
     const token = getToken();
-    
-    // If no token, return stored user or null
     if (!token) {
       return { data: getStoredUser(), error: null };
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/users/me`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        // Token expired or invalid
-        removeToken();
-        removeStoredUser();
-        throw new Error('Token expired. Please login again.');
-      }
-      throw new Error('Failed to fetch user');
-    }
-
-    const data = await response.json();
-    setStoredUser(data);
-    return { data, error: null };
+    // Return stored user directly without API call
+    const storedUser = getStoredUser();
+    return { data: storedUser, error: null };
   } catch (error) {
     return { data: null, error: error.message };
   }
@@ -177,29 +144,20 @@ export const getCurrentUser = async () => {
  */
 export const updateUserProfile = async (updates) => {
   try {
-    const token = getToken();
-    
-    if (!token) {
-      throw new Error('No authentication token found');
+    console.log("Mock Updating Profile:", updates);
+
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const currentUser = getStoredUser();
+    if (!currentUser) {
+      throw new Error("No user logged in");
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/users/me`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updates),
-    });
+    const updatedUser = { ...currentUser, ...updates };
+    setStoredUser(updatedUser);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Update failed');
-    }
-
-    const data = await response.json();
-    setStoredUser(data);
-    return { data, error: null };
+    return { data: updatedUser, error: null };
   } catch (error) {
     return { data: null, error: error.message };
   }
