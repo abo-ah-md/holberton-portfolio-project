@@ -1,14 +1,155 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { Upload, CheckCircle, BookOpen } from 'lucide-react';
+import { Upload, CheckCircle, BookOpen, AlertCircle, Loader2, X } from 'lucide-react';
+import { addBook, uploadImage } from '../services/bookService';
+import { useAuth } from '../context/AuthContext';
 
 const SellBook = () => {
     const [step, setStep] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [error, setError] = useState('');
+    const { user } = useAuth();
+    const navigate = useNavigate();
+    const fileInputRef = useRef(null);
 
-    const handleSubmit = (e) => {
+    const [formData, setFormData] = useState({
+        title: '',
+        author: '',
+        university: '',
+        price: '',
+        condition: '',
+        description: '',
+        isbn: ''
+    });
+
+    const [imagePreview, setImagePreview] = useState(null);
+    const [imageUrl, setImageUrl] = useState(null);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        setError('');
+    };
+
+    const handleConditionChange = (condition) => {
+        setFormData(prev => ({ ...prev, condition }));
+        setError('');
+    };
+
+    const handleImageChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            setError('يرجى اختيار ملف صورة');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            setError('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+            return;
+        }
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (e) => setImagePreview(e.target.result);
+        reader.readAsDataURL(file);
+
+        // Upload image
+        setUploading(true);
+        try {
+            const { url, error: uploadError } = await uploadImage(file);
+            if (uploadError) {
+                setError(uploadError);
+            } else {
+                setImageUrl(url);
+            }
+        } catch (err) {
+            setError('فشل في رفع الصورة');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const removeImage = () => {
+        setImagePreview(null);
+        setImageUrl(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setStep(2);
+        setError('');
+
+        // Check if user is logged in
+        if (!user) {
+            setError('يجب تسجيل الدخول لإضافة كتاب');
+            return;
+        }
+
+        // Validate form
+        if (!formData.title || !formData.author || !formData.price) {
+            setError('يرجى ملء جميع الحقول المطلوبة');
+            return;
+        }
+
+        if (!formData.condition) {
+            setError('يرجى اختيار حالة الكتاب');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const bookData = {
+                title: formData.title,
+                author: formData.author,
+                university: formData.university || 'غير محدد',
+                price: parseFloat(formData.price),
+                condition: formData.condition,
+                description: formData.description,
+                isbn: formData.isbn,
+                bookImages: imageUrl || null
+            };
+
+            const { data, error: apiError } = await addBook(bookData);
+
+            if (apiError) {
+                setError(apiError);
+                setLoading(false);
+                return;
+            }
+
+            // Success - show success screen
+            setStep(2);
+        } catch (err) {
+            setError('حدث خطأ أثناء إضافة الكتاب. يرجى المحاولة مرة أخرى.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddAnother = () => {
+        setStep(1);
+        setFormData({
+            title: '',
+            author: '',
+            university: '',
+            price: '',
+            condition: '',
+            description: '',
+            isbn: ''
+        });
+        setError('');
+        setImagePreview(null);
+        setImageUrl(null);
     };
 
     return (
@@ -28,41 +169,101 @@ const SellBook = () => {
                                 <p className="text-gray-500 max-w-md mx-auto">قم بتعبئة بيانات الكتاب بدقة لزيادة فرص بيعه بسرعة. نحن نساعدك في الوصول لآلاف الطلاب.</p>
                             </div>
 
+                            {error && (
+                                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-600">
+                                    <AlertCircle size={20} />
+                                    <span className="font-bold">{error}</span>
+                                </div>
+                            )}
+
+                            {!user && (
+                                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-center gap-3 text-yellow-700">
+                                    <AlertCircle size={20} />
+                                    <span className="font-bold">يجب <button onClick={() => navigate('/login')} className="underline">تسجيل الدخول</button> لإضافة كتاب للبيع</span>
+                                </div>
+                            )}
+
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="font-bold text-gray-700">عنوان الكتاب</label>
-                                        <input required type="text" placeholder="مثال: مقدمة في الفيزياء" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition" />
+                                        <label className="font-bold text-gray-700">عنوان الكتاب *</label>
+                                        <input
+                                            required
+                                            type="text"
+                                            name="title"
+                                            value={formData.title}
+                                            onChange={handleChange}
+                                            placeholder="مثال: مقدمة في الفيزياء"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
+                                            disabled={loading}
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="font-bold text-gray-700">اسم المؤلف</label>
-                                        <input required type="text" placeholder="مثال: د. أحمد محمد" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition" />
+                                        <label className="font-bold text-gray-700">اسم المؤلف *</label>
+                                        <input
+                                            required
+                                            type="text"
+                                            name="author"
+                                            value={formData.author}
+                                            onChange={handleChange}
+                                            placeholder="مثال: د. أحمد محمد"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
+                                            disabled={loading}
+                                        />
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="font-bold text-gray-700">الجامعة / الكلية</label>
-                                        <select className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition cursor-pointer">
-                                            <option>اختر الجامعة</option>
-                                            <option>جامعة الملك سعود</option>
-                                            <option>جامعة الملك فهد للبترول والمعادن</option>
-                                            <option>جامعة الأميرة نورة</option>
-                                            <option>جامعة القصيم</option>
+                                        <select
+                                            name="university"
+                                            value={formData.university}
+                                            onChange={handleChange}
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition cursor-pointer"
+                                            disabled={loading}
+                                        >
+                                            <option value="">اختر الجامعة</option>
+                                            <option value="جامعة الملك سعود">جامعة الملك سعود</option>
+                                            <option value="جامعة الملك فهد للبترول والمعادن">جامعة الملك فهد للبترول والمعادن</option>
+                                            <option value="جامعة الأميرة نورة">جامعة الأميرة نورة</option>
+                                            <option value="جامعة القصيم">جامعة القصيم</option>
+                                            <option value="جامعة الملك فهد">جامعة الملك فهد</option>
+                                            <option value="جامعة الملك خالد">جامعة الملك خالد</option>
+                                            <option value="جامعة جدة">جامعة جدة</option>
+                                            <option value="جامعة الملك فيصل">جامعة الملك فيصل</option>
                                         </select>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="font-bold text-gray-700">السعر المطلوب (ر.س)</label>
-                                        <input required type="number" placeholder="00" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition" />
+                                        <label className="font-bold text-gray-700">السعر المطلوب (ر.س) *</label>
+                                        <input
+                                            required
+                                            type="number"
+                                            name="price"
+                                            value={formData.price}
+                                            onChange={handleChange}
+                                            placeholder="00"
+                                            min="1"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
+                                            disabled={loading}
+                                        />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="font-bold text-gray-700">حالة الكتاب</label>
-                                    <div className="flex gap-4">
+                                    <label className="font-bold text-gray-700">حالة الكتاب *</label>
+                                    <div className="flex gap-4 flex-wrap">
                                         {['جديد', 'ممتاز', 'جيد جداً', 'جيد', 'مقبول'].map((status) => (
-                                            <label key={status} className="flex-1 cursor-pointer">
-                                                <input type="radio" name="status" className="peer sr-only" />
+                                            <label key={status} className="flex-1 min-w-[80px] cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="condition"
+                                                    value={status}
+                                                    checked={formData.condition === status}
+                                                    onChange={() => handleConditionChange(status)}
+                                                    className="peer sr-only"
+                                                    disabled={loading}
+                                                />
                                                 <div className="text-center py-2 rounded-lg border border-gray-200 peer-checked:bg-brand-slate peer-checked:text-white peer-checked:border-brand-slate hover:bg-gray-50 transition text-sm font-bold">
                                                     {status}
                                                 </div>
@@ -72,17 +273,72 @@ const SellBook = () => {
                                 </div>
 
                                 <div className="space-y-2">
+                                    <label className="font-bold text-gray-700">وصف الكتاب (اختياري)</label>
+                                    <textarea
+                                        name="description"
+                                        value={formData.description}
+                                        onChange={handleChange}
+                                        placeholder="أضف وصفاً للكتاب..."
+                                        rows={3}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition resize-none"
+                                        disabled={loading}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
                                     <label className="font-bold text-gray-700">صورة الكتاب</label>
-                                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-gray-400 hover:bg-gray-50/50 hover:border-brand-orange/50 transition cursor-pointer group">
-                                        <Upload size={32} className="mb-2 group-hover:text-brand-orange transition-colors" />
-                                        <span className="font-bold text-sm">اسحب الصورة هنا أو اضغط للرفع</span>
-                                        <span className="text-xs mt-1">PNG, JPG حتى 5MB</span>
-                                    </div>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleImageChange}
+                                        accept="image/*"
+                                        className="hidden"
+                                        disabled={loading || uploading}
+                                    />
+                                    {imagePreview ? (
+                                        <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-brand-orange">
+                                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                            {uploading && (
+                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                    <Loader2 className="animate-spin text-white" size={32} />
+                                                </div>
+                                            )}
+                                            {!uploading && (
+                                                <button
+                                                    type="button"
+                                                    onClick={removeImage}
+                                                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-gray-400 hover:bg-gray-50/50 hover:border-brand-orange/50 transition cursor-pointer group"
+                                        >
+                                            <Upload size={32} className="mb-2 group-hover:text-brand-orange transition-colors" />
+                                            <span className="font-bold text-sm">اضغط هنا لرفع صورة الكتاب</span>
+                                            <span className="text-xs mt-1">PNG, JPG حتى 5MB</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="pt-4">
-                                    <button type="submit" className="w-full bg-[#C17554] hover:bg-[#a95234] text-white font-black text-lg py-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all">
-                                        نشر الإعلان الآن
+                                    <button
+                                        type="submit"
+                                        disabled={loading || !user}
+                                        className="w-full bg-[#C17554] hover:bg-[#a95234] text-white font-black text-lg py-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <Loader2 size={24} className="animate-spin" />
+                                                <span>جاري النشر...</span>
+                                            </>
+                                        ) : (
+                                            <span>نشر الإعلان الآن</span>
+                                        )}
                                     </button>
                                 </div>
                             </form>
@@ -92,11 +348,16 @@ const SellBook = () => {
                             <div className="inline-flex p-4 bg-green-100 text-green-600 rounded-full mb-6">
                                 <CheckCircle size={64} />
                             </div>
-                            <h2 className="text-3xl font-black text-brand-slate mb-4">تم استلام طلبك بنجاح!</h2>
-                            <p className="text-gray-600 mb-8 text-lg">سيتم مراجعة إعلانك ونشره خلال 24 ساعة.<br />شكراً لاستخدامك بوك باس.</p>
-                            <button onClick={() => setStep(1)} className="text-brand-orange font-bold hover:underline">
-                                إضافة كتاب آخر
-                            </button>
+                            <h2 className="text-3xl font-black text-brand-slate mb-4">تم نشر كتابك بنجاح!</h2>
+                            <p className="text-gray-600 mb-8 text-lg">يمكنك الآن رؤية كتابك في صفحة المتجر.<br />شكراً لاستخدامك بوك باس.</p>
+                            <div className="flex gap-4 justify-center">
+                                <button onClick={handleAddAnother} className="text-brand-orange font-bold hover:underline">
+                                    إضافة كتاب آخر
+                                </button>
+                                <button onClick={() => navigate('/marketplace')} className="bg-brand-slate text-white font-bold px-6 py-2 rounded-lg hover:bg-brand-slate/90 transition">
+                                    عرض المتجر
+                                </button>
+                            </div>
                         </div>
                     )}
                 </main>

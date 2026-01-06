@@ -4,12 +4,16 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
 import { MOCK_BOOKS_EXTENDED } from '../constants/Books';
-import { Search, Filter, SortAsc, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { getAllBooks, searchBooks } from '../services/bookService';
+import { Search, Filter, SortAsc, SlidersHorizontal, ChevronDown, Loader2 } from 'lucide-react';
 
 const Marketplace = () => {
     const location = useLocation();
     // State for Filter Inputs
     const [searchQuery, setSearchQuery] = useState('');
+    const [books, setBooks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (location.state?.initialQuery) {
@@ -24,9 +28,38 @@ const Marketplace = () => {
     // Pagination (load more)
     const [visibleCount, setVisibleCount] = useState(30);
 
+    // Fetch books from API
+    useEffect(() => {
+        const fetchBooks = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const { data, error: fetchError } = await getAllBooks();
+                console.log('API Response:', data, 'Error:', fetchError);
+                if (fetchError) {
+                    console.warn('API error, using mock data:', fetchError);
+                    setBooks(MOCK_BOOKS_EXTENDED);
+                } else if (data && data.length > 0) {
+                    // Combine API books with mock data (API books first)
+                    setBooks([...data, ...MOCK_BOOKS_EXTENDED]);
+                } else {
+                    // If no books from API, use mock data
+                    setBooks(MOCK_BOOKS_EXTENDED);
+                }
+            } catch (err) {
+                console.warn('Failed to fetch books, using mock data:', err);
+                setBooks(MOCK_BOOKS_EXTENDED);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBooks();
+    }, []);
+
     // Filter Logic
     const filteredBooks = useMemo(() => {
-        let result = [...MOCK_BOOKS_EXTENDED];
+        let result = [...books];
 
         // 1. Text Search
         if (searchQuery) {
@@ -57,12 +90,12 @@ const Marketplace = () => {
         });
 
         return result;
-    }, [searchQuery, searchType, selectedUniversity, sortBy]);
+    }, [books, searchQuery, searchType, selectedUniversity, sortBy]);
 
     const displayedBooks = filteredBooks.slice(0, visibleCount);
 
     // Unique Universities for Dropdown
-    const universities = [...new Set(MOCK_BOOKS_EXTENDED.map(b => b.university))];
+    const universities = [...new Set(books.map(b => b.university).filter(Boolean))];
 
     return (
         <div className="min-h-screen flex flex-col bg-[#f5f5f5] font-sans rtl">

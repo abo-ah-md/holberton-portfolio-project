@@ -1,16 +1,12 @@
 /**
  * Authentication Service
  * Handles all HTTP requests for login, registration, and user management
- * 
- * REQUIRED: Replace API_BASE_URL with your backend endpoint
- * Example: http://localhost:8080 or https://api.yourdomain.com
  */
 
-// TODO: PROVIDE YOUR BACKEND API ENDPOINT HERE
-const API_BASE_URL = 'http://localhost:8080'; // e.g., http://localhost:8080
+const API_BASE_URL = 'http://localhost:8080';
 
 // Get token from localStorage
-const getToken = () => {
+export const getToken = () => {
   return localStorage.getItem('accessToken');
 };
 
@@ -44,30 +40,47 @@ const removeStoredUser = () => {
  * Register a new user
  * POST /api/auth/register
  */
-/**
- * Register a new user
- * POST /api/auth/register
- */
 export const registerUser = async (email, password, firstName, lastName, phoneNumber = '') => {
-  console.log("Mock Registering:", { email, password, firstName, lastName });
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        firstName,
+        lastName,
+        phoneNumber,
+        role: 'CUSTOMER'
+      }),
+    });
 
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
+    const data = await response.json();
 
-  // Mock successful response
-  const mockUser = {
-    id: Math.floor(Math.random() * 1000),
-    email,
-    firstName,
-    lastName,
-    role: 'user',
-    token: 'mock-jwt-token-' + Date.now()
-  };
+    if (!response.ok) {
+      return { data: null, error: data.message || 'Registration failed' };
+    }
 
-  setToken(mockUser.token);
-  setStoredUser(mockUser);
+    // Store token and user data
+    const user = {
+      id: data.email,
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: data.role,
+      token: data.token
+    };
 
-  return { data: mockUser, error: null };
+    setToken(data.token);
+    setStoredUser(user);
+
+    return { data: user, error: null };
+  } catch (error) {
+    console.error('Registration error:', error);
+    return { data: null, error: error.message || 'Network error' };
+  }
 };
 
 /**
@@ -75,28 +88,42 @@ export const registerUser = async (email, password, firstName, lastName, phoneNu
  * POST /api/auth/login
  */
 export const loginUser = async (email, password) => {
-  console.log("Mock Logging in:", email);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password
+      }),
+    });
 
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
+    const data = await response.json();
 
-  if (password === 'wrong-password') {
-    return { data: null, error: 'Invalid credentials' };
+    if (!response.ok) {
+      return { data: null, error: data.message || 'Invalid credentials' };
+    }
+
+    // Store token and user data
+    const user = {
+      id: data.email,
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: data.role,
+      token: data.token
+    };
+
+    setToken(data.token);
+    setStoredUser(user);
+
+    return { data: user, error: null };
+  } catch (error) {
+    console.error('Login error:', error);
+    return { data: null, error: error.message || 'Network error' };
   }
-
-  const mockUser = {
-    id: 1,
-    email,
-    firstName: 'Test',
-    lastName: 'User',
-    role: 'user',
-    token: 'mock-jwt-token-' + Date.now()
-  };
-
-  setToken(mockUser.token);
-  setStoredUser(mockUser);
-
-  return { data: mockUser, error: null };
 };
 
 /**
@@ -105,7 +132,6 @@ export const loginUser = async (email, password) => {
  */
 export const logoutUser = async () => {
   try {
-
     removeToken();
     removeStoredUser();
     return { error: null };
@@ -116,45 +142,80 @@ export const logoutUser = async () => {
 
 /**
  * Get current user profile
- * GET /api/users/me
- */
-/**
- * Get current user profile
- * GET /api/users/me
+ * GET /api/user/profile
  */
 export const getCurrentUser = async () => {
-  // Mock implementation: Return stored user
   try {
     const token = getToken();
     if (!token) {
+      return { data: null, error: null };
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      // If token is invalid, clear storage
+      if (response.status === 401) {
+        removeToken();
+        removeStoredUser();
+      }
       return { data: getStoredUser(), error: null };
     }
 
-    // Return stored user directly without API call
-    const storedUser = getStoredUser();
-    return { data: storedUser, error: null };
+    const data = await response.json();
+    const user = {
+      id: data.email,
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: data.role,
+      phoneNumber: data.phoneNumber
+    };
+
+    setStoredUser(user);
+    return { data: user, error: null };
   } catch (error) {
-    return { data: null, error: error.message };
+    // Return stored user on network error
+    return { data: getStoredUser(), error: null };
   }
 };
 
 /**
  * Update user profile
- * PUT /api/users/me
+ * PUT /api/user/profile
  */
 export const updateUserProfile = async (updates) => {
   try {
-    console.log("Mock Updating Profile:", updates);
-
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const currentUser = getStoredUser();
-    if (!currentUser) {
+    const token = getToken();
+    if (!token) {
       throw new Error("No user logged in");
     }
 
-    const updatedUser = { ...currentUser, ...updates };
+    const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      return { data: null, error: data.message || 'Update failed' };
+    }
+
+    const data = await response.json();
+    const updatedUser = {
+      ...getStoredUser(),
+      ...data
+    };
     setStoredUser(updatedUser);
 
     return { data: updatedUser, error: null };
