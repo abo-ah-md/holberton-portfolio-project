@@ -1,0 +1,451 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User, Lock, Mail, CreditCard, ChevronLeft, Camera, Phone, Edit2, Save, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { updateUserProfile } from '../services/authService';
+import { uploadFile } from '../services/fileService'; // Import the new service
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+
+// Use same mock for bought/sold for now
+const MOCK_BOOKS = [
+    {
+        id: 1,
+        title: 'Academic Skills',
+        subtitle: 'Reading, Writing, and Study Skills',
+        isbn: '9780194742160',
+        author: 'Faisal_alharthy22',
+        image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop"
+    },
+    {
+        id: 2,
+        title: 'Web Development',
+        subtitle: 'Full Stack Guide',
+        isbn: '9780132350884',
+        author: 'Sara_Smith',
+        image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=crop"
+    },
+    {
+        id: 3,
+        title: 'Calculus Early',
+        subtitle: 'Transcendentals 8th Edition',
+        isbn: '9781285741550',
+        author: 'James_Stewart',
+        image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b91d?q=80&w=800&auto=format&fit=crop"
+    },
+    {
+        id: 4,
+        title: 'Physics',
+        subtitle: 'For Scientists and Engineers',
+        isbn: '9781133947271',
+        author: 'Serway_Jewett',
+        image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=800&auto=format&fit=crop"
+    },
+    {
+        id: 5,
+        title: 'Organic Chem',
+        subtitle: 'Structure and Function',
+        isbn: '9781464120275',
+        author: 'Vollhardt',
+        image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=800&auto=format&fit=crop"
+    },
+];
+
+const OrderBookCard = ({ book }) => (
+    <div className="flex bg-white rounded-xl overflow-hidden shadow-lg h-[140px] w-[280px] shrink-0 transform transition-transform hover:scale-105 border border-gray-100">
+        {/* Image - Left (in RTL) / Right (in structure) -> Visually Right in RTL */}
+        <div className="w-[100px] bg-gray-200 shrink-0">
+            {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
+        </div>
+
+        <div className="flex-1 p-3 flex flex-col justify-between">
+            <div>
+                <div className="flex justify-between items-start mb-1">
+                    <span className="text-[10px] text-gray-500 font-bold">Headway</span>
+                    <div className="bg-[#1e40af] text-white text-[9px] font-bold px-1.5 py-0.5 rounded leading-tight">
+                        {book.title}
+                    </div>
+                </div>
+                <h4 className="text-[11px] text-gray-600 font-bold leading-tight mb-2 truncate dir-ltr text-right">
+                    {book.subtitle}
+                </h4>
+            </div>
+
+            <div className="flex flex-col gap-1 text-[10px] text-gray-500 border-t border-gray-100 pt-2">
+                <div className="flex justify-between">
+                    <span className="font-bold">ISBN:</span>
+                    <span className="font-mono text-[9px]">{book.isbn.slice(-4)}..</span>
+                </div>
+                <div className="flex justify-between">
+                    <span className="font-bold">السعر:</span>
+                    <span className="text-brand-orange font-bold">25 ر.س</span>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+const Profile = () => {
+    const { user, signOut } = useAuth();
+    const navigate = useNavigate();
+    const fileInputRef = useRef(null);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false); // Separated loading state for image
+    const [editData, setEditData] = useState({
+        firstName: '',
+        lastName: '',
+        phoneNumber: '',
+        profilePicture: ''
+    });
+
+    useEffect(() => {
+        if (user) {
+            setEditData({
+                firstName: user.firstName || '',
+                lastName: user.lastName || '',
+                phoneNumber: user.phoneNumber || '',
+                profilePicture: user.profilePicture || ''
+            });
+        }
+    }, [user]);
+
+    const handleLogout = async () => {
+        await signOut();
+        navigate('/logout');
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setEditData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleFileClick = () => {
+        if (isEditing && fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsUploadingImage(true); // Use specific loading state
+
+        // Show local preview immediately
+        const objectUrl = URL.createObjectURL(file);
+        setEditData(prev => ({
+            ...prev,
+            profilePicture: objectUrl
+        }));
+
+        const { url, error } = await uploadFile(file);
+        setIsUploadingImage(false);
+
+        if (error) {
+            alert('فشل رفع الصورة: ' + error);
+            // Revert to old picture if upload fails
+            setEditData(prev => ({
+                ...prev,
+                profilePicture: user?.profilePicture || ''
+            }));
+        } else {
+            setEditData(prev => ({
+                ...prev,
+                profilePicture: url
+            }));
+        }
+    };
+
+    const handleSave = async () => {
+        setIsLoading(true);
+        const { data, error } = await updateUserProfile(editData);
+        setIsLoading(false);
+
+        if (error) {
+            alert('فشل تحديث الملف الشخصي: ' + error);
+        } else {
+            setIsEditing(false);
+            // user context should be updated automatically via authService
+        }
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        // Reset data to original
+        if (user) {
+            setEditData({
+                firstName: user.firstName || '',
+                lastName: user.lastName || '',
+                phoneNumber: user.phoneNumber || '',
+                profilePicture: user.profilePicture || ''
+            });
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex flex-col font-sans bg-[#3A4958]" dir="rtl">
+            <Navbar />
+
+            {/* --- HEADER --- */}
+            {/* Visual Right (Start) Alignment */}
+            <div className="relative bg-[#2c3e50] h-[220px] flex items-center justify-start px-10 md:px-20 mb-8 overflow-hidden shadow-xl z-20">
+                <div className="flex flex-col items-center relative z-30 translate-y-8 mr-10">
+
+                    {/* Hidden File Input */}
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        className="hidden"
+                        accept="image/*"
+                    />
+
+                    {/* Avatar Circle */}
+                    <div
+                        onClick={handleFileClick}
+                        className={`w-32 h-32 rounded-full border-[6px] border-[#C17554] bg-[#222] overflow-hidden shadow-2xl z-20 flex items-center justify-center relative group ${isEditing ? 'cursor-pointer hover:border-white transition-colors' : ''}`}
+                    >
+                        {editData.profilePicture || user?.photoURL ? (
+                            <img src={editData.profilePicture || user?.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                            <User size={64} className="text-gray-400" />
+                        )}
+
+                        {/* Edit Overlay */}
+                        {isEditing && (
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Camera className="text-white" size={32} />
+                            </div>
+                        )}
+
+                        {/* Upload Loader - Shows while image is uploading */}
+                        {isUploadingImage && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
+                                <div className="w-8 h-8 border-2 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Ribbon */}
+                    <div className="relative -mt-6 z-10 w-[240px]">
+                        <div className="bg-[#C17554] text-white text-center font-bold text-2xl py-2 px-4 shadow-lg relative"
+                            style={{
+                                // Pointing Right
+                                clipPath: 'polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%)'
+                            }}>
+                            الملف الشخصي
+                        </div>
+                    </div>
+                </div>
+                {/* Visual decoration */}
+                <div className="absolute left-[-100px] top-0 bottom-0 w-[400px] bg-white/5 skew-x-[-20deg]"></div>
+            </div>
+
+            <main className="flex-1 max-w-[1600px] mx-auto w-full px-6 md:px-12 pb-20 flex flex-col gap-12 -mt-10 relative z-30">
+
+                {/* --- SECTION 1: Personal Data --- */}
+                <div>
+                    <h2 className="text-3xl font-bold text-white mb-4 border-b border-gray-500/50 pb-2 text-right">
+                        البيانات الشخصية
+                    </h2>
+
+                    {/* Data Card */}
+                    <div className="relative overflow-hidden rounded-[20px] p-[12px] border-[4px] border-white/10 shadow-2xl min-h-[340px]"
+                        style={{
+                            background: 'linear-gradient(105deg, #cc8c74 42%, #354250 42.1%)'
+                        }}
+                    >
+                        {/* Edit/Save Buttons */}
+                        <div className="absolute top-0 left-0 p-0 z-20 flex">
+                            {!isEditing ? (
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    className="bg-[#a66a53] text-white px-8 py-2 rounded-br-2xl shadow-lg text-lg font-bold hover:bg-[#8f5a44] transition-colors flex items-center gap-2"
+                                >
+                                    <Edit2 size={18} />
+                                    <span>تعديل</span>
+                                </button>
+                            ) : (
+                                <div className="flex">
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={isLoading}
+                                        className="bg-green-600 text-white px-6 py-2 shadow-lg text-lg font-bold hover:bg-green-700 transition-colors flex items-center gap-2"
+                                    >
+                                        <Save size={18} />
+                                        <span>حفظ</span>
+                                    </button>
+                                    <button
+                                        onClick={handleCancel}
+                                        disabled={isLoading}
+                                        className="bg-red-600 text-white px-6 py-2 rounded-br-2xl shadow-lg text-lg font-bold hover:bg-red-700 transition-colors flex items-center gap-2"
+                                    >
+                                        <X size={18} />
+                                        <span>إلغاء</span>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Flex Container for Rows - Ensures perfect horizontal alignment */}
+                        {/* padding px-12 py-16 to give breathing room */}
+                        <div className="flex flex-col justify-center h-full text-white px-8 md:px-16 py-16 gap-8 relative min-h-[340px]">
+
+                            {/* Row 1: Full Name */}
+                            <div className="flex justify-between items-center w-full">
+                                {/* Value (Left / End) */}
+                                <div className="text-xl font-medium text-white z-10 drop-shadow-md text-left flex-1 pl-4">
+                                    {isEditing ? (
+                                        <div className="flex gap-2 justify-end">
+                                            <input
+                                                type="text"
+                                                name="lastName"
+                                                value={editData.lastName}
+                                                onChange={handleInputChange}
+                                                placeholder="الاسم الأخير"
+                                                className="bg-white/10 border border-white/30 rounded px-2 py-1 text-white text-right w-32 focus:outline-none focus:border-white"
+                                            />
+                                            <input
+                                                type="text"
+                                                name="firstName"
+                                                value={editData.firstName}
+                                                onChange={handleInputChange}
+                                                placeholder="الاسم الأول"
+                                                className="bg-white/10 border border-white/30 rounded px-2 py-1 text-white text-right w-32 focus:outline-none focus:border-white"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <span>اسم المستخدم</span>
+                                    )}
+                                </div>
+                                {/* Label (Right / Start) */}
+                                <div className="text-gray-300 font-bold text-lg text-right w-40">
+                                    <span dir="rtl">{isEditing ? 'الاسم الكامل' : (user?.firstName ? `${user.firstName} ${user.lastName}` : (user?.email?.split('@')[0] || 'User'))}</span>
+                                </div>
+                            </div>
+
+                            {/* Row 2: Phone Number (New) */}
+                            <div className="flex justify-between items-center w-full">
+                                <div className="text-xl font-medium text-white z-10 drop-shadow-md text-left flex-1 pl-4">
+                                    {isEditing ? (
+                                        <input
+                                            type="tel"
+                                            name="phoneNumber"
+                                            value={editData.phoneNumber}
+                                            onChange={handleInputChange}
+                                            placeholder="05xxxxxxxx"
+                                            className="bg-white/10 border border-white/30 rounded px-2 py-1 text-white text-right w-full max-w-[200px] focus:outline-none focus:border-white dir-ltr"
+                                        />
+                                    ) : (
+                                        <span>رقم الهاتف</span>
+                                    )}
+                                </div>
+                                <div className="text-gray-300 font-bold text-lg text-right w-40">
+                                    <span dir="ltr">{!isEditing ? (user?.phoneNumber || 'غير مدخل') : 'رقم الجوال'}</span>
+                                </div>
+                            </div>
+
+                            {/* Row 3: Email */}
+                            <div className="flex justify-between items-center w-full">
+                                <div className="text-lg font-medium text-white z-10 drop-shadow-md opacity-90 text-left flex-1 pl-4">
+                                    <span>البريد الإلكتروني</span>
+                                </div>
+                                <div className="text-gray-300 font-bold text-lg text-right w-40">
+                                    <span dir="ltr">{user?.email || 'email@example.com'}</span>
+                                </div>
+                            </div>
+
+                            {/* Row 4: IBAN */}
+                            <div className="flex justify-between items-center w-full">
+                                <div className="text-lg font-mono font-medium text-white z-10 drop-shadow-md text-left flex-1 pl-4">
+                                    <span>الحساب البنكي IBAN</span>
+                                </div>
+                                <div className="text-gray-300 font-bold text-lg text-right w-40">
+                                    <span dir="rtl">{user?.uid ? `SA${user.uid.slice(0, 10).toUpperCase()}` : 'SA...'}</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* Save Button (Bottom) removed in favor of top logic */}
+                    </div>
+                </div>
+
+
+                {/* --- SECTION 2: Orders --- */}
+                <div>
+                    <h2 className="text-3xl font-bold text-white mb-8 border-b border-gray-500/50 pb-4 text-right">
+                        الطلبات
+                    </h2>
+
+                    {/* Bought Books */}
+                    <div className="mb-12">
+                        <h3 className="text-gray-300 text-right font-bold text-lg mb-4 pr-2">
+                            آخر كتبك المشتراة
+                        </h3>
+                        <div className="relative overflow-hidden shadow-xl p-10"
+                            style={{
+                                background: 'linear-gradient(105deg, #cc8c74 35%, #354250 35.1%)',
+                                borderTopLeftRadius: '100px',
+                                borderBottomLeftRadius: '100px',
+                                borderTopRightRadius: '24px',
+                                borderBottomRightRadius: '24px',
+                                border: '3px solid rgba(255,255,255,0.1)'
+                            }}
+                        >
+                            <div className="flex flex-row flex-wrap gap-[3px] justify-center md:justify-start">
+                                {MOCK_BOOKS.slice(0, 4).map(book => (
+                                    <OrderBookCard key={book.id} book={book} />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sold Books */}
+                    <div>
+                        <h3 className="text-gray-300 text-right font-bold text-lg mb-4 pr-2">
+                            آخر كتبك المباعة
+                        </h3>
+                        <div className="relative overflow-hidden shadow-xl p-10"
+                            style={{
+                                background: 'linear-gradient(105deg, #cc8c74 35%, #354250 35.1%)',
+                                borderTopLeftRadius: '100px',
+                                borderBottomLeftRadius: '100px',
+                                borderTopRightRadius: '24px',
+                                borderBottomRightRadius: '24px',
+                                border: '3px solid rgba(255,255,255,0.1)'
+                            }}
+                        >
+                            <div className="flex flex-row flex-wrap gap-[3px] justify-center md:justify-start">
+                                {MOCK_BOOKS.slice(0, 4).map(book => (
+                                    <OrderBookCard key={`sold-${book.id}`} book={book} />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div className="flex justify-center mt-8">
+                    <button
+                        onClick={handleLogout}
+                        className="text-white hover:text-red-200 font-bold px-10 py-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 transition-colors"
+                    >
+                        تسجيل الخروج
+                    </button>
+                </div>
+
+            </main>
+            <footer >
+                <Footer className="footer-top-orange-line" />
+            </footer>
+        </div>
+    );
+};
+
+export default Profile;
