@@ -40,7 +40,7 @@ const removeStoredUser = () => {
  * Register a new user
  * POST /api/auth/register
  */
-export const registerUser = async (email, password, firstName, lastName, phoneNumber = '') => {
+export const registerUser = async (email, password, firstName, lastName, phoneNumber = '', profilePicture = '') => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
@@ -53,6 +53,7 @@ export const registerUser = async (email, password, firstName, lastName, phoneNu
         firstName,
         lastName,
         phoneNumber,
+        profilePicture,
         role: 'CUSTOMER'
       }),
     });
@@ -70,7 +71,8 @@ export const registerUser = async (email, password, firstName, lastName, phoneNu
       firstName: data.firstName,
       lastName: data.lastName,
       role: data.role,
-      token: data.token
+      token: data.token,
+      profilePicture: data.profilePicture
     };
 
     setToken(data.token);
@@ -113,7 +115,8 @@ export const loginUser = async (email, password) => {
       firstName: data.firstName,
       lastName: data.lastName,
       role: data.role,
-      token: data.token
+      token: data.token,
+      profilePicture: data.profilePicture
     };
 
     setToken(data.token);
@@ -175,7 +178,8 @@ export const getCurrentUser = async () => {
       firstName: data.firstName,
       lastName: data.lastName,
       role: data.role,
-      phoneNumber: data.phoneNumber
+      phoneNumber: data.phoneNumber,
+      profilePicture: data.profilePicture
     };
 
     setStoredUser(user);

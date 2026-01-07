@@ -196,6 +196,174 @@ export const getMyBooks = async () => {
 };
 
 /**
+ * Get store pending books (Reviewer)
+ * GET /api/books/store/pending
+ */
+export const getStorePendingBooks = async () => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/books/store/pending`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch pending books');
+    }
+
+    const data = await response.json();
+    return { data: transformBooks(data), error: null };
+  } catch (error) {
+    console.error('Error fetching pending books:', error);
+    return { data: [], error: error.message };
+  }
+};
+
+/**
+ * Get store sold books (Reviewer)
+ * GET /api/books/store/sold
+ */
+export const getStoreSoldBooks = async () => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/books/store/sold`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch sold books');
+    }
+
+    const data = await response.json();
+    return { data: transformBooks(data), error: null };
+  } catch (error) {
+    console.error('Error fetching sold books:', error);
+    return { data: [], error: error.message };
+  }
+};
+
+/**
+ * Review/Approve a book
+ * PUT /api/books/review/{bookId}
+ */
+export const reviewBook = async (bookId, condition, reviewNotes = '') => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    // Default to 'good' if condition is missing, though frontend should provide it
+    const finalCondition = condition || 'good';
+
+    const response = await fetch(`${API_BASE_URL}/api/books/${bookId}/review`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        status: 'AVAILABLE',
+        condition: finalCondition,
+        reviewNotes: reviewNotes
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to review book');
+    }
+
+    const data = await response.json();
+    return { data: transformBook(data), error: null };
+
+  } catch (error) {
+    console.error('Error reviewing book:', error);
+    return { data: null, error: error.message };
+  }
+};
+
+/**
+ * Mark book as PICKED (Handed over to buyer)
+ * PUT /api/books/{id}/picked
+ */
+export const markBookAsPicked = async (bookId) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/books/${bookId}/picked`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to mark book as picked');
+    }
+
+    const data = await response.json();
+    return { data: transformBook(data), error: null };
+  } catch (error) {
+    console.error('Error marking book as picked:', error);
+    return { data: null, error: error.message };
+  }
+};
+
+/**
+ * Purchase a book (Verify payment on backend)
+ * PUT /api/books/{id}/purchase
+ */
+export const purchaseBook = async (bookId, paymentId) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/books/${bookId}/purchase`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ paymentId })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to complete purchase');
+    }
+
+    const data = await response.json();
+    return { data: transformBook(data), error: null };
+  } catch (error) {
+    console.error('Error purchasing book:', error);
+    return { data: null, error: error.message };
+  }
+};
+
+/**
  * Transform backend book data to frontend format
  */
 const transformBook = (book) => {
@@ -207,12 +375,16 @@ const transformBook = (book) => {
     author: book.author,
     isbn: book.isbn,
     university: book.university || 'غير محدد',
-    status: book.bookCondition || book.status,
+    status: book.bookCondition || book.status, // Display Status (Excellent/Good)
+    listingStatus: book.status, // Workflow Status (AVAILABLE/PENDING/SOLD)
     image: book.bookImages ? parseBookImage(book.bookImages) : null,
     isSold: book.sold || book.status === 'SOLD',
     sellerId: book.sellerId,
     sellerName: book.sellerName,
     sellerPhone: book.sellerPhone,
+    buyerId: book.buyerId,
+    buyerName: book.buyerName,
+    buyerPhone: book.buyerPhone,
     createdAt: book.createdAt,
   };
 };

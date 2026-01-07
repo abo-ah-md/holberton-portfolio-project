@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Upload, CheckCircle, BookOpen, AlertCircle, Loader2, X } from 'lucide-react';
 import { addBook, uploadImage } from '../services/bookService';
+import { UNIVERSITIES } from '../constants/universities';
 import { useAuth } from '../context/AuthContext';
 
 const SellBook = () => {
@@ -20,7 +21,6 @@ const SellBook = () => {
         author: '',
         university: '',
         price: '',
-        condition: '',
         description: '',
         isbn: ''
     });
@@ -34,10 +34,7 @@ const SellBook = () => {
         setError('');
     };
 
-    const handleConditionChange = (condition) => {
-        setFormData(prev => ({ ...prev, condition }));
-        setError('');
-    };
+
 
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
@@ -100,20 +97,12 @@ const SellBook = () => {
             return;
         }
 
-        if (!formData.condition) {
-            setError('يرجى اختيار حالة الكتاب');
-            return;
-        }
-
-        setLoading(true);
-
         try {
             const bookData = {
                 title: formData.title,
                 author: formData.author,
                 university: formData.university || 'غير محدد',
                 price: parseFloat(formData.price),
-                condition: formData.condition,
                 description: formData.description,
                 isbn: formData.isbn,
                 bookImages: imageUrl || null
@@ -143,7 +132,6 @@ const SellBook = () => {
             author: '',
             university: '',
             price: '',
-            condition: '',
             description: '',
             isbn: ''
         });
@@ -224,14 +212,9 @@ const SellBook = () => {
                                             disabled={loading}
                                         >
                                             <option value="">اختر الجامعة</option>
-                                            <option value="جامعة الملك سعود">جامعة الملك سعود</option>
-                                            <option value="جامعة الملك فهد للبترول والمعادن">جامعة الملك فهد للبترول والمعادن</option>
-                                            <option value="جامعة الأميرة نورة">جامعة الأميرة نورة</option>
-                                            <option value="جامعة القصيم">جامعة القصيم</option>
-                                            <option value="جامعة الملك فهد">جامعة الملك فهد</option>
-                                            <option value="جامعة الملك خالد">جامعة الملك خالد</option>
-                                            <option value="جامعة جدة">جامعة جدة</option>
-                                            <option value="جامعة الملك فيصل">جامعة الملك فيصل</option>
+                                            {Object.entries(UNIVERSITIES).map(([key, { nameAr }]) => (
+                                                <option key={key} value={key}>{nameAr}</option>
+                                            ))}
                                         </select>
                                     </div>
                                     <div className="space-y-2">
@@ -250,27 +233,7 @@ const SellBook = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="font-bold text-gray-700">حالة الكتاب *</label>
-                                    <div className="flex gap-4 flex-wrap">
-                                        {['جديد', 'ممتاز', 'جيد جداً', 'جيد', 'مقبول'].map((status) => (
-                                            <label key={status} className="flex-1 min-w-[80px] cursor-pointer">
-                                                <input
-                                                    type="radio"
-                                                    name="condition"
-                                                    value={status}
-                                                    checked={formData.condition === status}
-                                                    onChange={() => handleConditionChange(status)}
-                                                    className="peer sr-only"
-                                                    disabled={loading}
-                                                />
-                                                <div className="text-center py-2 rounded-lg border border-gray-200 peer-checked:bg-brand-slate peer-checked:text-white peer-checked:border-brand-slate hover:bg-gray-50 transition text-sm font-bold">
-                                                    {status}
-                                                </div>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
+
 
                                 <div className="space-y-2">
                                     <label className="font-bold text-gray-700">وصف الكتاب (اختياري)</label>
@@ -348,8 +311,11 @@ const SellBook = () => {
                             <div className="inline-flex p-4 bg-green-100 text-green-600 rounded-full mb-6">
                                 <CheckCircle size={64} />
                             </div>
-                            <h2 className="text-3xl font-black text-brand-slate mb-4">تم نشر كتابك بنجاح!</h2>
-                            <p className="text-gray-600 mb-8 text-lg">يمكنك الآن رؤية كتابك في صفحة المتجر.<br />شكراً لاستخدامك بوك باس.</p>
+                            <h2 className="text-3xl font-black text-brand-slate mb-4">تم قبول طلبك!</h2>
+                            <p className="text-gray-600 mb-8 text-lg">
+                                يرجى تسليم الكتاب إلى مكتبة <strong>"{UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}"</strong> لتتم مراجعته وعرضه للبيع.
+                                <br />شكراً لاستخدامك بوك باس.
+                            </p>
                             <div className="flex gap-4 justify-center">
                                 <button onClick={handleAddAnother} className="text-brand-orange font-bold hover:underline">
                                     إضافة كتاب آخر

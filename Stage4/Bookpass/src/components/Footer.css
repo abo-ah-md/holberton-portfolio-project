@@ -2,7 +2,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
 
 .footer {
-  background-color: #3d4f5c;
+  border-top: 20px solid #C17554;
+
+  background-color: #3A4958;
   color: #ffffff;
   font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   direction: rtl;
@@ -21,6 +23,7 @@
 
 /* Section base styles */
 .footer-section {
+
   flex: 1;
   min-width: 180px;
 }

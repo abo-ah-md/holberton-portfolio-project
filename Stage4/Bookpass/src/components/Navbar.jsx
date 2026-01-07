@@ -158,9 +158,13 @@ const Navbar = () => {
                     </div>
 
                     {/* User Profile Icon */}
-                    <div onClick={() => navigate('/login')} className="navbar-desktop-user items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
-                        <div className="w-10 h-10 md:w-11 md:h-11 border-2 border-white rounded-full flex items-center justify-center bg-white/10 backdrop-blur-sm shadow-lg" style={{ margin: '6px' }}>
-                            <User size={22} className="text-white" strokeWidth={2.5} />
+                    <div onClick={() => navigate(user ? '/profile' : '/login')} className="navbar-desktop-user items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+                        <div className="w-10 h-10 md:w-11 md:h-11 border-2 border-white rounded-full flex items-center justify-center bg-white/10 backdrop-blur-sm shadow-lg overflow-hidden" style={{ margin: '6px' }}>
+                            {user?.profilePicture ? (
+                                <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <User size={22} className="text-white" strokeWidth={2.5} />
+                            )}
                         </div>
                     </div>
 
@@ -204,9 +208,13 @@ const Navbar = () => {
                         </button>
 
                         {/* User Profile */}
-                        <div onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-center gap-3 p-4 bg-white/5 rounded-xl mt-2 cursor-pointer border border-white/10">
-                            <div className="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center bg-white/10">
-                                <User size={20} strokeWidth={2.5} />
+                        <div onClick={() => { navigate(user ? '/profile' : '/login'); setIsMobileMenuOpen(false); }} className="w-full flex items-center justify-center gap-3 p-4 bg-white/5 rounded-xl mt-2 cursor-pointer border border-white/10">
+                            <div className="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center bg-white/10 overflow-hidden">
+                                {user?.profilePicture ? (
+                                    <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    <User size={20} strokeWidth={2.5} />
+                                )}
                             </div>
                             <span className="font-bold text-xl">ملفي الشخصي</span>
                         </div>

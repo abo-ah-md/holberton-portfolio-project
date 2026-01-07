@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
+import { uploadFile } from '../services/fileService';
+import { updateUserProfile } from '../services/authService'; // Import update function
+import { Camera } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -9,13 +12,19 @@ const Register = () => {
     email: '',
     password: '',
     iban: '',
+    phoneNumber: '',
+    // profilePicture starts empty; we'll manage the file separately
+    profilePicture: '',
     agreeTerms: false,
   });
+  const [selectedFile, setSelectedFile] = useState(null); // Store file object
+  const [previewUrl, setPreviewUrl] = useState(''); // Local preview URL
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const { signUp } = useAuth();
+  const { signUp, updateUserState } = useAuth();
   const navigate = useNavigate();
 
   const validatePassword = (password) => {
@@ -35,13 +44,25 @@ const Register = () => {
     setError('');
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Create local preview and store file
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    setSelectedFile(file);
+    setError('');
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
     if (!formData.fullName || !formData.email || !formData.password) {
-      setError('جميع الحقول مطلوبة');
+      setError('جميع الحقول المطلوبة يجب تعبئتها');
       return;
     }
 
@@ -58,23 +79,44 @@ const Register = () => {
 
     setLoading(true);
 
-    const { data, error: signUpError } = await signUp(
+    // 1. Register User first (to get Token)
+    // We send empty profilePicture initially
+    const { data: userData, error: signUpError } = await signUp(
       formData.email,
       formData.password,
-      formData.fullName
+      formData.fullName,
+      formData.phoneNumber,
+      ''
     );
 
-    setLoading(false);
-
     if (signUpError) {
+      setLoading(false);
       setError(signUpError || 'فشل التسجيل');
       return;
     }
 
+    // 2. If registration success AND file selected -> Upload & Update
+    if (userData && selectedFile) {
+      // Now we have a token in localStorage (handled by authService/AuthContext)
+      const { url: imageUrl, error: uploadError } = await uploadFile(selectedFile);
+
+      if (!uploadError && imageUrl) {
+        // 3. Update Profile with the new image URL
+        await updateUserProfile({ profilePicture: imageUrl });
+        // IMPORTANT: Update local Auth Context so Navbar reflects change immediately
+        updateUserState({ profilePicture: imageUrl });
+      } else {
+        // Optional: Notify user that image upload failed but account is created
+        console.error('Image upload failed during registration:', uploadError);
+      }
+    }
+
+    setLoading(false);
     setSuccess('تم التسجيل بنجاح! تم تسجيل دخولك تلقائياً');
+
     setTimeout(() => {
       window.location.href = '/';
-    }, 2000);
+    }, 1500);
   };
 
   return (
@@ -93,8 +135,35 @@ const Register = () => {
           {success && <div className="alert alert-success">{success}</div>}
 
           <form onSubmit={handleSubmit}>
+
+            {/* Profile Picture Upload - Optional */}
+            <div className="flex flex-col items-center mb-6">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+                accept="image/*"
+              />
+              <div
+                onClick={() => fileInputRef.current.click()}
+                className="w-24 h-24 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-brand-orange hover:bg-orange-50 transition-colors overflow-hidden relative group"
+              >
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center text-gray-400 group-hover:text-brand-orange">
+                    <Camera size={24} />
+                    <span className="text-[10px] mt-1 text-center">صورة شخصية <br />(إختياري)</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="form-group">
-              <label htmlFor="fullName">اسم المستخدم</label>
+              <label htmlFor="fullName">
+                اسم المستخدم <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 id="fullName"
@@ -107,7 +176,9 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="email">البريد الإلكتروني</label>
+              <label htmlFor="email">
+                البريد الإلكتروني <span className="text-red-500">*</span>
+              </label>
               <input
                 type="email"
                 id="email"
@@ -120,7 +191,9 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="password">كلمة المرور</label>
+              <label htmlFor="password">
+                كلمة المرور <span className="text-red-500">*</span>
+              </label>
               <input
                 type="password"
                 id="password"
@@ -132,7 +205,18 @@ const Register = () => {
               />
             </div>
 
-
+            <div className="form-group">
+              <label htmlFor="phoneNumber">رقم الجوال (إختياري)</label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                placeholder="05xxxxxxxx"
+                disabled={loading}
+              />
+            </div>
 
             <div className="form-group">
               <label htmlFor="iban">رقم حساب البنكي للبائع IBAN (إختياري)</label>
@@ -155,7 +239,7 @@ const Register = () => {
                   checked={formData.agreeTerms}
                   onChange={handleChange}
                 />
-                <span>أقبل سياسة الخصوصية والشروط</span>
+                <span>أقبل سياسة الخصوصية والشروط <span className="text-red-500">*</span></span>
               </label>
             </div>
 
