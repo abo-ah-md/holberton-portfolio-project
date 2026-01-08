@@ -5,18 +5,47 @@
 
 ## MUST HAVE (Core MVP Features)
 
+---
+
+### Landing Page & Navigation
+
+**US-001: View Landing Page**
+- As a visitor, I want to see a professional landing page with About Us, Why Us sections, and access to the marketplace, so that I can understand the platform and start browsing.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Hero section with clear value proposition
+  - "About Us" section explaining the platform mission
+  - "Why Us" section highlighting key benefits (trusted sellers, verified books, secure payments)
+  - Call-to-action buttons to browse marketplace
+  - Responsive design for mobile and desktop
+  - RTL support for Arabic language
+
+**US-002: Access Marketplace**
+- As a visitor, I want to access the marketplace page from the landing page, so that I can browse and purchase used textbooks.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Clear navigation link to marketplace
+  - Marketplace displays all available books
+  - Grid/list view of book cards
+  - Search and filter functionality accessible
+  - Price and condition visible on each listing
+
+---
+
 ### Authentication & User Management
 
-**US-001: User Registration**
+**US-003: User Registration**
 - As a new student, I want to create an account using my email and password, so that I can access the marketplace and buy/sell textbooks.
 - Priority: MUST HAVE
 - Acceptance Criteria:
-  - User can register with email, password, and name
-  - Email verification is required
-  - Password strength validation
+  - Registration form with email, password, name, and phone number
+  - Email validation format check
+  - Password strength validation (minimum 8 characters, mixed case, numbers)
   - Success confirmation message displayed
+  - Redirect to login page after successful registration
+  - Form validation error messages in Arabic
 
-**US-002: User Login**
+**US-004: User Login**
 - As a registered student, I want to log in with my credentials, so that I can access my profile and listings.
 - Priority: MUST HAVE
 - Acceptance Criteria:
@@ -24,218 +53,390 @@
   - Session management (stay logged in)
   - "Remember me" option
   - Error messages for invalid credentials
+  - Redirect to previous page or homepage after login
+  - Loading indicator during authentication
 
-**US-003: View/Edit User Profile**
-- As a logged-in user, I want to view and edit my profile information, so that other users can see my credentials and I can manage my account.
+**US-005: User Logout**
+- As a logged-in user, I want to log out of my account, so that I can securely end my session.
 - Priority: MUST HAVE
 - Acceptance Criteria:
-  - Display user info (name, email, rating, member since)
-  - Edit profile details (name, password)
-  - View purchase/sale history
-  - Display average rating and review count
+  - Logout button accessible from navbar and profile page
+  - Confirmation dialog before logout
+  - Clear session and authentication tokens
+  - Redirect to logout confirmation page
+  - Display success message on logout page
+  - Option to log back in from logout page
+
+**US-006: View Logout Page**
+- As a user who just logged out, I want to see a logout confirmation page, so that I know my session has ended securely.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Display "You have been logged out" message
+  - Show "Login Again" button
+  - Show "Return to Home" button
+  - Clean, minimal design
+
 
 ---
 
-### Book Listing Management
+### User Profile
 
-**US-004: Create a Book Listing**
+**US-007: View User Profile**
+- As a logged-in user, I want to view my profile page, so that I can see my account information and activity.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Display user info (name, email, phone)
+  - Profile picture/avatar display
+  - RTL layout support
+
+**US-008: Edit User Profile**
+- As a logged-in user, I want to edit my profile information, so that I can keep my details up to date.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Edit name, phone number, and password
+  - Upload/change profile picture
+  - Form validation for all fields
+
+### Book Listing & Availability
+
+**US-009: Add a Book Listing**
 - As a seller, I want to create a new book listing with all relevant details, so that buyers can find my textbook.
 - Priority: MUST HAVE
 - Acceptance Criteria:
-  - Fill in: title, author, ISBN, course code, condition (dropdown), price, photos (multiple)
-  - Add description/notes about the book
-  - Confirm successful listing creation
-  - Listing appears in marketplace immediately
+  - Fill in: title, author, ISBN, university code, price, photo
+  - Image upload with preview
+  - Price input with SAR currency
 
-**US-005: View Book Details**
+**US-010: Set Book Availability**
+- As a reviewer, I want to set and updatebook's availability status, so that buyers know if it's available for purchase.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Toggle availability on/off from listing management
+  - Unavailable books hidden from main marketplace search
+
+**US-011: View Book Details**
 - As a buyer, I want to view complete details of a book listing, so that I can decide if I want to purchase it.
 - Priority: MUST HAVE
 - Acceptance Criteria:
   - Display all book info (title, author, ISBN, condition, price, course)
-  - Show seller profile with rating
-  - Display multiple photos in gallery
-  - Show availability status
+  - Show availability status clearly
+  - "Add to Cart" and "Buy Now" buttons visible
 
-**US-006: Edit Book Listing**
-- As a seller, I want to edit my book listing details, so that I can update information or fix mistakes.
+
+**US-012: Delete Book Listing**
+- As an admin, I want to delete a book listing, so that I can remove it permanently.
 - Priority: MUST HAVE
 - Acceptance Criteria:
-  - Edit any field (except ISBN)
-  - Add/remove photos
-  - Update price, condition, description
-  - Changes saved and updated in marketplace
-
-**US-007: Delete Book Listing**
-- As a seller, I want to delete my book listing, so that I can remove it when the book is sold.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Delete button visible on seller's listings
-  - Confirmation dialog before deletion
+  - Delete button visible on admin's listings
   - Listing removed from marketplace immediately
 
 ---
 
-### Search & Browse
+### Shopping Cart
 
-**US-008: Search Books by Title/Author**
-- As a buyer, I want to search for books by title or author, so that I can quickly find what I need.
+**US-013: View Cart Page**
+- As a buyer, I want to view my shopping cart, so that I can review items before checkout.
 - Priority: MUST HAVE
 - Acceptance Criteria:
-  - Search bar on homepage and all pages
+  - Display all added books with images, titles, and prices
+  - Show individual item prices and total
+  - Remove item button for each book
+  - "Continue Shopping" button
+  - "Proceed to Checkout" button
+  - Empty cart message when no items
+  - Cart item count in navbar
+
+**US-014: Add Book to Cart**
+- As a buyer, I want to add books to my cart, so that I can purchase multiple items at once.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - "Add to Cart" button on book cards and detail page
+  - Visual confirmation when item added
+  - Cart icon updates with item count
+  - Prevent adding same book twice
+  - Authentication required (show login modal if not logged in)
+
+**US-015: Remove Book from Cart**
+- As a buyer, I want to remove books from my cart, so that I can adjust my purchase.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Remove button on each cart item
+  - Confirmation before removal
+  - Cart total updates immediately
+  - Success message displayed
+
+---
+
+### Payment Integration (Moyasar)
+
+**US-016: Checkout with Moyasar Payment**
+- As a buyer, I want to pay for books using Moyasar payment gateway, so that transactions are secure and convenient.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Secure Moyasar payment form integration
+  - Support for credit/debit cards (Visa, MasterCard, MADA)
+  - Display order summary before payment
+  - Show payment processing indicator
+  - Handle payment success and redirect to thank you page
+  - Handle payment failure with clear error messages
+
+**US-017: View Payment Summary**
+- As a buyer, I want to see a clear summary of my order before payment, so that I can verify the amount.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - List all items with prices
+  - Show subtotal
+  - Show any applicable fees
+  - Display final total in SAR
+  - Shipping/delivery information if applicable
+  - Edit cart option before payment
+
+---
+
+### Thank You Page
+
+**US-018: View Thank You Page After Purchase**
+- As a buyer, I want to see a thank you page after successful purchase, so that I know my order was completed.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Display "Thank You for Your Purchase" message
+  - Show order confirmation number
+  - Display order summary (items, total, payment method)
+  - Estimated delivery/pickup information
+  - "Continue Shopping" button
+  - "View Order History" button
+  - Email confirmation sent notification
+  - Print receipt option
+
+---
+
+### University Hub Reviewer Page
+
+**US-019: Reviewer Login (University Hub Staff)**
+- As a university hub staff member, I want to log in to the reviewer dashboard, so that I can manage book pickups and deliveries.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Separate login for reviewer accounts
+  - Role-based access (only reviewers can access reviewer page)
+  - Secure authentication
+  - Dashboard view after login
+
+**US-020: View Pending Books for Review**
+- As a university hub reviewer, I want to see all pending book submissions, so that I can pick and review them.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - List all books submitted for review
+  - Show seller information and contact details
+  - Display book details (title, condition claimed, photos)
+
+**US-021: Pick Up Book for Review**
+- As a university hub reviewer, I want to mark a book as "picked up", so that I can begin the review process.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - "Pick Up" action button on pending books
+
+**US-022: Review Book Condition**
+- As a university hub reviewer, I want to review and verify the book's condition, so that buyers receive accurate information.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Condition assessment form (Like New, Good, Fair, Poor)
+  - Approve the listing
+
+**US-023: Approve Book Listing**
+- As a university hub reviewer, I want to approve a book listing, so that only quality books are available on the marketplace.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - "Approve" button to publish listing
+  - Approved books appear in marketplace
+
+**US-024: Mark Book for Delivery**
+- As a university hub reviewer, I want to mark reviewed books for delivery, so that buyers can receive their purchases.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - List of approved books pending delivery
+  - "Mark for Delivery" action
+  - Enter delivery details (date, method, tracking)
+  - Update order status to "Out for Delivery"
+  - Notify buyer of delivery status
+
+**US-025: Complete Delivery**
+- As a university hub reviewer, I want to mark a book as delivered, so that the transaction can be completed.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - "Mark as Delivered" action
+  - Record delivery date and confirmation
+  - Update order status to "Completed"
+  - Notify buyer and seller of completion
+  - Enable buyer to leave rating/review
+
+---
+
+### UX/UI Design Requirements
+
+**US-026: Responsive Design**
+- As a user, I want the website to work well on all devices, so that I can use it on mobile, tablet, or desktop.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Mobile-first responsive design
+  - Breakpoints for mobile (< 768px), tablet (768-1024px), desktop (> 1024px)
+  - Touch-friendly buttons and navigation on mobile
+  - Consistent experience across all devices
+  - No horizontal scrolling on any screen size
+
+**US-027: RTL Language Support**
+- As an Arabic-speaking user, I want the interface in Arabic with RTL layout, so that I can easily navigate and read content.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Full Arabic translation of all UI text
+  - Right-to-left text direction
+  - Proper alignment of icons and elements
+  - Arabic numerals support (optional Western numerals)
+  - Correct date formatting for Arabic locale
+
+**US-028: Loading States**
+- As a user, I want to see loading indicators when content is being fetched, so that I know the application is working.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Loading spinner/skeleton for page loads
+  - Button loading states during form submission
+  - Skeleton loaders for book cards and lists
+  - Smooth transitions between loading and loaded states
+  - Loading overlay for full-page operations
+
+**US-029: View Loading Page**
+- As a user, I want to see a branded loading page during initial app load, so that I have a smooth experience.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Display Bookpass logo during load
+  - Animated loading indicator
+  - Brief loading time (< 3 seconds ideally)
+  - Graceful transition to main content
+  - Progress indicator (optional)
+
+---
+
+### Error Pages
+
+**US-030: View 404 Not Found Page**
+- As a user, I want to see a helpful 404 page when I access a non-existent URL, so that I can navigate back to the main site.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Clear "Page Not Found" message
+  - Friendly illustration or graphic
+  - "Return to Home" button
+  - Search bar to find content
+  - Suggested popular pages/links
+  - Consistent branding with rest of site
+
+**US-031: View 403 Forbidden Page**
+- As a user, I want to see a 403 page when I try to access restricted content, so that I understand I don't have permission.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Clear "Access Denied" or "Permission Required" message
+  - Explanation of why access is restricted
+  - "Login" button if not authenticated
+  - "Return to Home" button
+  - Contact support option
+  - Consistent branding with rest of site
+
+---
+
+### Testing Requirements
+
+**US-032: Integration Testing**
+- As a developer, I want comprehensive integration tests, so that I can ensure all components work together correctly.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Test user registration and login flow
+  - Test book listing creation and retrieval
+  - Test cart functionality (add, remove, update)
+  - Test Moyasar payment integration
+  - Test reviewer workflow (pick, review, approve, deliver)
+  - Test authentication guards on protected routes
+  - Minimum 80% code coverage for critical paths
+  - Automated test execution in CI/CD pipeline
+
+**US-033: Smoke Testing**
+- As a QA engineer, I want smoke tests for critical functionality, so that I can quickly verify the application is working after deployment.
+- Priority: MUST HAVE
+- Acceptance Criteria:
+  - Test landing page loads successfully
+  - Test login functionality works
+  - Test marketplace page displays books
+  - Test cart operations work
+  - Test payment flow initiates correctly
+  - Test reviewer dashboard accessible
+  - Quick execution time (< 5 minutes)
+  - Clear pass/fail results
+  - Automated smoke tests in deployment pipeline
+
+---
+
+## SHOULD HAVE (Important Enhancements)
+
+**US-034: Book Search & Filters**
+- As a buyer, I want to search and filter books, so that I can find specific textbooks quickly.
+- Priority: SHOULD HAVE
+- Acceptance Criteria:
+  - Search by title, author, or ISBN
+  - Filter by condition, price range, course
+  - Sort by price, date, or relevance
   - Real-time search suggestions
-  - Display matching results with pagination
-  - Sort by relevance (default)
 
-**US-009: Search Books by ISBN**
-- As a buyer, I want to search for books by ISBN, so that I can find the exact edition I need.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - ISBN search field available
-  - Exact ISBN matching
-  - Display matching books instantly
-  - Show if no results found
 
-**US-010: Filter Books by Course/Subject**
-- As a buyer, I want to filter books by course code or subject, so that I can find textbooks for my classes.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Course filter dropdown (populated from listings)
-  - Filter results by selected course
-  - Show number of books per course
-  - Clear filter option
 
-**US-011: Filter Books by Condition**
-- As a buyer, I want to filter books by condition (like new, good, fair), so that I can choose based on my preferences.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Condition filter with checkboxes (Like New, Good, Fair)
-  - Filter results accordingly
-  - Multiple conditions can be selected
-  - Show book count per condition
-
-**US-012: Filter Books by Price Range**
-- As a buyer, I want to filter books by price range, so that I can find books within my budget.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Price range slider (min-max)
-  - Display results within selected range
-  - Show price statistics (min, max, average)
-  - Update results in real-time
-
-**US-013: Browse All Books**
-- As a buyer, I want to browse all available books in the marketplace, so that I can discover books without searching.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Homepage displays all books in grid/list format
-  - Pagination (20 books per page)
-  - Default sorted by newest first
-  - Each book shows title, author, price, condition, seller rating
-
----
-
-### Ratings & Reviews
-
-**US-014: Rate a Seller**
-- As a buyer, I want to rate a seller after completing a transaction, so that other students can trust reliable sellers.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - 5-star rating system
-  - Optional written review/comment
-  - Rate button on purchase history
-  - Confirmation message
-  - Rating reflected on seller's profile
-
-**US-015: View Seller Ratings**
-- As a buyer, I want to see a seller's average rating and reviews, so that I can assess their reliability.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Display average star rating on seller profile
-  - Show number of reviews
-  - Display recent reviews with ratings and comments
-  - Show review date and reviewer name
-
----
-
-### Book Availability Status
-
-**US-016: Mark Book as Sold**
-- As a seller, I want to mark a book as sold, so that buyers know it's no longer available.
-- Priority: MUST HAVE
-- Acceptance Criteria:
-  - Mark as sold option on listing
-  - "Sold" badge displayed on listing
-  - Automatically remove from search results
-  - Can be restored to available if needed
-
----
-
-## SHOULD HAVE (Important but not critical for MVP launch)
-
-**US-017: Advanced Sort Options**
-- As a buyer, I want to sort books by price (low-high, high-low), newest listings, or seller rating, so that I can find books more efficiently.
+**US-035: Email Notifications**
+- As a user, I want to receive email notifications, so that I stay informed about my orders.
 - Priority: SHOULD HAVE
 - Acceptance Criteria:
-  - Sort dropdown with multiple options
-  - Results update when sort selection changes
-  - Default sort is "newest first"
-
-**US-018: Wishlist/Favorites**
-- As a buyer, I want to save books to a wishlist, so that I can keep track of books I'm interested in.
-- Priority: SHOULD HAVE
-- Acceptance Criteria:
-  - Heart/star icon on book cards
-  - Add to wishlist button on book detail page
-  - View wishlist page
-  - Remove from wishlist option
-  - Wishlist count displayed in profile
-
-**US-019: User Verification Badge**
-- As a verified user, I want a badge on my profile, so that other users can easily identify trustworthy sellers.
-- Priority: SHOULD HAVE
-- Acceptance Criteria:
-  - Verification badge after email confirmation
-  - Badge displayed on profile and listings
-  - Explains verification criteria
-
-**US-020: Report Inappropriate Listing**
-- As a user, I want to report a listing that violates guidelines, so that moderators can remove inappropriate content.
-- Priority: SHOULD HAVE
-- Acceptance Criteria:
-  - Report button on book detail page
-  - Report form with reason/description
-  - Submission confirmation
-  - Admin review and action taken
+  - Order confirmation email
+  - Shipping/delivery updates
+  - Review approval/rejection notification
+  - Password reset emails
 
 ---
 
-## COULD HAVE (Nice-to-have features for future iterations)
+## COULD HAVE (Nice-to-have Features)
 
-**US-021: "Demand a Book" Feature**
-- As a buyer, I want to request a specific book that's not currently available, so that sellers can notify me when they have it.
+**US-036: Wishlist**
+- As a buyer, I want to save books to a wishlist, so that I can purchase them later.
 - Priority: COULD HAVE
 
-**US-022: Bulk Upload Listings**
-- As a seller, I want to upload multiple book listings at once (via CSV), so that I can list many books quickly.
+**US-037: Book Recommendations**
+- As a buyer, I want to see recommended books based on my interests, so that I can discover new textbooks.
 - Priority: COULD HAVE
 
-**US-023: Book Recommendation**
-- As a buyer, I want to see recommended books based on my purchase history, so that I can discover new textbooks.
-- Priority: COULD HAVE
-
-**US-024: Payment Integration (Stripe/Apple Pay)**
-- As a buyer, I want to pay for books directly through the platform, so that transactions are secure and convenient.
-- Priority: COULD HAVE
-
-**US-025: Advanced Analytics for Sellers**
-- As a seller, I want to see analytics about my listings (views, clicks, conversions), so that I can optimize my sales strategy.
+**US-038: Multiple Language Support**
+- As a user, I want to switch between Arabic and English, so that I can use my preferred language.
 - Priority: COULD HAVE
 
 ---
 
-## WON'T HAVE (Out of scope for MVP)
+## WON'T HAVE (Out of Scope for MVP)
 
-- University notes/study guides marketplace
+- Live chat between buyer and seller
 - Advanced recommendation engine with machine learning
-- Live video chat between buyers and sellers
 - Integration with university course registration systems
-- Automatic book pricing based on market analysis
+- Mobile native applications (iOS/Android)
+- Cryptocurrency payment options
+- International shipping
+
+---
+
+## User Story Summary by Feature Area
+
+| Feature Area | User Stories | Priority |
+|--------------|--------------|----------|
+| Landing Page | US-001, US-002 | MUST HAVE |
+| Authentication | US-003, US-004, US-005, US-006 | MUST HAVE |
+| User Profile | US-007, US-008 | MUST HAVE |
+| Book Listing & Availability | US-009, US-010, US-011, US-012 | MUST HAVE |
+| Shopping Cart | US-013, US-014, US-015 | MUST HAVE |
+| Payment (Moyasar) | US-016, US-017 | MUST HAVE |
+| Thank You Page | US-018 | MUST HAVE |
+| Reviewer Page | US-019, US-020, US-021, US-022, US-023, US-024, US-025 | MUST HAVE |
+| UX/UI Design | US-026, US-027, US-028, US-029 | MUST HAVE |
+| Error Pages | US-030, US-031 | MUST HAVE |
+| Testing | US-032, US-033 | MUST HAVE |
+| Enhancements | US-034, US-035 | SHOULD HAVE |
+| Nice-to-have | US-036, US-037, US-038 | COULD HAVE |
