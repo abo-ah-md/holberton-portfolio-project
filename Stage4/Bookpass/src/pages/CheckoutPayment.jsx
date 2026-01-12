@@ -8,6 +8,7 @@ const CheckoutPayment = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [item, setItem] = useState(null);
+    const [showTestGuide, setShowTestGuide] = useState(false);
 
     useEffect(() => {
         if (location.state?.book) {
@@ -21,7 +22,7 @@ const CheckoutPayment = () => {
     useEffect(() => {
         if (item && window.Moyasar) {
             const price = parseFloat(item.price);
-            const totalAmount = price * 1.15;
+            const totalAmount = price; // Removed tax calculation
             const amountInHalalas = Math.round(totalAmount * 100);
 
             try {
@@ -31,7 +32,7 @@ const CheckoutPayment = () => {
                     currency: 'SAR',
                     description: `Payment for ${item.title}`,
                     publishable_api_key: 'pk_test_VmWZHUQuzU1S6yXEffqZUPA2NPchWqenEsXko1oJ', // REPLACE THIS WITH YOUR ACTUAL TEST API KEY
-                    callback_url: window.location.origin + '/payment-success', // Placeholder callback
+                    callback_url: window.location.origin + `/payment-success?bookId=${item.id}`, // Include bookId for backend verification
                     methods: ['creditcard', 'stcpay']
                 });
             } catch (error) {
@@ -42,8 +43,7 @@ const CheckoutPayment = () => {
 
     if (!item) return null;
 
-    const total = (item.price * 1.15).toFixed(2);
-    const tax = (item.price * 0.15).toFixed(2);
+    const total = parseFloat(item.price).toFixed(2);
 
     return (
         <div className="min-h-screen flex flex-col bg-[#f5f5f5] font-sans rtl">
@@ -64,6 +64,62 @@ const CheckoutPayment = () => {
 
                         {/* Moyasar Form Container */}
                         <div className="mysr-form"></div>
+
+                        {/* Test Guide Section */}
+                        <div className="mt-8 border-t border-gray-100 pt-6">
+                            <button
+                                onClick={() => setShowTestGuide(!showTestGuide)}
+                                className="w-full flex items-center justify-between text-brand-slate font-bold p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition"
+                            >
+                                <span className="flex items-center gap-2">
+                                    <Lock size={18} className="text-brand-orange" />
+                                    <span>كيف تختبر الدفع ؟ (بطاقات تجريبية)</span>
+                                </span>
+                                <span>{showTestGuide ? '▲' : '▼'}</span>
+                            </button>
+
+                            {showTestGuide && (
+                                <div className="mt-4 bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm animate-in slide-in-from-top-2 fade-in">
+                                    <p className="mb-3 text-blue-800 font-bold">استخدم البطاقات التالية لاختبار الدفع بنجاح:</p>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left bg-white rounded-lg border border-blue-100 overflow-hidden">
+                                            <thead>
+                                                <tr className="bg-blue-100 text-blue-900 border-b border-blue-200">
+                                                    <th className="p-2 text-right">النوع</th>
+                                                    <th className="p-2 text-center" dir="ltr">Card Number</th>
+                                                    <th className="p-2 text-center" dir="ltr">CVV</th>
+                                                    <th className="p-2 text-center" dir="ltr">Expiry</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-gray-600">
+                                                <tr className="border-b border-gray-100">
+                                                    <td className="p-2 font-bold text-right">مدى (Mada)</td>
+                                                    <td className="p-2 font-mono text-center select-all" dir="ltr">4000 0000 0000 0000</td>
+                                                    <td className="p-2 text-center">123</td>
+                                                    <td className="p-2 text-center" dir="ltr">12/26</td>
+                                                </tr>
+                                                <tr className="border-b border-gray-100">
+                                                    <td className="p-2 font-bold text-right">فيزا (Visa)</td>
+                                                    <td className="p-2 font-mono text-center select-all" dir="ltr">4111 1111 1111 1111</td>
+                                                    <td className="p-2 text-center">123</td>
+                                                    <td className="p-2 text-center" dir="ltr">12/26</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="p-2 font-bold text-right">ماستركارد</td>
+                                                    <td className="p-2 font-mono text-center select-all" dir="ltr">5111 1111 1111 1111</td>
+                                                    <td className="p-2 text-center">123</td>
+                                                    <td className="p-2 text-center" dir="ltr">12/26</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <p className="mt-3 text-xs text-blue-600">
+                                        * الاسم: Test Card <br />
+                                        * كلمة المرور (OTP) للتجربة: 1234
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Order Summary */}
@@ -93,10 +149,7 @@ const CheckoutPayment = () => {
                                         <span>سعر الكتاب</span>
                                         <span className="font-mono">{item.price} ر.س</span>
                                     </div>
-                                    <div className="flex justify-between opacity-70">
-                                        <span>الضريبة (15%)</span>
-                                        <span className="font-mono">{tax} ر.س</span>
-                                    </div>
+
                                     <div className="flex justify-between font-bold text-lg pt-2">
                                         <span>الإجمالي</span>
                                         <span className="text-brand-orange">{total} ر.س</span>

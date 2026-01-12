@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import BookCard from '../components/BookCard';
 import { MOCK_BOOKS_EXTENDED } from '../constants/Books';
 import { getAllBooks, searchBooks } from '../services/bookService';
+import { UNIVERSITIES, getUniversityName } from '../constants/universities';
 import { Search, Filter, SortAsc, SlidersHorizontal, ChevronDown, Loader2 } from 'lucide-react';
 
 const Marketplace = () => {
@@ -34,21 +35,19 @@ const Marketplace = () => {
             setLoading(true);
             setError(null);
             try {
-                const { data, error: fetchError } = await getAllBooks();
-                console.log('API Response:', data, 'Error:', fetchError);
+                const { data, fetchError } = await getAllBooks();
                 if (fetchError) {
-                    console.warn('API error, using mock data:', fetchError);
-                    setBooks(MOCK_BOOKS_EXTENDED);
+                    console.error('API error:', fetchError);
+                    // setBooks(MOCK_BOOKS_EXTENDED); // Disable mock data fallback to prevent UUID errors
+                    setBooks([]);
                 } else if (data && data.length > 0) {
-                    // Combine API books with mock data (API books first)
-                    setBooks([...data, ...MOCK_BOOKS_EXTENDED]);
+                    setBooks(data); // Use ONLY real API data
                 } else {
-                    // If no books from API, use mock data
-                    setBooks(MOCK_BOOKS_EXTENDED);
+                    setBooks([]);
                 }
             } catch (err) {
-                console.warn('Failed to fetch books, using mock data:', err);
-                setBooks(MOCK_BOOKS_EXTENDED);
+                console.error('Failed to fetch books:', err);
+                setBooks([]);
             } finally {
                 setLoading(false);
             }
@@ -59,7 +58,8 @@ const Marketplace = () => {
 
     // Filter Logic
     const filteredBooks = useMemo(() => {
-        let result = [...books];
+        // Filter out Pending books (only show Available or Sold)
+        let result = books.filter(book => book.listingStatus !== 'PENDING');
 
         // 1. Text Search
         if (searchQuery) {
@@ -147,8 +147,8 @@ const Marketplace = () => {
                                     className="appearance-none bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-brand-orange focus:border-brand-orange block w-full p-2.5 pr-8 outline-none cursor-pointer hover:border-brand-orange"
                                 >
                                     <option value="">كل الجامعات</option>
-                                    {universities.map((uni, idx) => (
-                                        <option key={idx} value={uni}>{uni}</option>
+                                    {Object.entries(UNIVERSITIES).map(([key, { nameAr }]) => (
+                                        <option key={key} value={key}>{nameAr}</option>
                                     ))}
                                 </select>
                                 <div className="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none text-gray-500">
@@ -180,7 +180,7 @@ const Marketplace = () => {
                             <span>نتائج البحث: {filteredBooks.length} كتاب</span>
                             {selectedUniversity && (
                                 <span className="bg-brand-orange/10 text-brand-orange px-2 py-0.5 rounded-full flex items-center gap-1 cursor-pointer hover:bg-red-100 hover:text-red-500 transition" onClick={() => setSelectedUniversity('')}>
-                                    {selectedUniversity}
+                                    {getUniversityName(selectedUniversity)}
                                     <span className="font-bold">×</span>
                                 </span>
                             )}

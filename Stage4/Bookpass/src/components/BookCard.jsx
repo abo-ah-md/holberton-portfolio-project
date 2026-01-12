@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ShoppingCart, X, Slash, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import AuthRequiredModal from './AuthRequiredModal';
+import { getUniversityName } from '../constants/universities';
+import { getStatusLabel } from '../constants/status';
 
 const BookCard = ({ book }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,7 +54,7 @@ const BookCard = ({ book }) => {
         <>
             {/* GRID CARD - Vertical & Compact */}
             <div
-                className={`group bg-white rounded-xl p-3 shadow-sm transition-all duration-300 border border-transparent relative overflow-hidden w-[200px] flex-shrink-0 flex flex-col ${book.isSold ? 'opacity-75 grayscale pointer-events-none' : 'hover:shadow-xl hover:border-brand-orange/20'} `}
+                className={`group bg-white rounded-xl pt-3 px-4 pb-4 shadow-sm transition-all duration-300 border border-transparent relative overflow-hidden w-[200px] flex-shrink-0 flex flex-col ${book.isSold ? 'opacity-75 grayscale pointer-events-none' : 'hover:shadow-xl hover:border-brand-orange/20'} `}
             >
                 {/* Image - Click triggers modal */}
                 <div
@@ -59,7 +62,7 @@ const BookCard = ({ book }) => {
                     className="cursor-pointer aspect-[3/4] bg-gray-50 rounded-lg mb-3 relative overflow-hidden ring-1 ring-black/5"
                 >
                     <span className={`absolute top-2 right-2 backdrop-blur-md text-[9px] px-2 py-0.5 rounded-full font-bold shadow-sm z-10 ${book.isSold ? 'bg-gray-800 text-white' : 'bg-white/95 text-brand-orange'} `}>
-                        {book.isSold ? 'تم البيع' : book.status}
+                        {book.isSold ? 'تم البيع' : getStatusLabel(book.status)}
                     </span>
 
                     {book.image ? (
@@ -81,7 +84,7 @@ const BookCard = ({ book }) => {
 
                     {/* Hover Overlay */}
                     {!book.isSold && (
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center">
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center z-20">
                             {/* Quick Add to Cart Button */}
                             <button
                                 onClick={handleAddToCart}
@@ -112,7 +115,7 @@ const BookCard = ({ book }) => {
                         </div>
                         <div className="flex items-center gap-1">
                             <span className="font-bold">الجامعة:</span>
-                            <span className="truncate max-w-[100px]">{book.university}</span>
+                            <span className="truncate max-w-[100px]">{getUniversityName(book.university)}</span>
                         </div>
                     </div>
 
@@ -128,17 +131,17 @@ const BookCard = ({ book }) => {
                             <button
                                 onClick={handleBuyNow}
                                 disabled={book.isSold}
-                                className={`flex-1 text-white text-[10px] font-bold py-1.5 rounded-lg transition shadow-sm ${book.isSold ? 'bg-gray-300 cursor-not-allowed' : 'bg-brand-orange hover:bg-brand-orange/90'} `}
+                                className={`flex-1 text-white text-[10px] font-bold py-2.5 px-0 rounded-xl transition shadow-sm whitespace-nowrap ${book.isSold ? 'bg-gray-300 cursor-not-allowed' : 'bg-brand-orange hover:bg-brand-orange/90'} `}
                             >
                                 {book.isSold ? 'مباع' : 'شراء'}
                             </button>
                             <button
                                 onClick={handleAddToCart}
                                 disabled={book.isSold}
-                                className={`flex-1 text-[#C17554] text-[10px] font-bold py-1.5 rounded-lg transition shadow-sm flex items-center justify-center gap-1 ${book.isSold ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-[#C17554] text-black hover:bg-[#a95234]' : 'bg-brand-slate hover:bg-brand-slate/90')} `}
+                                className={`flex-1 text-[#C17554] text-[10px] font-bold py-2.5 px-0 rounded-xl transition shadow-sm flex items-center justify-center gap-1 whitespace-nowrap ${book.isSold ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-[#C17554] text-black hover:bg-[#a95234]' : 'bg-brand-slate hover:bg-brand-slate/90')} `}
                             >
                                 {isAdded ? <Check size={14} /> : (book.isSold ? <Slash size={14} /> : <ShoppingCart size={14} />)}
-                                <span>{isAdded ? 'تمت الإضافة' : (book.isSold ? '' : 'أضف للسلة')}</span>
+                                <span>{isAdded ? 'تمت' : (book.isSold ? '' : 'أضف للسلة')}</span>
                             </button>
                         </div>
                     </div>
@@ -147,8 +150,8 @@ const BookCard = ({ book }) => {
 
 
             {/* MODAL - Detailed Horizontal View */}
-            {isModalOpen && !book.isSold && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
+            {isModalOpen && !book.isSold && createPortal(
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200" style={{ margin: 0 }}>
                     <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col md:flex-row rtl" dir="rtl">
 
                         <button
@@ -162,7 +165,7 @@ const BookCard = ({ book }) => {
                             <div className="aspect-[3/4] w-full max-w-[220px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-lg overflow-hidden relative">
                                 {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
                                 <span className="absolute top-4 right-4 bg-brand-orange text-white text-xs px-3 py-1 rounded-full font-bold shadow-md">
-                                    {book.status}
+                                    {getStatusLabel(book.status)}
                                 </span>
                             </div>
                         </div>
@@ -173,7 +176,7 @@ const BookCard = ({ book }) => {
                                     <h2 className="text-2xl font-black text-brand-slate mb-2 leading-tight">{book.title}</h2>
                                     <div className="flex items-center gap-2 text-sm text-gray-500 font-semibold">
                                         <div className="w-2 h-2 bg-brand-orange rounded-full"></div>
-                                        <span>{book.university}</span>
+                                        <span>{getUniversityName(book.university)}</span>
                                     </div>
                                 </div>
 
@@ -192,7 +195,7 @@ const BookCard = ({ book }) => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="font-bold text-gray-500 text-sm">الحالة:</span>
-                                        <span className="font-bold text-green-600 text-sm">{book.status}</span>
+                                        <span className="font-bold text-green-600 text-sm">{getStatusLabel(book.status)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -207,7 +210,7 @@ const BookCard = ({ book }) => {
                                 <div className="flex gap-3 flex-1 justify-end">
                                     <button
                                         onClick={handleBuyNow}
-                                        className="bg-brand-slate hover:bg-brand-slate/90 text-[#C17554] font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-brand-slate/20 flex-1 md:flex-none"
+                                        className="bg-brand-slate hover:bg-brand-slate/90 text-[#C17554] font-bold py-3 px-8 md:px-10 rounded-xl transition-all shadow-lg shadow-brand-slate/20 flex-1 md:flex-none min-w-[140px] whitespace-nowrap"
                                     >
                                         شراء مباشر
                                     </button>
@@ -217,12 +220,13 @@ const BookCard = ({ book }) => {
                                             if (!user) {
                                                 setShowAuthModal(true);
                                                 return;
+                                                // setIsModalOpen(false); // Consider closing detail modal too? Maybe not.
                                             }
                                             addToCart(book);
                                             setIsAdded(true);
                                             setTimeout(() => setIsAdded(false), 2000);
                                         }}
-                                        className={`bg-[#cc8c74] hover:bg-[#b07b66] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${isAdded ? 'bg-green-600! hover:bg-green-600' : ''} `}
+                                        className={`bg-[#cc8c74] hover:bg-[#b07b66] text-white font-bold py-3 px-8 md:px-10 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 min-w-[140px] whitespace-nowrap ${isAdded ? 'bg-green-600! hover:bg-green-600' : ''} `}
                                     >
                                         {isAdded ? <Check size={20} /> : <ShoppingCart size={20} />}
                                         <span className="hidden sm:inline">{isAdded ? 'تمت الإضافة' : 'الإضافة للسلة'}</span>
@@ -232,7 +236,8 @@ const BookCard = ({ book }) => {
                         </div>
 
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             <AuthRequiredModal

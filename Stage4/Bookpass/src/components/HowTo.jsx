@@ -66,7 +66,7 @@ const HowTo = () => {
                             aria-controls="buying-panel"
                             onClick={() => setActiveTab('buying')}
                             onKeyDown={(e) => handleKeyDown(e, 'buying')}
-                            className={`px-8 md:px-12 lg:px-14 py-4 md:py-5 lg:py-6 rounded-xl text-lg md:text-xl lg:text-4xl font-bold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#475a67] ${activeTab === 'buying'
+                            className={`min-w-[140px] md:min-w-[200px] lg:min-w-[280px] px-8 py-4 md:py-6 lg:py-8 rounded-2xl text-xl md:text-2xl lg:text-3xl font-bold whitespace-nowrap transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#475a67] ${activeTab === 'buying'
                                 ? 'bg-[#c8876f] text-white shadow-lg'
                                 : 'bg-[#9ca3ab] text-white hover:opacity-90'
                                 }`}
@@ -82,7 +82,7 @@ const HowTo = () => {
                             aria-controls="selling-panel"
                             onClick={() => setActiveTab('selling')}
                             onKeyDown={(e) => handleKeyDown(e, 'selling')}
-                            className={`px-8 md:px-12 lg:px-14 py-4 md:py-5 lg:py-6 rounded-xl text-lg md:text-5xl lg:text-4xl font-bold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#475a67] ${activeTab === 'selling'
+                            className={`min-w-[140px] md:min-w-[200px] lg:min-w-[280px] px-8 py-4 md:py-6 lg:py-8 rounded-2xl text-xl md:text-2xl lg:text-3xl font-bold whitespace-nowrap transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#475a67] ${activeTab === 'selling'
                                 ? 'bg-white text-[#c8876f] shadow-lg'
                                 : 'bg-[#9ca3ab] text-white hover:opacity-90'
                                 }`}
@@ -118,7 +118,7 @@ const HowTo = () => {
                                         <div className="relative flex flex-col items-center gap-3">
                                             {/* Animated Number Badge */}
                                             <div
-                                                className={`absolute -top-8 md:-top-10 bg-white rounded-md px-3 py-1 shadow-lg transition-all duration-500 ${currentStep === index
+                                                className={`absolute -top-10 md:-top-14 bg-white rounded-xl shadow-lg transition-all duration-500 flex items-center justify-center min-w-[50px] h-[50px] md:min-w-[60px] md:h-[60px] ${currentStep === index
                                                     ? 'opacity-100 -translate-y-2 scale-110'
                                                     : 'opacity-0 translate-y-0 scale-100'
                                                     }`}
@@ -126,7 +126,7 @@ const HowTo = () => {
                                                     animationDelay: `${index * 0.2}s`
                                                 }}
                                             >
-                                                <span className="text-[#c8876f] font-bold text-xl md:text-2xl">
+                                                <span className="text-[#c8876f] font-bold text-2xl md:text-3xl">
                                                     {step.number}
                                                 </span>
                                             </div>

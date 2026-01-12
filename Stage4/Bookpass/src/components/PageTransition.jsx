@@ -24,14 +24,11 @@ const PageTransition = ({ children }) => {
     return (
         <>
             {/* Loading Overlay - Instant appearance (no transition on enter), fade out on exit */}
-            <div
-                className={`fixed inset-0 z-[9999] flex items-center justify-center
-                transition-opacity duration-500 ease-in-out
-                ${isLoading ? 'opacity-100 pointer-events-auto duration-0' : 'opacity-0 pointer-events-none'}`}
-            >
-                {/* Only render spinner if isLoading to reset animation */}
-                {isLoading && <LoadingSpinner fullScreen={false} size="large" />}
-            </div>
+            {isLoading && (
+                <div className="fixed inset-0 z-[9999]">
+                    <LoadingSpinner fullScreen={true} />
+                </div>
+            )}
 
             {/* Page Content - Hidden instantly when loading starts, fades in when finished */}
             <div

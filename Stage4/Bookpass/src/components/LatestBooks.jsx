@@ -16,13 +16,13 @@ const LatestBooks = () => {
                 const { data, error } = await getAllBooks();
                 if (error || !data || data.length === 0) {
                     // Fallback to mock data
-                    setBooks(MOCK_BOOKS_EXTENDED);
+                    setBooks([]); // Disable mock data
                 } else {
                     // Combine API books with mock data
-                    setBooks([...data, ...MOCK_BOOKS_EXTENDED]);
+                    setBooks(data); // Use ONLY real API data
                 }
             } catch (err) {
-                setBooks(MOCK_BOOKS_EXTENDED);
+                setBooks([]);
             } finally {
                 setLoading(false);
             }

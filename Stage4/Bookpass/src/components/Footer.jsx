@@ -1,5 +1,6 @@
 import './Footer.css';
 import RibbonLogo from './ribbon-logo';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (
@@ -35,17 +36,15 @@ const Footer = () => {
                 <div className="footer-section footer-platform">
                     <h3>المنصة</h3>
                     <nav className="footer-nav">
-                        <a href="#about">من نحن</a>
-                        <a href="#terms">الشروط والأحكام وسياسة الإستخدام</a>
+                        <Link to="/">من نحن</Link>
+                        <Link to="/terms">الشروط والأحكام وسياسة الإستخدام</Link>
                     </nav>
                 </div>
 
                 {/* Brand Section - Left side in RTL */}
                 <div className="footer-section footer-brand">
-                    <div className="logo-container">
-                        <div className="logo-wrapper">
-                            <RibbonLogo positioning="relative" />
-                        </div>
+                    <div className="logo-container items-center">
+                        <RibbonLogo className="" positioning="relative" />
                         <p className="tagline">جميع الحقوق محفوظة لمطورين منصة بوك باس</p>
                     </div>
 

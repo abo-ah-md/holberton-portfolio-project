@@ -76,7 +76,7 @@ const BookRating = () => {
             {/* Main content */}
             <div className="rating-content">
                 {/* Header with badge */}
-                <div className="rating-header flex items-center justify-end">
+                <div className="rating-header flex flex-col items-center justify-center gap-4 text-center">
                     <div className="">
                         <img src={new URL('../assets/ribbon-flag.svg', import.meta.url).href} alt="ribbon-flag" className="w-[100px] h-[100px]" />
                     </div>
