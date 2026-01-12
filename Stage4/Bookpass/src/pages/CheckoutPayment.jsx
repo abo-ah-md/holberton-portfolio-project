@@ -31,8 +31,8 @@ const CheckoutPayment = () => {
                     amount: amountInHalalas,
                     currency: 'SAR',
                     description: `Payment for ${item.title}`,
-                    publishable_api_key: 'pk_test_VmWZHUQuzU1S6yXEffqZUPA2NPchWqenEsXko1oJ', // REPLACE THIS WITH YOUR ACTUAL TEST API KEY
-                    callback_url: window.location.origin + `/payment-success?bookId=${item.id}`, // Include bookId for backend verification
+                    publishable_api_key: import.meta.env.VITE_MOYASAR_PUBLIC_KEY,
+                    callback_url: window.location.origin + `/payment-success?bookId=${item.id}`,
                     methods: ['creditcard', 'stcpay']
                 });
             } catch (error) {

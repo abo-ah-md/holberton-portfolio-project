@@ -3,7 +3,7 @@
  * Handles all HTTP requests for login, registration, and user management
  */
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.book-pass.com';
 
 // Get token from localStorage
 export const getToken = () => {
