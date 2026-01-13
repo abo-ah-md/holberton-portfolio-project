@@ -45,34 +45,26 @@ const HowTo = () => {
     const steps = activeTab === 'buying' ? buyingSteps : sellingSteps;
 
     return (
-        <div className="relative overflow-hidden min-h-[550px]" style={{ backgroundColor: '#475a67' }}>
+        <div className="relative overflow-hidden min-h-[550px]" style={{ backgroundColor: '#475a67', marginTop: '-1px' }}>
             <section
-                className="relative bg-[#475a67] pt-16 md:pt-20 lg:pt-24 pb-48 md:pb-60 lg:pb-72"
+                className="relative bg-[#475a67] pt-16 md:pt-24 pb-24 md:pb-32 lg:pb-40"
                 aria-label="كيفية استخدام بوك باس"
             >
-                {/* Main Content Container */}
-                <div className="relative max-w-6xl mx-auto px-6 md:px-10 lg:px-16">
-                    {/* Tab Navigation - RTL Layout */}
+                {/* Main Content Container - Absolute Centering */}
+                <div className="relative w-full px-6 md:px-12 flex flex-col items-center justify-center">
+                    {/* Tab Navigation - Perfectly Centered Row */}
                     <div
-                        className="flex  top-0 flex-row-reverse justify-center items-center gap-11 md:gap-7 mb-0"
+                        className="flex flex-row flex-wrap items-center justify-center gap-6 md:gap-12 mb-0"
                         role="tablist"
                         aria-label="اختر نوع العملية"
                     >
-                        {/* Buying Tab */}
-                        <button
-                            role="tab"
-                            id="buying-tab"
-                            aria-selected={activeTab === 'buying'}
-                            aria-controls="buying-panel"
-                            onClick={() => setActiveTab('buying')}
-                            onKeyDown={(e) => handleKeyDown(e, 'buying')}
-                            className={`min-w-[140px] md:min-w-[200px] lg:min-w-[280px] px-8 py-4 md:py-6 lg:py-8 rounded-2xl text-xl md:text-2xl lg:text-3xl font-bold whitespace-nowrap transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#475a67] ${activeTab === 'buying'
-                                ? 'bg-[#c8876f] text-white shadow-lg'
-                                : 'bg-[#9ca3ab] text-white hover:opacity-90'
-                                }`}
+                        {/* Header Label */}
+                        <div
+                            className="text-white text-3xl md:text-6xl font-black px-4"
+                            aria-hidden="true"
                         >
-                            <span aria-label="عملية الشراء">الشراء</span>
-                        </button>
+                            كيفية
+                        </div>
 
                         {/* Selling Tab */}
                         <button
@@ -82,25 +74,33 @@ const HowTo = () => {
                             aria-controls="selling-panel"
                             onClick={() => setActiveTab('selling')}
                             onKeyDown={(e) => handleKeyDown(e, 'selling')}
-                            className={`min-w-[140px] md:min-w-[200px] lg:min-w-[280px] px-8 py-4 md:py-6 lg:py-8 rounded-2xl text-xl md:text-2xl lg:text-3xl font-bold whitespace-nowrap transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#475a67] ${activeTab === 'selling'
-                                ? 'bg-white text-[#c8876f] shadow-lg'
-                                : 'bg-[#9ca3ab] text-white hover:opacity-90'
+                            className={`min-w-[120px] md:min-w-[240px] px-8 py-4 md:py-6 rounded-2xl text-xl md:text-4xl font-black transition-all duration-300 ${activeTab === 'selling'
+                                ? 'bg-white text-[#c8876f] shadow-2xl scale-110'
+                                : 'bg-white/10 text-white hover:bg-white/20'
                                 }`}
                         >
-                            <span aria-label="عملية البيع">البيع</span>
+                            <span>البيع</span>
                         </button>
 
-                        {/* Label Tab */}
-                        <div
-                            className="px-4 md:px-5 py-2 md:py-3 lg:text-5xl text-white text-lg md:text-xl font-bold"
-                            aria-hidden="true"
+                        {/* Buying Tab */}
+                        <button
+                            role="tab"
+                            id="buying-tab"
+                            aria-selected={activeTab === 'buying'}
+                            aria-controls="buying-panel"
+                            onClick={() => setActiveTab('buying')}
+                            onKeyDown={(e) => handleKeyDown(e, 'buying')}
+                            className={`min-w-[120px] md:min-w-[240px] px-8 py-4 md:py-6 rounded-2xl text-xl md:text-4xl font-black transition-all duration-300 ${activeTab === 'buying'
+                                ? 'bg-[#c8876f] text-white shadow-2xl scale-110 border-2 border-white'
+                                : 'bg-white/10 text-white hover:bg-white/20'
+                                }`}
                         >
-                            كيفية
-                        </div>
+                            <span>الشراء</span>
+                        </button>
                     </div>
 
-                    {/* SPACER DIV - Creates guaranteed space between tabs and steps */}
-                    <div className="h-32 md:h-40 lg:h-48"></div>
+                    {/* SPACER DIV - Balanced space between tabs and steps */}
+                    <div className="h-20 md:h-28 lg:h-32 w-full"></div>
 
                     {/* Process Diagrams Container */}
                     <div className="mb-32 max-w-5xl mx-auto">
@@ -110,8 +110,8 @@ const HowTo = () => {
                             aria-labelledby={`${activeTab}-tab`}
                             className="animate-fadeIn"
                         >
-                            {/* Vertical on Mobile, Horizontal on Desktop */}
-                            <div className="flex flex-col md:!flex-row items-center justify-center gap-4 md:gap-6 pb-16" dir="rtl">
+                            {/* Vertical on Mobile, Horizontal on Desktop - Aligned by Circles (items-start) */}
+                            <div className="flex flex-col md:!flex-row items-center md:items-start justify-center gap-4 md:gap-6 pb-16" dir="rtl">
                                 {steps.map((step, index) => (
                                     <React.Fragment key={index}>
                                         {/* Step Container */}
@@ -185,9 +185,9 @@ const HowTo = () => {
                                             </p>
                                         </div>
 
-                                        {/* Animated Arrow Connector */}
+                                        {/* Animated Arrow Connector - Aligned with Circles */}
                                         {index < steps.length - 1 && (
-                                            <div className="flex items-center justify-center">
+                                            <div className="flex items-center justify-center pt-8 md:pt-14 lg:pt-16">
                                                 {/* Vertical Arrow on Mobile */}
                                                 <svg
                                                     className="  md:block md:hidden w-8 h-16"

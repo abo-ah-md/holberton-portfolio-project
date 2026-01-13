@@ -59,7 +59,8 @@ const Marketplace = () => {
     // Filter Logic
     const filteredBooks = useMemo(() => {
         // Filter out Pending books (only show Available or Sold)
-        let result = books.filter(book => book.listingStatus !== 'PENDING');
+        // UPDATE: User wants Pending books to be shown.
+        let result = books; // Show all states passed from backend logic (Available, Pending, Sold)
 
         // 1. Text Search
         if (searchQuery) {

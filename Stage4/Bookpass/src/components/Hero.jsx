@@ -18,7 +18,7 @@ const Hero = ({ title, subtitle, description, primaryButtonText, secondaryButton
     };
 
     return (
-        <section className="relative flex items-center h-[calc(100vh-64px)] w-full bg-slate-900 overflow-hidden font-sans">
+        <section className="relative flex items-center h-[calc(100vh-80px)] min-h-[600px] w-full bg-slate-900 overflow-hidden font-sans">
             <style>{`
                 .hero-buttons {
                     display: flex;

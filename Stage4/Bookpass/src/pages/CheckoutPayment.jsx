@@ -2,48 +2,65 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { CreditCard, Lock, CheckCircle, ArrowRight } from 'lucide-react';
+import { CreditCard, Lock, CheckCircle, ArrowRight, ShoppingCart } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
 const CheckoutPayment = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [item, setItem] = useState(null);
+    const { clearCart } = useCart();
+
+    // Support both single book (from Buy Now) and multiple books (from Cart)
+    const [items, setItems] = useState([]);
+    const [total, setTotal] = useState(0);
     const [showTestGuide, setShowTestGuide] = useState(false);
 
     useEffect(() => {
-        if (location.state?.book) {
-            setItem(location.state.book);
-        } else {
-            // Redirect if no item found
+        // Check for cart items first (multi-book checkout)
+        if (location.state?.cartItems && location.state.cartItems.length > 0) {
+            setItems(location.state.cartItems);
+            setTotal(location.state.total || location.state.cartItems.reduce((sum, item) => sum + item.price, 0));
+        }
+        // Fall back to single book (Buy Now button)
+        else if (location.state?.book) {
+            setItems([location.state.book]);
+            setTotal(parseFloat(location.state.book.price));
+        }
+        else {
+            // Redirect if no items found
             navigate('/');
         }
     }, [location.state, navigate]);
 
     useEffect(() => {
-        if (item && window.Moyasar) {
-            const price = parseFloat(item.price);
-            const totalAmount = price; // Removed tax calculation
-            const amountInHalalas = Math.round(totalAmount * 100);
+        if (items.length > 0 && window.Moyasar) {
+            const amountInHalalas = Math.round(total * 100);
+
+            // Build description with all book titles
+            const description = items.length === 1
+                ? `Payment for ${items[0].title}`
+                : `Payment for ${items.length} books: ${items.map(b => b.title).join(', ')}`;
+
+            // Build callback URL with all book IDs
+            const bookIds = items.map(b => b.id).join(',');
 
             try {
                 window.Moyasar.init({
                     element: '.mysr-form',
                     amount: amountInHalalas,
                     currency: 'SAR',
-                    description: `Payment for ${item.title}`,
+                    description: description,
                     publishable_api_key: import.meta.env.VITE_MOYASAR_PUBLIC_KEY,
-                    callback_url: window.location.origin + `/payment-success?bookId=${item.id}`,
+                    callback_url: window.location.origin + `/payment-success?bookIds=${bookIds}`,
                     methods: ['creditcard', 'stcpay']
                 });
             } catch (error) {
                 console.error("Moyasar init error:", error);
             }
         }
-    }, [item]);
+    }, [items, total, clearCart]);
 
-    if (!item) return null;
-
-    const total = parseFloat(item.price).toFixed(2);
+    if (items.length === 0) return null;
 
     return (
         <div className="min-h-screen flex flex-col bg-[#f5f5f5] font-sans rtl">
@@ -127,32 +144,39 @@ const CheckoutPayment = () => {
                         <div className="bg-brand-slate text-white rounded-2xl shadow-xl overflow-hidden sticky top-24">
                             <div className="p-8 bg-[#3A4958]">
                                 <h3 className="text-lg font-bold opacity-80 mb-1">ملخص الطلب</h3>
-                                <div className="text-3xl font-black">{total} <span className="text-sm font-bold opacity-60">ر.س</span></div>
+                                <div className="text-3xl font-black">
+                                    {total.toFixed(2)} <span className="text-sm font-bold opacity-60">ر.س</span>
+                                </div>
+                                {items.length > 1 && (
+                                    <div className="mt-2 flex items-center gap-2 text-sm opacity-70">
+                                        <ShoppingCart size={16} />
+                                        <span>{items.length} كتب</span>
+                                    </div>
+                                )}
                             </div>
 
-                            <div className="p-8 bg-[#2C3945]">
-                                <div className="flex gap-4 mb-6">
-                                    <div className="w-20 h-24 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
-                                        {item.image && <img src={item.image} alt={item.title} className="w-full h-full object-cover" />}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className="font-bold text-lg truncate leading-tight mb-1">{item.title}</h4>
-                                        <p className="text-sm opacity-60 mb-2">{item.author}</p>
-                                        <div className="inline-block bg-white/10 px-2 py-1 rounded text-xs">
-                                            {item.university}
+                            <div className="p-8 bg-[#2C3945] max-h-[400px] overflow-y-auto">
+                                {/* Book list */}
+                                <div className="space-y-4 mb-6">
+                                    {items.map((item, index) => (
+                                        <div key={item.id || index} className="flex gap-4">
+                                            <div className="w-16 h-20 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
+                                                {item.image && <img src={item.image} alt={item.title} className="w-full h-full object-cover" />}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-bold text-sm truncate leading-tight mb-1">{item.title}</h4>
+                                                <p className="text-xs opacity-60 mb-1">{item.author}</p>
+                                                <span className="text-brand-orange font-bold text-sm">{item.price} ر.س</span>
+                                            </div>
                                         </div>
-                                    </div>
+                                    ))}
                                 </div>
 
-                                <div className="space-y-3 pt-6 border-t border-white/10 text-sm">
-                                    <div className="flex justify-between opacity-70">
-                                        <span>سعر الكتاب</span>
-                                        <span className="font-mono">{item.price} ر.س</span>
-                                    </div>
-
-                                    <div className="flex justify-between font-bold text-lg pt-2">
+                                {/* Total */}
+                                <div className="pt-4 border-t border-white/10">
+                                    <div className="flex justify-between font-bold text-lg">
                                         <span>الإجمالي</span>
-                                        <span className="text-brand-orange">{total} ر.س</span>
+                                        <span className="text-brand-orange">{total.toFixed(2)} ر.س</span>
                                     </div>
                                 </div>
                             </div>
@@ -165,13 +189,5 @@ const CheckoutPayment = () => {
         </div>
     );
 };
-
-// Simple Icon Component needed if Lucide fails to import specific icons? No standard imports work.
-const ShieldCheck = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        <path d="M9 12l2 2 4-4" />
-    </svg>
-);
 
 export default CheckoutPayment;

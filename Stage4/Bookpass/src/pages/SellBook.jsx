@@ -91,9 +91,25 @@ const SellBook = () => {
             return;
         }
 
-        // Validate form
-        if (!formData.title || !formData.author || !formData.price) {
-            setError('يرجى ملء جميع الحقول المطلوبة');
+        // Validate required fields
+        if (!formData.title) {
+            setError('يرجى إدخال عنوان الكتاب');
+            return;
+        }
+        if (!formData.author) {
+            setError('يرجى إدخال اسم المؤلف');
+            return;
+        }
+        if (!formData.price) {
+            setError('يرجى إدخال السعر');
+            return;
+        }
+        if (!formData.university) {
+            setError('يرجى اختيار الجامعة');
+            return;
+        }
+        if (!imageUrl) {
+            setError('يرجى رفع صورة الكتاب');
             return;
         }
 
@@ -203,8 +219,9 @@ const SellBook = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="font-bold text-gray-700">الجامعة / الكلية</label>
+                                        <label className="font-bold text-gray-700">الجامعة / الكلية *</label>
                                         <select
+                                            required
                                             name="university"
                                             value={formData.university}
                                             onChange={handleChange}
@@ -233,6 +250,19 @@ const SellBook = () => {
                                     </div>
                                 </div>
 
+                                <div className="space-y-2">
+                                    <label className="font-bold text-gray-700">رقم ISBN (اختياري)</label>
+                                    <input
+                                        type="text"
+                                        name="isbn"
+                                        value={formData.isbn}
+                                        onChange={handleChange}
+                                        placeholder="مثال: 978-3-16-148410-0"
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
+                                        disabled={loading}
+                                    />
+                                </div>
+
 
 
                                 <div className="space-y-2">
@@ -249,7 +279,7 @@ const SellBook = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="font-bold text-gray-700">صورة الكتاب</label>
+                                    <label className="font-bold text-gray-700">صورة الكتاب *</label>
                                     <input
                                         type="file"
                                         ref={fileInputRef}
@@ -311,11 +341,27 @@ const SellBook = () => {
                             <div className="inline-flex p-4 bg-green-100 text-green-600 rounded-full mb-6">
                                 <CheckCircle size={64} />
                             </div>
-                            <h2 className="text-3xl font-black text-brand-slate mb-4">تم قبول طلبك!</h2>
-                            <p className="text-gray-600 mb-8 text-lg">
-                                يرجى تسليم الكتاب إلى مكتبة <strong>"{UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}"</strong> لتتم مراجعته وعرضه للبيع.
-                                <br />شكراً لاستخدامك بوك باس.
-                            </p>
+                            <h2 className="text-3xl font-black text-brand-slate mb-4">تم قبول طلبك بنجاح!</h2>
+
+                            <div className="max-w-md mx-auto mb-8">
+                                <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-6 mb-4">
+                                    <h3 className="text-lg font-black text-yellow-900 mb-3 flex items-center gap-2 justify-center">
+                                        <AlertCircle size={20} />
+                                        <span>تذكير مهم! 📚</span>
+                                    </h3>
+                                    <p className="text-yellow-800 text-sm leading-relaxed mb-3">
+                                        يرجى <strong>إحضار الكتاب</strong> إلى <strong>مكتبة {UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}</strong> لمراجعته والتأكد من حالته قبل عرضه للبيع.
+                                    </p>
+                                    <div className="bg-yellow-100 rounded-lg p-3 text-yellow-900 text-xs">
+                                        <p className="font-bold mb-1">📍 موقع التسليم:</p>
+                                        <p>مكتبة {UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}</p>
+                                    </div>
+                                </div>
+                                <p className="text-gray-500 text-sm">
+                                    بعد المراجعة، سيتم عرض الكتاب في المتجر ليراه آلاف الطلاب! شكراً لاستخدامك بوك باس.
+                                </p>
+                            </div>
+
                             <div className="flex gap-4 justify-center">
                                 <button onClick={handleAddAnother} className="text-brand-orange font-bold hover:underline">
                                     إضافة كتاب آخر

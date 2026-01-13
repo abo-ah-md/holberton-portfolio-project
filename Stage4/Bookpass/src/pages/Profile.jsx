@@ -1,55 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, Mail, CreditCard, ChevronLeft, Camera, Phone, Edit2, Save, X } from 'lucide-react';
+import { User, Lock, Mail, CreditCard, ChevronLeft, Camera, Phone, Edit2, Save, X, AlertCircle, PackageCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { updateUserProfile } from '../services/authService';
-import { uploadFile } from '../services/fileService'; // Import the new service
+import { uploadFile } from '../services/fileService';
+import { getMyPurchases, getMySales, getMyBooks } from '../services/bookService';
+import { UNIVERSITIES } from '../constants/universities';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-// Use same mock for bought/sold for now
-const MOCK_BOOKS = [
-    {
-        id: 1,
-        title: 'Academic Skills',
-        subtitle: 'Reading, Writing, and Study Skills',
-        isbn: '9780194742160',
-        author: 'Faisal_alharthy22',
-        image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        id: 2,
-        title: 'Web Development',
-        subtitle: 'Full Stack Guide',
-        isbn: '9780132350884',
-        author: 'Sara_Smith',
-        image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        id: 3,
-        title: 'Calculus Early',
-        subtitle: 'Transcendentals 8th Edition',
-        isbn: '9781285741550',
-        author: 'James_Stewart',
-        image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b91d?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        id: 4,
-        title: 'Physics',
-        subtitle: 'For Scientists and Engineers',
-        isbn: '9781133947271',
-        author: 'Serway_Jewett',
-        image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=800&auto=format&fit=crop"
-    },
-    {
-        id: 5,
-        title: 'Organic Chem',
-        subtitle: 'Structure and Function',
-        isbn: '9781464120275',
-        author: 'Vollhardt',
-        image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=800&auto=format&fit=crop"
-    },
-];
+
 
 const OrderBookCard = ({ book }) => (
     <div className="flex bg-white rounded-xl overflow-hidden shadow-lg h-[140px] w-[280px] shrink-0 transform transition-transform hover:scale-105 border border-gray-100">
@@ -58,27 +18,27 @@ const OrderBookCard = ({ book }) => (
             {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
         </div>
 
-        <div className="flex-1 p-3 flex flex-col justify-between">
+        <div className="flex-1 p-4 flex flex-col justify-between">
             <div>
                 <div className="flex justify-between items-start mb-1">
-                    <span className="text-[10px] text-gray-500 font-bold">Headway</span>
-                    <div className="bg-[#1e40af] text-white text-[9px] font-bold px-1.5 py-0.5 rounded leading-tight">
+                    <span className="text-xs text-gray-500 font-bold">{book.university || 'جامعة'}</span>
+                    <div className="bg-[#1e40af] text-white text-[11px] font-bold px-2 py-1 rounded leading-tight truncate max-w-[140px]">
                         {book.title}
                     </div>
                 </div>
-                <h4 className="text-[11px] text-gray-600 font-bold leading-tight mb-2 truncate dir-ltr text-right">
-                    {book.subtitle}
+                <h4 className="text-sm text-gray-600 font-bold leading-tight mb-2 truncate">
+                    {book.author || book.description}
                 </h4>
             </div>
 
-            <div className="flex flex-col gap-1 text-[10px] text-gray-500 border-t border-gray-100 pt-2">
+            <div className="flex flex-col gap-1.5 text-xs text-gray-500 border-t border-gray-100 pt-2">
                 <div className="flex justify-between">
                     <span className="font-bold">ISBN:</span>
-                    <span className="font-mono text-[9px]">{book.isbn.slice(-4)}..</span>
+                    <span className="font-mono text-[11px]">{book.isbn ? book.isbn.slice(-4) + '..' : 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                     <span className="font-bold">السعر:</span>
-                    <span className="text-brand-orange font-bold">25 ر.س</span>
+                    <span className="text-brand-orange font-bold">{book.price} ر.س</span>
                 </div>
             </div>
         </div>
@@ -92,13 +52,19 @@ const Profile = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [isUploadingImage, setIsUploadingImage] = useState(false); // Separated loading state for image
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
     const [editData, setEditData] = useState({
         firstName: '',
         lastName: '',
         phoneNumber: '',
         profilePicture: ''
     });
+
+    // Orders state
+    const [purchases, setPurchases] = useState([]);
+    const [sales, setSales] = useState([]);
+    const [myListedBooks, setMyListedBooks] = useState([]); // Books I've listed for sale
+    const [ordersLoading, setOrdersLoading] = useState(true);
 
     useEffect(() => {
         if (user) {
@@ -108,6 +74,37 @@ const Profile = () => {
                 phoneNumber: user.phoneNumber || '',
                 profilePicture: user.profilePicture || ''
             });
+        }
+    }, [user]);
+
+    // Fetch user orders on mount
+    useEffect(() => {
+        const fetchOrders = async () => {
+            setOrdersLoading(true);
+
+            const [purchasesResult, salesResult, myBooksResult] = await Promise.all([
+                getMyPurchases(),
+                getMySales(),
+                getMyBooks()
+            ]);
+
+            if (!purchasesResult.error) {
+                setPurchases(purchasesResult.data);
+            }
+
+            if (!salesResult.error) {
+                setSales(salesResult.data);
+            }
+
+            if (!myBooksResult.error) {
+                setMyListedBooks(myBooksResult.data);
+            }
+
+            setOrdersLoading(false);
+        };
+
+        if (user) {
+            fetchOrders();
         }
     }, [user]);
 
@@ -376,8 +373,73 @@ const Profile = () => {
                     </div>
                 </div>
 
+                {/* --- SECTION 2: Pending Books for Delivery --- */}
+                {!ordersLoading && myListedBooks.filter(book => book.listingStatus === 'PENDING').length > 0 && (
+                    <div>
+                        <h2 className="text-3xl font-bold text-white mb-4 border-b border-yellow-500/50 pb-2 text-right">
+                            كتب بانتظار التسليم
+                        </h2>
 
-                {/* --- SECTION 2: Orders --- */}
+                        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-6 shadow-xl border-2 border-yellow-400">
+                            <div className="flex items-start gap-4 mb-4">
+                                <div className="bg-yellow-500 text-white p-3 rounded-full">
+                                    <AlertCircle size={32} />
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="text-xl font-black text-yellow-900 mb-2">
+                                        تذكير مهم! لديك كتب بانتظار التسليم 📚
+                                    </h3>
+                                    <p className="text-yellow-800 mb-4">
+                                        يرجى إحضار الكتب التالية إلى مواقع التسليم المحددة لمراجعتها وعرضها للبيع:
+                                    </p>
+
+                                    <div className="space-y-3">
+                                        {myListedBooks.filter(book => book.listingStatus === 'PENDING').map((book, index) => (
+                                            <div key={book.id} className="bg-white rounded-xl p-4 shadow-md border border-yellow-200">
+                                                <div className="flex items-start gap-4">
+                                                    {/* Book Image */}
+                                                    <div className="w-16 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                                                        {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
+                                                    </div>
+
+                                                    {/* Book Info */}
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="font-black text-brand-slate text-sm mb-1 truncate">
+                                                            {index + 1}. {book.title}
+                                                        </h4>
+                                                        <p className="text-xs text-gray-600 mb-2">{book.author}</p>
+
+                                                        <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-2 mt-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <PackageCheck size={16} className="text-yellow-700" />
+                                                                <div className="text-xs">
+                                                                    <p className="font-bold text-yellow-900">📍 موقع التسليم:</p>
+                                                                    <p className="text-yellow-800">
+                                                                        مكتبة {UNIVERSITIES[book.university]?.nameAr || book.university || 'الجامعة'}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="mt-4 p-3 bg-yellow-200/50 rounded-lg">
+                                        <p className="text-yellow-900 text-sm flex items-start gap-2">
+                                            <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+                                            <span>بعد التسليم والمراجعة، سيتم عرض كتبك في المتجر ليراها آلاف الطلاب.</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
+                {/* --- SECTION 3: Orders --- */}
                 <div>
                     <h2 className="text-3xl font-bold text-white mb-8 border-b border-gray-500/50 pb-4 text-right">
                         الطلبات
@@ -388,7 +450,7 @@ const Profile = () => {
                         <h3 className="text-gray-300 text-right font-bold text-lg mb-4 pr-2">
                             آخر كتبك المشتراة
                         </h3>
-                        <div className="relative overflow-hidden shadow-xl p-10"
+                        <div className="relative overflow-hidden shadow-xl p-10 min-h-[200px]"
                             style={{
                                 background: 'linear-gradient(105deg, #cc8c74 35%, #354250 35.1%)',
                                 borderTopLeftRadius: '100px',
@@ -398,11 +460,21 @@ const Profile = () => {
                                 border: '3px solid rgba(255,255,255,0.1)'
                             }}
                         >
-                            <div className="flex flex-row flex-wrap gap-[3px] justify-center md:justify-start">
-                                {MOCK_BOOKS.slice(0, 4).map(book => (
-                                    <OrderBookCard key={book.id} book={book} />
-                                ))}
-                            </div>
+                            {ordersLoading ? (
+                                <div className="flex items-center justify-center py-12">
+                                    <div className="w-10 h-10 border-4 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
+                                </div>
+                            ) : purchases.length > 0 ? (
+                                <div className="flex flex-row flex-wrap gap-4 justify-center md:justify-start">
+                                    {purchases.map(book => (
+                                        <OrderBookCard key={book.id} book={book} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-12 text-white/60">
+                                    <p className="text-lg">لا توجد مشتريات بعد</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -411,7 +483,7 @@ const Profile = () => {
                         <h3 className="text-gray-300 text-right font-bold text-lg mb-4 pr-2">
                             آخر كتبك المباعة
                         </h3>
-                        <div className="relative overflow-hidden shadow-xl p-10"
+                        <div className="relative overflow-hidden shadow-xl p-10 min-h-[200px]"
                             style={{
                                 background: 'linear-gradient(105deg, #cc8c74 35%, #354250 35.1%)',
                                 borderTopLeftRadius: '100px',
@@ -421,11 +493,21 @@ const Profile = () => {
                                 border: '3px solid rgba(255,255,255,0.1)'
                             }}
                         >
-                            <div className="flex flex-row flex-wrap gap-[3px] justify-center md:justify-start">
-                                {MOCK_BOOKS.slice(0, 4).map(book => (
-                                    <OrderBookCard key={`sold-${book.id}`} book={book} />
-                                ))}
-                            </div>
+                            {ordersLoading ? (
+                                <div className="flex items-center justify-center py-12">
+                                    <div className="w-10 h-10 border-4 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
+                                </div>
+                            ) : sales.length > 0 ? (
+                                <div className="flex flex-row flex-wrap gap-4 justify-center md:justify-start">
+                                    {sales.map(book => (
+                                        <OrderBookCard key={`sold-${book.id}`} book={book} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-12 text-white/60">
+                                    <p className="text-lg">لا توجد مبيعات بعد</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 

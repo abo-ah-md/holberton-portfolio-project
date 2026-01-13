@@ -3,7 +3,7 @@ import whiteLogo from '../assets/white-logo.svg';
 
 const CurvedSection = () => {
     return (
-        <div className="relative  w-full overflow-hidden" style={{ marginTop: '-1px', backgroundColor: '#475a67' }}>
+        <div className="relative w-full overflow-hidden mb-20 md:mb-32" style={{ marginTop: '-1px', backgroundColor: '#475a67' }}>
             {/* SVG with exact shape from provided design */}
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -57,8 +57,8 @@ const CurvedSection = () => {
                 </g>
             </svg>
 
-            {/* Content Section - Compact height for horizontal layout on all devices */}
-            <section className="relative top-20 z-30 min-h-[600px] md:min-h-[300px] flex flex-col items-center justify-center pt-24 md:pt-36 pb-8 md:pb-12" style={{ background: 'transparent' }}>
+            {/* Content Section - Centered within the brown area */}
+            <section className="relative z-30 min-h-[500px] md:min-h-[450px] flex flex-col items-center justify-center pt-32 md:pt-48 pb-16 md:pb-24" style={{ background: 'transparent' }}>
                 <div className="relative z-30 w-full max-w-7xl mx-auto px-4 md:px-12">
 
                     {/* Header with Logo */}

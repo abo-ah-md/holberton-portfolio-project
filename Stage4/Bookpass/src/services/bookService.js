@@ -333,6 +333,7 @@ export const markBookAsPicked = async (bookId) => {
 /**
  * Purchase a book (Verify payment on backend)
  * PUT /api/books/{id}/purchase
+ * @deprecated Use checkoutCart for multi-book purchases
  */
 export const purchaseBook = async (bookId, paymentId) => {
   try {
@@ -360,6 +361,116 @@ export const purchaseBook = async (bookId, paymentId) => {
   } catch (error) {
     console.error('Error purchasing book:', error);
     return { data: null, error: error.message };
+  }
+};
+
+/**
+ * Checkout cart with multiple books
+ * POST /api/cart/checkout
+ * 
+ * @param {string[]} bookIds - Array of book UUIDs to purchase
+ * @param {string} paymentId - Moyasar payment ID
+ * @returns {Object} { data: { purchasedBooks, totalAmount, totalBooks, paymentId, status }, error }
+ */
+export const checkoutCart = async (bookIds, paymentId) => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/cart/checkout`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bookIds, paymentId })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to complete checkout');
+    }
+
+    const data = await response.json();
+
+    // Transform the response
+    return {
+      data: {
+        purchasedBooks: data.purchasedBooks ? data.purchasedBooks.map(transformBook) : [],
+        totalAmount: data.totalAmount,
+        totalBooks: data.totalBooks,
+        paymentId: data.paymentId,
+        status: data.status
+      },
+      error: null
+    };
+  } catch (error) {
+    console.error('Error checking out cart:', error);
+    return { data: null, error: error.message };
+  }
+};
+
+/**
+ * Get books the current user has purchased
+ * GET /api/orders/my-purchases
+ */
+export const getMyPurchases = async () => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/orders/my-purchases`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch purchases');
+    }
+
+    const data = await response.json();
+    return { data: transformBooks(data), error: null };
+  } catch (error) {
+    console.error('Error fetching my purchases:', error);
+    return { data: [], error: error.message };
+  }
+};
+
+/**
+ * Get books the current user has sold
+ * GET /api/orders/my-sales
+ */
+export const getMySales = async () => {
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/orders/my-sales`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch sales');
+    }
+
+    const data = await response.json();
+    return { data: transformBooks(data), error: null };
+  } catch (error) {
+    console.error('Error fetching my sales:', error);
+    return { data: [], error: error.message };
   }
 };
 

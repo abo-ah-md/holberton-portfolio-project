@@ -63,35 +63,43 @@ const Cart = () => {
                         </div>
                     </div>
 
-                    {/* Summary Section */}
-                    <div className="w-full md:w-[380px]">
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-24">
-                            <h2 className="font-bold text-xl text-brand-slate mb-6 pb-4 border-b border-gray-100">ملخص الطلب</h2>
 
-                            <div className="space-y-4 mb-8">
-                                <div className="flex justify-between text-gray-600">
-                                    <span>المجموع الفرعي</span>
-                                    <span className="font-bold">{calculateTotal()} ر.س</span>
+                    {/* Summary Section - Only show when cart has items */}
+                    {cartItems.length > 0 && (
+                        <div className="w-full md:w-[380px]">
+                            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sticky top-24">
+                                <h2 className="font-bold text-xl text-brand-slate mb-6 pb-4 border-b border-gray-100">ملخص الطلب</h2>
+
+                                <div className="space-y-4 mb-8">
+                                    <div className="flex justify-between text-gray-600">
+                                        <span>عدد الكتب</span>
+                                        <span className="font-bold">{cartItems.length} كتاب</span>
+                                    </div>
+                                    <div className="flex justify-between text-brand-slate text-lg pt-4 border-t border-dashed border-gray-200">
+                                        <span className="font-black">الإجمالي</span>
+                                        <span className="font-black text-brand-orange">{calculateTotal()} ر.س</span>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between text-gray-600">
-                                    <span>ضريبة القيمة المضافة (15%)</span>
-                                    <span className="font-bold">{(calculateTotal() * 0.15).toFixed(2)} ر.س</span>
-                                </div>
-                                <div className="flex justify-between text-brand-slate text-lg pt-4 border-t border-dashed border-gray-200">
-                                    <span className="font-black">الإجمالي</span>
-                                    <span className="font-black text-brand-orange">{(calculateTotal() * 1.15).toFixed(2)} ر.س</span>
-                                </div>
+
+
+                                <button
+                                    onClick={() => navigate('/checkout', {
+                                        state: {
+                                            cartItems: cartItems,
+                                            total: calculateTotal()
+                                        }
+                                    })}
+                                    className="w-full bg-brand-orange text-white font-bold py-4 rounded-xl shadow-lg hover:bg-brand-orange/90 transition transform hover:-translate-y-1 mb-4 flex items-center justify-center gap-2"
+                                >
+                                    <span>إتمام الشراء</span>
+                                    <ArrowRight size={18} className="rotate-180" />
+                                </button>
+                                <button onClick={() => navigate('/')} className="w-full bg-gray-50 text-gray-600 font-bold py-4 rounded-xl hover:bg-gray-100 transition">
+                                    متابعة التسوق
+                                </button>
                             </div>
-
-                            <button className="w-full bg-brand-orange text-white font-bold py-4 rounded-xl shadow-lg hover:bg-brand-orange/90 transition transform hover:-translate-y-1 mb-4 flex items-center justify-center gap-2">
-                                <span>إتمام الشراء</span>
-                                <ArrowRight size={18} className="rotate-180" />
-                            </button>
-                            <button onClick={() => navigate('/')} className="w-full bg-gray-50 text-gray-600 font-bold py-4 rounded-xl hover:bg-gray-100 transition">
-                                متابعة التسوق
-                            </button>
                         </div>
-                    </div>
+                    )}
 
                 </main>
             </div>
