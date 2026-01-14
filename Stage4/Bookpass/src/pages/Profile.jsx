@@ -272,7 +272,7 @@ const Profile = () => {
                                     <button
                                         onClick={handleSave}
                                         disabled={isLoading}
-                                        className="bg-green-600 text-white px-6 py-2 shadow-lg text-lg font-bold hover:bg-green-700 transition-colors flex items-center gap-2"
+                                        className="bg-green-500 text-white px-6 py-2 shadow-lg text-lg font-bold hover:bg-green-600 transition-colors flex items-center gap-2"
                                     >
                                         <Save size={18} />
                                         <span>حفظ</span>

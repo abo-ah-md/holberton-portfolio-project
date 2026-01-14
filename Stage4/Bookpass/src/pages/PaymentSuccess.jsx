@@ -92,7 +92,7 @@ const PaymentSuccess = () => {
     const getStatusConfig = (currentStatus) => {
         switch (currentStatus) {
             case 'paid':
-                return { text: 'مقبولة ومؤكدة', color: 'text-green-600', bg: 'bg-green-100', icon: CheckCircle };
+                return { text: 'مقبولة ومؤكدة', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle };
             case 'authorized':
                 return { text: 'مفوضة (بانتظار السحب)', color: 'text-blue-600', bg: 'bg-blue-100', icon: CheckCircle };
             case 'refunded':

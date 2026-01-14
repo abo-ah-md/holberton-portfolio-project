@@ -38,11 +38,11 @@ const SoldBookCard = ({ book, onPicked }) => {
 
                     {/* Buyer Info Section */}
                     <div className="mt-2 bg-green-50 p-2 rounded-lg border border-green-100">
-                        <div className="flex items-center gap-2 mb-1 text-green-800 font-bold text-sm">
+                        <div className="flex items-center gap-2 mb-1 text-green-600 font-bold text-sm">
                             <User size={14} />
                             <span>المشتري: {book.buyerName || 'غير متوفر'}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-green-700 text-sm font-mono dir-ltr">
+                        <div className="flex items-center gap-2 text-green-600 text-sm font-mono dir-ltr">
                             <Phone size={14} />
                             <span>{book.buyerPhone || 'N/A'}</span>
                         </div>
@@ -59,7 +59,7 @@ const SoldBookCard = ({ book, onPicked }) => {
             <div className="bg-[#e5e7eb] p-4 rounded-b-2xl flex items-center justify-between gap-2 relative z-20">
                 <button
                     onClick={() => onPicked && onPicked(book.id)}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-[16px] py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-md"
+                    className="w-full bg-green-500 hover:bg-green-600 text-white font-bold text-[16px] py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-md"
                 >
                     <CheckCircle size={20} />
                     <span>تأكيد التسليم (تم الإستلام)</span>

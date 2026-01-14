@@ -77,7 +77,12 @@ const ReviewBookCard = ({ book, onAccept }) => {
             <div className="bg-[#e5e7eb] p-4 rounded-b-2xl flex items-center justify-between gap-2 relative z-20">
 
                 {/* 1. Excellent Button (Rightmost) - Display Selected Status */}
-                <button className="flex-1 bg-white hover:bg-gray-50 text-[#374151] font-medium text-[16px] py-2 px-2 rounded-lg border border-gray-300 transition-colors text-center whitespace-nowrap overflow-hidden text-ellipsis shadow-sm">
+                <button className={`flex-1 font-medium text-[16px] py-2 px-2 rounded-lg border border-gray-300 transition-colors text-center whitespace-nowrap overflow-hidden text-ellipsis shadow-sm
+                    ${selectedStatus === 'excellent' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                        selectedStatus === 'very good' ? 'bg-lime-50 text-lime-600 border-lime-200' :
+                            selectedStatus === 'good' ? 'bg-yellow-50 text-yellow-600 border-yellow-200' :
+                                selectedStatus === 'poor' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+                                    'bg-white hover:bg-gray-50 text-[#374151]'}`}>
                     {getStatusLabel(selectedStatus)}
                 </button>
 
@@ -98,7 +103,13 @@ const ReviewBookCard = ({ book, onAccept }) => {
                                 <button
                                     key={status}
                                     onClick={() => handleConditionSelect(status)}
-                                    className={`w-full text-right px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${selectedStatus === status ? 'bg-brand-orange/10 text-brand-orange font-bold' : 'text-gray-700'}`}
+                                    className={`w-full text-right px-4 py-2 text-sm hover:bg-gray-50 transition-colors 
+                                        ${selectedStatus === status ?
+                                            (status === 'excellent' ? 'bg-emerald-50 text-emerald-600 font-bold' :
+                                                status === 'very good' ? 'bg-lime-50 text-lime-600 font-bold' :
+                                                    status === 'good' ? 'bg-yellow-50 text-yellow-600 font-bold' :
+                                                        'bg-orange-50 text-orange-600 font-bold')
+                                            : 'text-gray-700'}`}
                                 >
                                     {getStatusLabel(status)}
                                 </button>

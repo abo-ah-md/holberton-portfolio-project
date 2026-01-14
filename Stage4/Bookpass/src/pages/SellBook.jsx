@@ -338,7 +338,7 @@ const SellBook = () => {
                         </>
                     ) : (
                         <div className="text-center py-12 animate-in zoom-in duration-300">
-                            <div className="inline-flex p-4 bg-green-100 text-green-600 rounded-full mb-6">
+                            <div className="inline-flex p-4 bg-emerald-50 text-emerald-600 rounded-full mb-6">
                                 <CheckCircle size={64} />
                             </div>
                             <h2 className="text-3xl font-black text-brand-slate mb-4">تم قبول طلبك بنجاح!</h2>

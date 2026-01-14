@@ -56,11 +56,19 @@ const BookCard = ({ book }) => {
     };
 
     const getStatusBadge = () => {
-        if (book.isSold) return { text: 'تم البيع', color: 'bg-gray-800 text-white' };
-        if (isPending) return { text: 'قريبا', color: 'bg-blue-600 text-white' };
+        if (book.isSold) return { text: 'تم البيع', color: 'bg-gray-100 text-gray-500 border border-gray-200' };
+        if (isPending) return { text: 'قريبا', color: 'bg-blue-50 text-blue-600 border border-blue-100' };
+
+        // Gradient logic for status
+        const status = book.status ? book.status.toLowerCase() : '';
+        if (status === 'excellent' || status === 'ممتاز') return { text: getStatusLabel(book.status), color: 'bg-emerald-50 text-emerald-600 border border-emerald-100' };
+        if (status === 'very good' || status === 'جيد جداً') return { text: getStatusLabel(book.status), color: 'bg-lime-50 text-lime-600 border border-lime-100' };
+        if (status === 'good' || status === 'جيد') return { text: getStatusLabel(book.status), color: 'bg-yellow-50 text-yellow-600 border border-yellow-100' };
+        if (status === 'poor' || status === 'acceptable' || status === 'مقبول') return { text: getStatusLabel(book.status), color: 'bg-orange-50 text-orange-600 border border-orange-100' };
+
         return {
             text: getStatusLabel(book.status),
-            color: 'bg-white/95 text-brand-orange border border-brand-orange/20'
+            color: 'bg-gray-50 text-gray-600 border border-gray-100'
         };
     };
 
@@ -115,7 +123,7 @@ const BookCard = ({ book }) => {
                             {/* Quick Add to Cart Button */}
                             <button
                                 onClick={handleAddToCart}
-                                className={`text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-2 hover:scale-105 ${isAdded ? 'bg-green-500 hover:bg-green-600' : 'bg-[#C17554] hover:bg-[#a95234]'} `}
+                                className={`text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-2 hover:scale-105 ${isAdded ? 'bg-green-400 hover:bg-green-500' : 'bg-brand-orange hover:bg-brand-orange/90'} `}
                             >
                                 {isAdded ? <Check size={16} /> : <ShoppingCart size={16} />}
                                 <span>{isAdded ? 'تمت الإضافة' : 'أضف للسلة'}</span>
@@ -176,7 +184,7 @@ const BookCard = ({ book }) => {
                                 onClick={handleAddToCart}
                                 disabled={book.isSold || isPending}
                                 className={`flex-1 text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap 
-                                    ${book.isSold || isPending ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-green-500 hover:bg-green-600' : 'bg-brand-slate hover:bg-brand-slate/90')} `}
+                                    ${book.isSold || isPending ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-green-400 hover:bg-green-500' : 'bg-brand-orange hover:bg-brand-orange/90')} `}
                             >
                                 {isAdded ? <Check size={14} /> : (book.isSold ? <Slash size={14} /> : (isPending ? <Clock size={14} /> : <ShoppingCart size={14} />))}
                                 <span>{isAdded ? 'تمت' : (book.isSold ? '' : (isPending ? '' : 'سلة'))}</span>
@@ -233,7 +241,7 @@ const BookCard = ({ book }) => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="font-bold text-gray-500 text-sm">الحالة:</span>
-                                        <span className={`font-bold text-sm ${isPending ? 'text-blue-600' : 'text-green-600'}`}>
+                                        <span className={`font-bold text-sm px-2 py-0.5 rounded-md ${isPending ? 'text-blue-600 bg-blue-50' : 'text-emerald-600 bg-emerald-50'}`}>
                                             {isPending ? 'قريبا' : getStatusLabel(book.status)}
                                         </span>
                                     </div>
@@ -260,7 +268,7 @@ const BookCard = ({ book }) => {
                                         onClick={handleAddToCart}
                                         disabled={isPending}
                                         className={`flex-1 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 whitespace-nowrap 
-                                            ${isPending ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-green-500 hover:bg-green-600' : 'bg-[#C17554] hover:bg-[#a95234]')}`}
+                                            ${isPending ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-green-400 hover:bg-green-500' : 'bg-brand-orange hover:bg-brand-orange/90')}`}
                                     >
                                         {isAdded ? <Check size={20} /> : (isPending ? <Clock size={20} /> : <ShoppingCart size={20} />)}
                                         <span>{isAdded ? 'تمت الإضافة' : (isPending ? 'غير متاح' : 'الإضافة للسلة')}</span>
