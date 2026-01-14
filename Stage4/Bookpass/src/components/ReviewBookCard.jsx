@@ -34,40 +34,37 @@ const ReviewBookCard = ({ book, onAccept }) => {
                 </div>
 
                 {/* Info Stack */}
-                <div className="flex flex-col flex-1 min-w-0">
+                <div className="flex flex-col flex-1 min-w-0 items-center text-center">
                     {/* Header Label (University) */}
                     <span className="text-[11px] text-[#374151] font-medium mb-1 tracking-wide">
                         {getUniversityName(book.university)}
                     </span>
 
                     {/* Title Badge */}
-                    <div className="self-start mb-1">
-                        <span className="bg-[#1e40af] text-white text-[15px] font-bold px-2 py-0.5 rounded leading-tight inline-block">
+                    <div className="mb-2">
+                        <span className="bg-[#1e40af] text-white text-[15px] font-bold px-3 py-0.5 rounded leading-tight inline-block">
                             {book.title}
                         </span>
                     </div>
 
-                    {/* Description (formerly Subtitle) */}
-                    <span className="text-[14px] text-[#4b5563] font-medium mb-3 truncate block">
-                        {book.description || book.subtitle || "No description"}
-                    </span>
+                    {/* Description Removed as requested */}
 
                     {/* Divider */}
                     <div className="h-[1px] w-full bg-[#c8876f]/30 mb-3"></div>
 
                     {/* Details Stack */}
-                    <div className="flex flex-col gap-1.5 text-[13px]">
+                    <div className="flex flex-col gap-1.5 text-[13px] w-full">
                         <div className="flex justify-between items-center text-[#4b5563]">
-                            <span className="font-bold text-right ml-2">ISBN:</span>
-                            <span className="font-mono text-left">{book.isbn}</span>
+                            <span className="font-bold ml-2">ISBN:</span>
+                            <span className="font-mono">{book.isbn}</span>
                         </div>
                         <div className="flex justify-between items-center text-[#4b5563]">
-                            <span className="font-bold text-right ml-2">المؤلف:</span>
-                            <span className="truncate text-left dir-ltr" dir="ltr">{book.author}</span>
+                            <span className="font-bold ml-2">المؤلف:</span>
+                            <span className="truncate dir-ltr" dir="ltr">{book.author}</span>
                         </div>
                         <div className="flex justify-between items-center text-[#4b5563]">
-                            <span className="font-bold text-right ml-2">الجامعة:</span>
-                            <span className="truncate text-left">{getUniversityName(book.university) || book.publisher || 'Unknown'}</span>
+                            <span className="font-bold ml-2">الجامعة:</span>
+                            <span className="truncate">{getUniversityName(book.university) || book.publisher || 'Unknown'}</span>
                         </div>
                     </div>
                 </div>

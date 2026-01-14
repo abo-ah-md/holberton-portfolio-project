@@ -160,219 +160,210 @@ const SellBook = () => {
         <div className="min-h-screen flex flex-col bg-[#f5f5f5] font-sans rtl">
             <Navbar />
 
-            <div className="flex-1 max-w-3xl mx-auto w-full px-6 py-12">
-                <main className="bg-white rounded-3xl shadow-xl p-8 md:p-12 relative overflow-hidden">
+            <div className="flex-1 flex flex-col justify-center items-center w-full pb-20">
+                <div className="w-full max-w-3xl px-6">
+                    <main className="bg-white rounded-3xl shadow-xl p-8 md:p-12 relative overflow-hidden">
 
-                    {step === 1 ? (
-                        <>
-                            <div className="text-center mb-10">
-                                <div className="inline-flex p-4 bg-brand-orange/10 rounded-full mb-4 text-brand-orange">
-                                    <BookOpen size={48} />
-                                </div>
-                                <h1 className="text-3xl font-black text-brand-slate mb-3">اعرض كتابك للبيع</h1>
-                                <p className="text-gray-500 max-w-md mx-auto">قم بتعبئة بيانات الكتاب بدقة لزيادة فرص بيعه بسرعة. نحن نساعدك في الوصول لآلاف الطلاب.</p>
-                            </div>
-
-                            {error && (
-                                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-600">
-                                    <AlertCircle size={20} />
-                                    <span className="font-bold">{error}</span>
-                                </div>
-                            )}
-
-                            {!user && (
-                                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-center gap-3 text-yellow-700">
-                                    <AlertCircle size={20} />
-                                    <span className="font-bold">يجب <button onClick={() => navigate('/login')} className="underline">تسجيل الدخول</button> لإضافة كتاب للبيع</span>
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="font-bold text-gray-700">عنوان الكتاب *</label>
-                                        <input
-                                            required
-                                            type="text"
-                                            name="title"
-                                            value={formData.title}
-                                            onChange={handleChange}
-                                            placeholder="مثال: مقدمة في الفيزياء"
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
-                                            disabled={loading}
-                                        />
+                        {step === 1 ? (
+                            <>
+                                <div className="text-center mb-10">
+                                    <div className="inline-flex p-4 bg-brand-orange/10 rounded-full mb-4 text-brand-orange">
+                                        <BookOpen size={48} />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="font-bold text-gray-700">اسم المؤلف *</label>
-                                        <input
-                                            required
-                                            type="text"
-                                            name="author"
-                                            value={formData.author}
-                                            onChange={handleChange}
-                                            placeholder="مثال: د. أحمد محمد"
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
-                                            disabled={loading}
-                                        />
+                                    <h1 className="text-3xl font-black text-brand-slate mb-3">اعرض كتابك للبيع</h1>
+                                    <p className="text-gray-500 max-w-md mx-auto">قم بتعبئة بيانات الكتاب بدقة لزيادة فرص بيعه بسرعة. نحن نساعدك في الوصول لآلاف الطلاب.</p>
+                                </div>
+
+                                {error && (
+                                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-600">
+                                        <AlertCircle size={20} />
+                                        <span className="font-bold">{error}</span>
                                     </div>
-                                </div>
+                                )}
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="font-bold text-gray-700">الجامعة / الكلية *</label>
-                                        <select
-                                            required
-                                            name="university"
-                                            value={formData.university}
-                                            onChange={handleChange}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition cursor-pointer"
-                                            disabled={loading}
-                                        >
-                                            <option value="">اختر الجامعة</option>
-                                            {Object.entries(UNIVERSITIES).map(([key, { nameAr }]) => (
-                                                <option key={key} value={key}>{nameAr}</option>
-                                            ))}
-                                        </select>
+                                {!user && (
+                                    <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-center gap-3 text-yellow-700">
+                                        <AlertCircle size={20} />
+                                        <span className="font-bold">يجب <button onClick={() => navigate('/login')} className="underline">تسجيل الدخول</button> لإضافة كتاب للبيع</span>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="font-bold text-gray-700">السعر المطلوب (ر.س) *</label>
-                                        <input
-                                            required
-                                            type="number"
-                                            name="price"
-                                            value={formData.price}
-                                            onChange={handleChange}
-                                            placeholder="00"
-                                            min="1"
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
-                                            disabled={loading}
-                                        />
-                                    </div>
-                                </div>
+                                )}
 
-                                <div className="space-y-2">
-                                    <label className="font-bold text-gray-700">رقم ISBN (اختياري)</label>
-                                    <input
-                                        type="text"
-                                        name="isbn"
-                                        value={formData.isbn}
-                                        onChange={handleChange}
-                                        placeholder="مثال: 978-3-16-148410-0"
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
-                                        disabled={loading}
-                                    />
-                                </div>
-
-
-
-                                <div className="space-y-2">
-                                    <label className="font-bold text-gray-700">وصف الكتاب (اختياري)</label>
-                                    <textarea
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        placeholder="أضف وصفاً للكتاب..."
-                                        rows={3}
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition resize-none"
-                                        disabled={loading}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="font-bold text-gray-700">صورة الكتاب *</label>
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={handleImageChange}
-                                        accept="image/*"
-                                        className="hidden"
-                                        disabled={loading || uploading}
-                                    />
-                                    {imagePreview ? (
-                                        <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-brand-orange">
-                                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                            {uploading && (
-                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                                    <Loader2 className="animate-spin text-white" size={32} />
-                                                </div>
-                                            )}
-                                            {!uploading && (
-                                                <button
-                                                    type="button"
-                                                    onClick={removeImage}
-                                                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition"
-                                                >
-                                                    <X size={16} />
-                                                </button>
-                                            )}
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="font-bold text-gray-700">عنوان الكتاب *</label>
+                                            <input
+                                                required
+                                                type="text"
+                                                name="title"
+                                                value={formData.title}
+                                                onChange={handleChange}
+                                                placeholder="مثال: مقدمة في الفيزياء"
+                                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
+                                                disabled={loading}
+                                            />
                                         </div>
-                                    ) : (
-                                        <div
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-gray-400 hover:bg-gray-50/50 hover:border-brand-orange/50 transition cursor-pointer group"
-                                        >
-                                            <Upload size={32} className="mb-2 group-hover:text-brand-orange transition-colors" />
-                                            <span className="font-bold text-sm">اضغط هنا لرفع صورة الكتاب</span>
-                                            <span className="text-xs mt-1">PNG, JPG حتى 5MB</span>
+                                        <div className="space-y-2">
+                                            <label className="font-bold text-gray-700">اسم المؤلف *</label>
+                                            <input
+                                                required
+                                                type="text"
+                                                name="author"
+                                                value={formData.author}
+                                                onChange={handleChange}
+                                                placeholder="مثال: د. أحمد محمد"
+                                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
+                                                disabled={loading}
+                                            />
                                         </div>
-                                    )}
-                                </div>
+                                    </div>
 
-                                <div className="pt-4">
-                                    <button
-                                        type="submit"
-                                        disabled={loading || !user}
-                                        className="w-full bg-[#C17554] hover:bg-[#a95234] text-white font-black text-lg py-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <Loader2 size={24} className="animate-spin" />
-                                                <span>جاري النشر...</span>
-                                            </>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="font-bold text-gray-700">الجامعة / الكلية *</label>
+                                            <select
+                                                required
+                                                name="university"
+                                                value={formData.university}
+                                                onChange={handleChange}
+                                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition cursor-pointer"
+                                                disabled={loading}
+                                            >
+                                                <option value="">اختر الجامعة</option>
+                                                {Object.entries(UNIVERSITIES).map(([key, { nameAr }]) => (
+                                                    <option key={key} value={key}>{nameAr}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="font-bold text-gray-700">السعر المطلوب (ر.س) *</label>
+                                            <input
+                                                required
+                                                type="number"
+                                                name="price"
+                                                value={formData.price}
+                                                onChange={handleChange}
+                                                placeholder="00"
+                                                min="1"
+                                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
+                                                disabled={loading}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="font-bold text-gray-700">رقم ISBN (اختياري)</label>
+                                        <input
+                                            type="text"
+                                            name="isbn"
+                                            value={formData.isbn}
+                                            onChange={handleChange}
+                                            placeholder="مثال: 978-3-16-148410-0"
+                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-orange/20 transition"
+                                            disabled={loading}
+                                        />
+                                    </div>
+
+
+
+
+
+                                    <div className="space-y-2">
+                                        <label className="font-bold text-gray-700">صورة الكتاب *</label>
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleImageChange}
+                                            accept="image/*"
+                                            className="hidden"
+                                            disabled={loading || uploading}
+                                        />
+                                        {imagePreview ? (
+                                            <div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-brand-orange">
+                                                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                                {uploading && (
+                                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                        <Loader2 className="animate-spin text-white" size={32} />
+                                                    </div>
+                                                )}
+                                                {!uploading && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={removeImage}
+                                                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition"
+                                                    >
+                                                        <X size={16} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         ) : (
-                                            <span>نشر الإعلان الآن</span>
+                                            <div
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-gray-400 hover:bg-gray-50/50 hover:border-brand-orange/50 transition cursor-pointer group"
+                                            >
+                                                <Upload size={32} className="mb-2 group-hover:text-brand-orange transition-colors" />
+                                                <span className="font-bold text-sm">اضغط هنا لرفع صورة الكتاب</span>
+                                                <span className="text-xs mt-1">PNG, JPG حتى 5MB</span>
+                                            </div>
                                         )}
+                                    </div>
+
+                                    <div className="pt-4">
+                                        <button
+                                            type="submit"
+                                            disabled={loading || !user}
+                                            className="w-full bg-[#C17554] hover:bg-[#a95234] text-white font-black text-lg py-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <Loader2 size={24} className="animate-spin" />
+                                                    <span>جاري النشر...</span>
+                                                </>
+                                            ) : (
+                                                <span>نشر الإعلان الآن</span>
+                                            )}
+                                        </button>
+                                    </div>
+                                </form>
+                            </>
+                        ) : (
+                            <div className="text-center py-12 animate-in zoom-in duration-300">
+                                <div className="inline-flex p-4 bg-emerald-50 text-emerald-600 rounded-full mb-6">
+                                    <CheckCircle size={64} />
+                                </div>
+                                <h2 className="text-3xl font-black text-brand-slate mb-4">تم قبول طلبك بنجاح!</h2>
+
+                                <div className="max-w-md mx-auto mb-8">
+                                    <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-6 mb-4">
+                                        <h3 className="text-lg font-black text-yellow-900 mb-3 flex items-center gap-2 justify-center">
+                                            <AlertCircle size={20} />
+                                            <span>تذكير مهم! 📚</span>
+                                        </h3>
+                                        <p className="text-yellow-800 text-sm leading-relaxed mb-3">
+                                            يرجى <strong>إحضار الكتاب</strong> إلى <strong>مكتبة {UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}</strong> لمراجعته والتأكد من حالته قبل عرضه للبيع.
+                                        </p>
+                                        <div className="bg-yellow-100 rounded-lg p-3 text-yellow-900 text-xs">
+                                            <p className="font-bold mb-1">📍 موقع التسليم:</p>
+                                            <p>مكتبة {UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-gray-500 text-sm">
+                                        بعد المراجعة، سيتم عرض الكتاب في المتجر ليراه آلاف الطلاب! شكراً لاستخدامك بوك باس.
+                                    </p>
+                                </div>
+
+                                <div className="flex gap-4 justify-center">
+                                    <button onClick={handleAddAnother} className="text-brand-orange font-bold hover:underline">
+                                        إضافة كتاب آخر
+                                    </button>
+                                    <button onClick={() => navigate('/marketplace')} className="bg-brand-slate text-white font-bold px-6 py-2 rounded-lg hover:bg-brand-slate/90 transition">
+                                        عرض المتجر
                                     </button>
                                 </div>
-                            </form>
-                        </>
-                    ) : (
-                        <div className="text-center py-12 animate-in zoom-in duration-300">
-                            <div className="inline-flex p-4 bg-emerald-50 text-emerald-600 rounded-full mb-6">
-                                <CheckCircle size={64} />
                             </div>
-                            <h2 className="text-3xl font-black text-brand-slate mb-4">تم قبول طلبك بنجاح!</h2>
-
-                            <div className="max-w-md mx-auto mb-8">
-                                <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-6 mb-4">
-                                    <h3 className="text-lg font-black text-yellow-900 mb-3 flex items-center gap-2 justify-center">
-                                        <AlertCircle size={20} />
-                                        <span>تذكير مهم! 📚</span>
-                                    </h3>
-                                    <p className="text-yellow-800 text-sm leading-relaxed mb-3">
-                                        يرجى <strong>إحضار الكتاب</strong> إلى <strong>مكتبة {UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}</strong> لمراجعته والتأكد من حالته قبل عرضه للبيع.
-                                    </p>
-                                    <div className="bg-yellow-100 rounded-lg p-3 text-yellow-900 text-xs">
-                                        <p className="font-bold mb-1">📍 موقع التسليم:</p>
-                                        <p>مكتبة {UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}</p>
-                                    </div>
-                                </div>
-                                <p className="text-gray-500 text-sm">
-                                    بعد المراجعة، سيتم عرض الكتاب في المتجر ليراه آلاف الطلاب! شكراً لاستخدامك بوك باس.
-                                </p>
-                            </div>
-
-                            <div className="flex gap-4 justify-center">
-                                <button onClick={handleAddAnother} className="text-brand-orange font-bold hover:underline">
-                                    إضافة كتاب آخر
-                                </button>
-                                <button onClick={() => navigate('/marketplace')} className="bg-brand-slate text-white font-bold px-6 py-2 rounded-lg hover:bg-brand-slate/90 transition">
-                                    عرض المتجر
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </main>
+                        )}
+                    </main>
+                </div>
             </div>
 
             <Footer />

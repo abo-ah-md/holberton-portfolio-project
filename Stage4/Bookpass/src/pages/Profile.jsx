@@ -27,7 +27,7 @@ const OrderBookCard = ({ book }) => (
                     </div>
                 </div>
                 <h4 className="text-sm text-gray-600 font-bold leading-tight mb-2 truncate">
-                    {book.author || book.description}
+                    {book.author}
                 </h4>
             </div>
 
@@ -465,7 +465,7 @@ const Profile = () => {
                                     <div className="w-10 h-10 border-4 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
                                 </div>
                             ) : purchases.length > 0 ? (
-                                <div className="flex flex-row flex-wrap gap-4 justify-center md:justify-start">
+                                <div className="flex flex-row flex-wrap gap-4 justify-center">
                                     {purchases.map(book => (
                                         <OrderBookCard key={book.id} book={book} />
                                     ))}
@@ -498,7 +498,7 @@ const Profile = () => {
                                     <div className="w-10 h-10 border-4 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
                                 </div>
                             ) : sales.length > 0 ? (
-                                <div className="flex flex-row flex-wrap gap-4 justify-center md:justify-start">
+                                <div className="flex flex-row flex-wrap gap-4 justify-center">
                                     {sales.map(book => (
                                         <OrderBookCard key={`sold-${book.id}`} book={book} />
                                     ))}
