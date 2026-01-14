@@ -16,6 +16,8 @@ import PaymentSuccess from './pages/PaymentSuccess';
 import SellBook from './pages/SellBook';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Logout from './pages/Logout';
 import Profile from './pages/Profile';
 import AdminBookReview from './pages/AdminBookReview';
@@ -23,9 +25,6 @@ import ComponentTest from './pages/ComponentTest';
 import TestLoading from './pages/TestLoading';
 import ErrorPage from './pages/ErrorPage';
 
-// Styles
-import './App.css';
-import './index.css';
 
 function App() {
     return (
@@ -37,6 +36,8 @@ function App() {
                             <Route path="/loading-test" element={<TestLoading />} />
                             <Route path="/component-test" element={<ComponentTest />} />
                             <Route path="/login" element={<Login />} />
+                            <Route path="/forgot-password" element={<ForgotPassword />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/logout" element={<Logout />} />
 

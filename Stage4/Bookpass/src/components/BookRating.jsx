@@ -1,9 +1,8 @@
 import './BookRating.css';
-import WhiteBookmark from './white-bookmark';
 
 const BookRating = () => {
     return (
-        <section className="book-rating border-b-[30px] border-[#C17554]">
+        <section className="book-rating border-b-[30px] border-[#c8876f]">
             <style>{`
                 .rating-container {
                     display: flex;
@@ -61,17 +60,6 @@ const BookRating = () => {
                     }
                 }
             `}</style>
-            {/* Decorative wave top edge */}
-            <div className="rating-wave-top">
-                <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0,0 H1440 V20 L720,70 L0,20 Z" fill="#ffffff" />
-                </svg>
-            </div>
-
-            {/* Left decorative elements */}
-            <div className="rating-decorations">
-                <WhiteBookmark />
-            </div>
 
             {/* Main content */}
             <div className="rating-content">

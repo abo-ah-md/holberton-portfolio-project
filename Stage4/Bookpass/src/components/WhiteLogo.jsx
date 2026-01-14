@@ -1,13 +1,11 @@
-    import React from 'react';
+import React from 'react';
 
-    const WhiteLogo = () => {
-        return (
-            <img
-                src={new URL('../assets/white-logo.svg', import.meta.url).href}
-                alt="Book Pass Logo"
-                className="w-full h-full object-contain"
-            />
-        );
-    };
+const WhiteLogo = (props) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 67" fill="none" {...props}>
+            <path d="M10.7399 28.0362L19.4937 28.0362C26.1211 28.0362 31.4937 22.6636 31.4937 16.0362L31.4937 11.0088M10.7399 28.0362L18.3973 32.7753C24.353 36.4614 25.8992 44.4434 21.7507 50.0868L12.226 63.0435M10.7399 28.0362L12.226 63.0435M10.7399 28.0362L9.56786 4.0981C9.51197 2.9565 10.4225 2.00031 11.5654 2.0003L21.905 2.00019M10.7399 28.0362C1.11823 34.1727 -0.912789 47.3711 6.41877 56.1165L12.226 63.0435M21.905 2.00019L21.5099 9.70919C21.4472 10.9334 22.4904 11.9254 23.7099 11.8013L31.4937 11.0088M21.905 2.00019L31.4937 11.0088" stroke="white" strokeWidth="4" />
+        </svg>
+    );
+};
 
-    export default WhiteLogo;
+export default WhiteLogo;

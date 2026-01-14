@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, Mail, CreditCard, ChevronLeft, Camera, Phone, Edit2, Save, X, AlertCircle, PackageCheck } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, Lock, Mail, CreditCard, ChevronLeft, Camera, Phone, Edit2, Save, X, AlertCircle, PackageCheck, ShoppingBag, DollarSign, BookOpen, TrendingUp, LogOut, Plus, Store, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { usePageLoading } from '../components/PageTransition';
 import { updateUserProfile } from '../services/authService';
 import { uploadFile } from '../services/fileService';
 import { getMyPurchases, getMySales, getMyBooks } from '../services/bookService';
@@ -22,7 +24,7 @@ const OrderBookCard = ({ book }) => (
             <div>
                 <div className="flex justify-between items-start mb-1">
                     <span className="text-xs text-gray-500 font-bold">{book.university || 'جامعة'}</span>
-                    <div className="bg-[#1e40af] text-white text-[11px] font-bold px-2 py-1 rounded leading-tight truncate max-w-[140px]">
+                    <div className="bg-[#1e40af] text-white text-xs font-bold px-2 py-1 rounded leading-tight truncate max-w-[140px]">
                         {book.title}
                     </div>
                 </div>
@@ -34,7 +36,7 @@ const OrderBookCard = ({ book }) => (
             <div className="flex flex-col gap-1.5 text-xs text-gray-500 border-t border-gray-100 pt-2">
                 <div className="flex justify-between">
                     <span className="font-bold">ISBN:</span>
-                    <span className="font-mono text-[11px]">{book.isbn ? book.isbn.slice(-4) + '..' : 'N/A'}</span>
+                    <span className="font-mono text-xs">{book.isbn ? book.isbn.slice(-4) + '..' : 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                     <span className="font-bold">السعر:</span>
@@ -46,18 +48,18 @@ const OrderBookCard = ({ book }) => (
 );
 
 const Profile = () => {
-    const { user, signOut } = useAuth();
+    const { user, updateUserState, signOut } = useAuth();
+    const { isLoading, setIsLoading, setLoadingMessage } = usePageLoading();
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
 
     const [isEditing, setIsEditing] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isUploadingImage, setIsUploadingImage] = useState(false);
     const [editData, setEditData] = useState({
         firstName: '',
         lastName: '',
         phoneNumber: '',
-        profilePicture: ''
+        profilePicture: '',
+        iban: ''
     });
 
     // Orders state
@@ -65,6 +67,13 @@ const Profile = () => {
     const [sales, setSales] = useState([]);
     const [myListedBooks, setMyListedBooks] = useState([]); // Books I've listed for sale
     const [ordersLoading, setOrdersLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('purchases'); // 'purchases', 'sales', 'listings'
+
+
+    useEffect(() => {
+        setLoadingMessage("جاري تحميل ملفك الشخصي");
+        return () => setLoadingMessage("جاري التحميل...");
+    }, [setLoadingMessage]);
 
     useEffect(() => {
         if (user) {
@@ -72,7 +81,8 @@ const Profile = () => {
                 firstName: user.firstName || '',
                 lastName: user.lastName || '',
                 phoneNumber: user.phoneNumber || '',
-                profilePicture: user.profilePicture || ''
+                profilePicture: user.profilePicture || '',
+                iban: user.iban || ''
             });
         }
     }, [user]);
@@ -131,7 +141,8 @@ const Profile = () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        setIsUploadingImage(true); // Use specific loading state
+        setLoadingMessage("جاري رفع الصورة...");
+        setIsLoading(true);
 
         // Show local preview immediately
         const objectUrl = URL.createObjectURL(file);
@@ -141,7 +152,7 @@ const Profile = () => {
         }));
 
         const { url, error } = await uploadFile(file);
-        setIsUploadingImage(false);
+        setIsLoading(false);
 
         if (error) {
             alert('فشل رفع الصورة: ' + error);
@@ -159,6 +170,7 @@ const Profile = () => {
     };
 
     const handleSave = async () => {
+        setLoadingMessage("جاري حفظ التغييرات...");
         setIsLoading(true);
         const { data, error } = await updateUserProfile(editData);
         setIsLoading(false);
@@ -167,7 +179,10 @@ const Profile = () => {
             alert('فشل تحديث الملف الشخصي: ' + error);
         } else {
             setIsEditing(false);
-            // user context should be updated automatically via authService
+            // Update global auth state with new data
+            if (data) {
+                updateUserState(data);
+            }
         }
     };
 
@@ -179,355 +194,575 @@ const Profile = () => {
                 firstName: user.firstName || '',
                 lastName: user.lastName || '',
                 phoneNumber: user.phoneNumber || '',
-                profilePicture: user.profilePicture || ''
+                profilePicture: user.profilePicture || '',
+                iban: user.iban || ''
             });
         }
     };
 
+    // Animation variants
+    const container = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.12,
+                delayChildren: 0.1
+            }
+        }
+    };
+
+    const fadeInUp = {
+        hidden: { opacity: 0, y: 30 },
+        show: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+        }
+    };
+
+    const stats = [
+        {
+            id: 'purchases',
+            label: 'إجمالي المشتريات',
+            value: purchases.length,
+            sublabel: 'كتاب',
+            icon: ShoppingBag,
+            color: 'from-blue-500 to-blue-600',
+            bgColor: 'bg-blue-500',
+            textColor: 'text-blue-600'
+        },
+        {
+            id: 'sales',
+            label: 'إجمالي المبيعات',
+            value: sales.length,
+            sublabel: 'كتاب',
+            icon: DollarSign,
+            color: 'from-green-500 to-green-600',
+            bgColor: 'bg-green-500',
+            textColor: 'text-green-600'
+        },
+        {
+            id: 'listings',
+            label: 'الكتب المعروضة',
+            value: myListedBooks.length,
+            sublabel: 'كتاب نشط',
+            icon: BookOpen,
+            color: 'from-brand-orange to-orange-600',
+            bgColor: 'bg-brand-orange',
+            textColor: 'text-brand-orange'
+        },
+        {
+            id: 'spending',
+            label: 'إجمالي الإنفاق',
+            value: `${purchases.reduce((sum, book) => sum + (book.price || 0), 0)} ر.س`,
+            sublabel: 'هذا الشهر',
+            icon: TrendingUp,
+            color: 'from-purple-500 to-purple-600',
+            bgColor: 'bg-purple-500',
+            textColor: 'text-purple-600'
+        }
+    ];
+
+    const tabs = [
+        { id: 'purchases', label: 'مشترياتي', count: purchases.length },
+        { id: 'sales', label: 'مبيعاتي', count: sales.length },
+        { id: 'listings', label: 'كتبي المعروضة', count: myListedBooks.length }
+    ];
+
     return (
-        <div className="min-h-screen flex flex-col font-sans bg-[#3A4958]" dir="rtl">
+        <div className="min-h-screen flex flex-col font-sans bg-[#2c3e50] pt-20 relative" dir="rtl">
+            {/* Subtle background pattern - extends across entire page */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+                <div className="absolute inset-0" style={{
+                    backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                    backgroundSize: '40px 40px'
+                }}></div>
+            </div>
             <Navbar />
 
-            {/* --- HEADER --- */}
-            {/* Visual Right (Start) Alignment */}
-            <div className="relative bg-[#2c3e50] h-[220px] flex items-center justify-start px-10 md:px-20 mb-8 overflow-hidden shadow-xl z-20">
-                <div className="flex flex-col items-center relative z-30 translate-y-8 mr-10">
-
-                    {/* Hidden File Input */}
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        className="hidden"
-                        accept="image/*"
-                    />
-
-                    {/* Avatar Circle */}
-                    <div
-                        onClick={handleFileClick}
-                        className={`w-32 h-32 rounded-full border-[6px] border-[#C17554] bg-[#222] overflow-hidden shadow-2xl z-20 flex items-center justify-center relative group ${isEditing ? 'cursor-pointer hover:border-white transition-colors' : ''}`}
-                    >
-                        {editData.profilePicture || user?.photoURL ? (
-                            <img src={editData.profilePicture || user?.photoURL} alt="Profile" className="w-full h-full object-cover" />
-                        ) : (
-                            <User size={64} className="text-gray-400" />
-                        )}
-
-                        {/* Edit Overlay */}
-                        {isEditing && (
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Camera className="text-white" size={32} />
-                            </div>
-                        )}
-
-                        {/* Upload Loader - Shows while image is uploading */}
-                        {isUploadingImage && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
-                                <div className="w-8 h-8 border-2 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Ribbon */}
-                    <div className="relative -mt-6 z-10 w-[240px]">
-                        <div className="bg-[#C17554] text-white text-center font-bold text-2xl py-2 px-4 shadow-lg relative"
+            <motion.main
+                variants={container}
+                initial="hidden"
+                animate="show"
+                className="flex-1 w-full"
+            >
+                {/* Dark Navy Hero Section */}
+                <motion.section
+                    variants={fadeInUp}
+                    className="bg-[#2c3e50] py-12 px-4 md:px-8 relative"
+                >
+                    {/* Orange Pill Card */}
+                    <div className="max-w-7xl mx-auto relative z-10">
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2, duration: 0.6 }}
+                            className="bg-brand-orange rounded-3xl p-8 shadow-2xl relative overflow-hidden"
                             style={{
-                                // Pointing Right
-                                clipPath: 'polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%)'
-                            }}>
-                            الملف الشخصي
-                        </div>
-                    </div>
-                </div>
-                {/* Visual decoration */}
-                <div className="absolute left-[-100px] top-0 bottom-0 w-[400px] bg-white/5 skew-x-[-20deg]"></div>
-            </div>
+                                clipPath: 'polygon(0 0, 98% 0, 100% 50%, 98% 100%, 0 100%)'
+                            }}
+                        >
+                            {/* Glow effect */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
 
-            <main className="flex-1 max-w-[1600px] mx-auto w-full px-6 md:px-12 pb-20 flex flex-col gap-12 -mt-10 relative z-30">
+                            <div className="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
+                                {/* Avatar */}
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                        accept="image/*"
+                                    />
 
-                {/* --- SECTION 1: Personal Data --- */}
-                <div>
-                    <h2 className="text-3xl font-bold text-white mb-4 border-b border-gray-500/50 pb-2 text-right">
-                        البيانات الشخصية
-                    </h2>
-
-                    {/* Data Card */}
-                    <div className="relative overflow-hidden rounded-[20px] p-[12px] border-[4px] border-white/10 shadow-2xl min-h-[340px]"
-                        style={{
-                            background: 'linear-gradient(105deg, #cc8c74 42%, #354250 42.1%)'
-                        }}
-                    >
-                        {/* Edit/Save Buttons */}
-                        <div className="absolute top-0 left-0 p-0 z-20 flex">
-                            {!isEditing ? (
-                                <button
-                                    onClick={() => setIsEditing(true)}
-                                    className="bg-[#a66a53] text-white px-8 py-2 rounded-br-2xl shadow-lg text-lg font-bold hover:bg-[#8f5a44] transition-colors flex items-center gap-2"
-                                >
-                                    <Edit2 size={18} />
-                                    <span>تعديل</span>
-                                </button>
-                            ) : (
-                                <div className="flex">
-                                    <button
-                                        onClick={handleSave}
-                                        disabled={isLoading}
-                                        className="bg-green-500 text-white px-6 py-2 shadow-lg text-lg font-bold hover:bg-green-600 transition-colors flex items-center gap-2"
+                                    <motion.div
+                                        onClick={isEditing ? handleFileClick : undefined}
+                                        whileHover={isEditing ? { scale: 1.05 } : {}}
+                                        className={`w-28 h-28 rounded-full border-4 border-white bg-white/20 overflow-hidden shadow-xl flex items-center justify-center relative group ${isEditing ? 'cursor-pointer' : ''}`}
                                     >
-                                        <Save size={18} />
-                                        <span>حفظ</span>
-                                    </button>
-                                    <button
-                                        onClick={handleCancel}
-                                        disabled={isLoading}
-                                        className="bg-red-600 text-white px-6 py-2 rounded-br-2xl shadow-lg text-lg font-bold hover:bg-red-700 transition-colors flex items-center gap-2"
-                                    >
-                                        <X size={18} />
-                                        <span>إلغاء</span>
-                                    </button>
+                                        {editData.profilePicture || user?.photoURL ? (
+                                            <img src={editData.profilePicture || user?.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <User size={56} className="text-white" />
+                                        )}
+
+                                        {isEditing && (
+                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Camera className="text-white" size={28} />
+                                            </div>
+                                        )}
+
+                                    </motion.div>
                                 </div>
-                            )}
-                        </div>
 
-                        {/* Flex Container for Rows - Ensures perfect horizontal alignment */}
-                        {/* padding px-12 py-16 to give breathing room */}
-                        <div className="flex flex-col justify-center h-full text-white px-8 md:px-16 py-16 gap-8 relative min-h-[340px]">
-
-                            {/* Row 1: Full Name */}
-                            <div className="flex justify-between items-center w-full">
-                                {/* Value (Left / End) */}
-                                <div className="text-xl font-medium text-white z-10 drop-shadow-md text-left flex-1 pl-4">
+                                {/* User Info */}
+                                <div className="flex-1 text-center md:text-right space-y-3">
                                     {isEditing ? (
-                                        <div className="flex gap-2 justify-end">
+                                        <div className="space-y-3">
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    name="firstName"
+                                                    value={editData.firstName}
+                                                    onChange={handleInputChange}
+                                                    placeholder="الاسم الأول"
+                                                    className="flex-1 px-4 py-2 border-2 border-white/30 rounded-lg bg-white/10 text-white placeholder-white/60 focus:ring-2 focus:ring-white focus:border-transparent outline-none"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    name="lastName"
+                                                    value={editData.lastName}
+                                                    onChange={handleInputChange}
+                                                    placeholder="اسم العائلة"
+                                                    className="flex-1 px-4 py-2 border-2 border-white/30 rounded-lg bg-white/10 text-white placeholder-white/60 focus:ring-2 focus:ring-white focus:border-transparent outline-none"
+                                                />
+                                            </div>
                                             <input
-                                                type="text"
-                                                name="lastName"
-                                                value={editData.lastName}
+                                                type="tel"
+                                                name="phoneNumber"
+                                                value={editData.phoneNumber}
                                                 onChange={handleInputChange}
-                                                placeholder="الاسم الأخير"
-                                                className="bg-white/10 border border-white/30 rounded px-2 py-1 text-white text-right w-32 focus:outline-none focus:border-white"
+                                                placeholder="رقم الهاتف"
+                                                className="w-full px-4 py-2 border-2 border-white/30 rounded-lg bg-white/10 text-white placeholder-white/60 focus:ring-2 focus:ring-white focus:border-transparent outline-none"
                                             />
                                             <input
                                                 type="text"
-                                                name="firstName"
-                                                value={editData.firstName}
+                                                name="iban"
+                                                value={editData.iban}
                                                 onChange={handleInputChange}
-                                                placeholder="الاسم الأول"
-                                                className="bg-white/10 border border-white/30 rounded px-2 py-1 text-white text-right w-32 focus:outline-none focus:border-white"
+                                                placeholder="رقم الآيبان (IBAN)"
+                                                className="w-full px-4 py-2 border-2 border-white/30 rounded-lg bg-white/10 text-white placeholder-white/60 focus:ring-2 focus:ring-white focus:border-transparent outline-none"
                                             />
                                         </div>
                                     ) : (
-                                        <span>اسم المستخدم</span>
-                                    )}
-                                </div>
-                                {/* Label (Right / Start) */}
-                                <div className="text-gray-300 font-bold text-lg text-right w-40">
-                                    <span dir="rtl">{isEditing ? 'الاسم الكامل' : (user?.firstName ? `${user.firstName} ${user.lastName}` : (user?.email?.split('@')[0] || 'User'))}</span>
-                                </div>
-                            </div>
-
-                            {/* Row 2: Phone Number (New) */}
-                            <div className="flex justify-between items-center w-full">
-                                <div className="text-xl font-medium text-white z-10 drop-shadow-md text-left flex-1 pl-4">
-                                    {isEditing ? (
-                                        <input
-                                            type="tel"
-                                            name="phoneNumber"
-                                            value={editData.phoneNumber}
-                                            onChange={handleInputChange}
-                                            placeholder="05xxxxxxxx"
-                                            className="bg-white/10 border border-white/30 rounded px-2 py-1 text-white text-right w-full max-w-[200px] focus:outline-none focus:border-white dir-ltr"
-                                        />
-                                    ) : (
-                                        <span>رقم الهاتف</span>
-                                    )}
-                                </div>
-                                <div className="text-gray-300 font-bold text-lg text-right w-40">
-                                    <span dir="ltr">{!isEditing ? (user?.phoneNumber || 'غير مدخل') : 'رقم الجوال'}</span>
-                                </div>
-                            </div>
-
-                            {/* Row 3: Email */}
-                            <div className="flex justify-between items-center w-full">
-                                <div className="text-lg font-medium text-white z-10 drop-shadow-md opacity-90 text-left flex-1 pl-4">
-                                    <span>البريد الإلكتروني</span>
-                                </div>
-                                <div className="text-gray-300 font-bold text-lg text-right w-40">
-                                    <span dir="ltr">{user?.email || 'email@example.com'}</span>
-                                </div>
-                            </div>
-
-                            {/* Row 4: IBAN */}
-                            <div className="flex justify-between items-center w-full">
-                                <div className="text-lg font-mono font-medium text-white z-10 drop-shadow-md text-left flex-1 pl-4">
-                                    <span>الحساب البنكي IBAN</span>
-                                </div>
-                                <div className="text-gray-300 font-bold text-lg text-right w-40">
-                                    <span dir="rtl">{user?.uid ? `SA${user.uid.slice(0, 10).toUpperCase()}` : 'SA...'}</span>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        {/* Save Button (Bottom) removed in favor of top logic */}
-                    </div>
-                </div>
-
-                {/* --- SECTION 2: Pending Books for Delivery --- */}
-                {!ordersLoading && myListedBooks.filter(book => book.listingStatus === 'PENDING').length > 0 && (
-                    <div>
-                        <h2 className="text-3xl font-bold text-white mb-4 border-b border-yellow-500/50 pb-2 text-right">
-                            كتب بانتظار التسليم
-                        </h2>
-
-                        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-6 shadow-xl border-2 border-yellow-400">
-                            <div className="flex items-start gap-4 mb-4">
-                                <div className="bg-yellow-500 text-white p-3 rounded-full">
-                                    <AlertCircle size={32} />
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="text-xl font-black text-yellow-900 mb-2">
-                                        تذكير مهم! لديك كتب بانتظار التسليم 📚
-                                    </h3>
-                                    <p className="text-yellow-800 mb-4">
-                                        يرجى إحضار الكتب التالية إلى مواقع التسليم المحددة لمراجعتها وعرضها للبيع:
-                                    </p>
-
-                                    <div className="space-y-3">
-                                        {myListedBooks.filter(book => book.listingStatus === 'PENDING').map((book, index) => (
-                                            <div key={book.id} className="bg-white rounded-xl p-4 shadow-md border border-yellow-200">
-                                                <div className="flex items-start gap-4">
-                                                    {/* Book Image */}
-                                                    <div className="w-16 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                                                        {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
-                                                    </div>
-
-                                                    {/* Book Info */}
-                                                    <div className="flex-1 min-w-0">
-                                                        <h4 className="font-black text-brand-slate text-sm mb-1 truncate">
-                                                            {index + 1}. {book.title}
-                                                        </h4>
-                                                        <p className="text-xs text-gray-600 mb-2">{book.author}</p>
-
-                                                        <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-2 mt-2">
-                                                            <div className="flex items-center gap-2">
-                                                                <PackageCheck size={16} className="text-yellow-700" />
-                                                                <div className="text-xs">
-                                                                    <p className="font-bold text-yellow-900">📍 موقع التسليم:</p>
-                                                                    <p className="text-yellow-800">
-                                                                        مكتبة {UNIVERSITIES[book.university]?.nameAr || book.university || 'الجامعة'}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                        <>
+                                            <h1 className="text-4xl font-bold text-white drop-shadow-lg">
+                                                {user?.firstName} {user?.lastName}
+                                            </h1>
+                                            <div className="space-y-2 text-lg text-white/90">
+                                                <div className="flex items-center justify-center md:justify-start gap-2">
+                                                    <Mail size={20} />
+                                                    <span>{user?.email}</span>
                                                 </div>
+                                                {user?.phoneNumber && (
+                                                    <div className="flex items-center justify-center md:justify-start gap-2">
+                                                        <Phone size={20} />
+                                                        <span>{user.phoneNumber}</span>
+                                                    </div>
+                                                )}
+                                                {user?.iban && (
+                                                    <div className="flex items-center justify-center md:justify-start gap-2">
+                                                        <CreditCard size={20} />
+                                                        <span dir="ltr">{user.iban}</span>
+                                                    </div>
+                                                )}
                                             </div>
-                                        ))}
-                                    </div>
+                                        </>
+                                    )}
+                                </div>
 
-                                    <div className="mt-4 p-3 bg-yellow-200/50 rounded-lg">
-                                        <p className="text-yellow-900 text-sm flex items-start gap-2">
-                                            <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
-                                            <span>بعد التسليم والمراجعة، سيتم عرض كتبك في المتجر ليراها آلاف الطلاب.</span>
-                                        </p>
-                                    </div>
+                                {/* Edit/Save Buttons */}
+                                <div className="flex gap-2">
+                                    {!isEditing ? (
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setIsEditing(true)}
+                                            className="bg-white text-brand-orange px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2 shadow-lg hover:bg-gray-100"
+                                        >
+                                            <Edit2 size={18} />
+                                            <span>تعديل الملف</span>
+                                        </motion.button>
+                                    ) : (
+                                        <>
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={handleSave}
+                                                disabled={isLoading}
+                                                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2 shadow-lg disabled:opacity-50"
+                                            >
+                                                <Save size={18} />
+                                                <span>حفظ</span>
+                                            </motion.button>
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={handleCancel}
+                                                disabled={isLoading}
+                                                className="bg-white/20 hover:bg-white/30 text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2 shadow-lg disabled:opacity-50"
+                                            >
+                                                <X size={18} />
+                                                <span>إلغاء</span>
+                                            </motion.button>
+                                        </>
+                                    )}
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
-                )}
+                </motion.section >
 
-
-                {/* --- SECTION 3: Orders --- */}
-                <div>
-                    <h2 className="text-3xl font-bold text-white mb-8 border-b border-gray-500/50 pb-4 text-right">
-                        الطلبات
-                    </h2>
-
-                    {/* Bought Books */}
-                    <div className="mb-12">
-                        <h3 className="text-gray-300 text-right font-bold text-lg mb-4 pr-2">
-                            آخر كتبك المشتراة
-                        </h3>
-                        <div className="relative overflow-hidden shadow-xl p-10 min-h-[200px]"
-                            style={{
-                                background: 'linear-gradient(105deg, #cc8c74 35%, #354250 35.1%)',
-                                borderTopLeftRadius: '100px',
-                                borderBottomLeftRadius: '100px',
-                                borderTopRightRadius: '24px',
-                                borderBottomRightRadius: '24px',
-                                border: '3px solid rgba(255,255,255,0.1)'
-                            }}
-                        >
-                            {ordersLoading ? (
-                                <div className="flex items-center justify-center py-12">
-                                    <div className="w-10 h-10 border-4 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
-                                </div>
-                            ) : purchases.length > 0 ? (
-                                <div className="flex flex-row flex-wrap gap-4 justify-center">
-                                    {purchases.map(book => (
-                                        <OrderBookCard key={book.id} book={book} />
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-12 text-white/60">
-                                    <p className="text-lg">لا توجد مشتريات بعد</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Sold Books */}
-                    <div>
-                        <h3 className="text-gray-300 text-right font-bold text-lg mb-4 pr-2">
-                            آخر كتبك المباعة
-                        </h3>
-                        <div className="relative overflow-hidden shadow-xl p-10 min-h-[200px]"
-                            style={{
-                                background: 'linear-gradient(105deg, #cc8c74 35%, #354250 35.1%)',
-                                borderTopLeftRadius: '100px',
-                                borderBottomLeftRadius: '100px',
-                                borderTopRightRadius: '24px',
-                                borderBottomRightRadius: '24px',
-                                border: '3px solid rgba(255,255,255,0.1)'
-                            }}
-                        >
-                            {ordersLoading ? (
-                                <div className="flex items-center justify-center py-12">
-                                    <div className="w-10 h-10 border-4 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
-                                </div>
-                            ) : sales.length > 0 ? (
-                                <div className="flex flex-row flex-wrap gap-4 justify-center">
-                                    {sales.map(book => (
-                                        <OrderBookCard key={`sold-${book.id}`} book={book} />
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-12 text-white/60">
-                                    <p className="text-lg">لا توجد مبيعات بعد</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                </div>
-
-                <div className="flex justify-center mt-8">
-                    <button
-                        onClick={handleLogout}
-                        className="text-white hover:text-red-200 font-bold px-10 py-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 transition-colors"
+                {/* Main Content */}
+                < div className="max-w-7xl mx-auto w-full px-4 md:px-8 py-8 space-y-8" >
+                    {/* Stats Dashboard - Diagonal Split Design */}
+                    < motion.section
+                        variants={fadeInUp}
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
                     >
-                        تسجيل الخروج
-                    </button>
-                </div>
+                        {
+                            stats.map((stat, index) => (
+                                <motion.div
+                                    key={stat.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 + index * 0.1 }}
+                                    whileHover={{
+                                        scale: 1.03,
+                                        boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+                                        transition: { type: "spring", stiffness: 300, damping: 20 }
+                                    }}
+                                    className="relative bg-white rounded-2xl overflow-hidden shadow-lg cursor-pointer"
+                                >
+                                    {/* Diagonal Split */}
+                                    <div className="flex h-full min-h-[140px]">
+                                        {/* Left 20% - Colored Section with Icon */}
+                                        <motion.div
+                                            whileHover={{ x: 4 }}
+                                            className={`w-[25%] bg-gradient-to-br ${stat.color} flex items-center justify-center relative z-10 shadow-lg`}
+                                        >
+                                            <motion.div
+                                                whileHover={{
+                                                    rotate: [0, -10, 10, -10, 0],
+                                                    transition: { duration: 0.5 }
+                                                }}
+                                            >
+                                                <stat.icon className="text-white" size={32} />
+                                            </motion.div>
+                                        </motion.div>
 
-            </main>
-            <footer >
-                <Footer className="footer-top-orange-line" />
-            </footer>
-        </div>
+                                        {/* Right 75% - White Section with Data */}
+                                        <div className="flex-1 p-6 flex flex-col justify-center">
+                                            <p className="text-sm text-gray-600 font-bold mb-2">{stat.label}</p>
+                                            <motion.p
+                                                whileHover={{
+                                                    scale: 1.05,
+                                                    transition: { type: "spring", stiffness: 500, damping: 15 }
+                                                }}
+                                                className={`text-4xl font-black ${stat.textColor} leading-none mb-1`}
+                                            >
+                                                {stat.value}
+                                            </motion.p>
+                                            <p className="text-xs text-gray-500">{stat.sublabel}</p>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))
+                        }
+                    </motion.section >
+
+                    {/* Activity Section with Animated Tabs */}
+                    < motion.section
+                        variants={fadeInUp}
+                        className="bg-white rounded-2xl shadow-lg overflow-hidden"
+                    >
+                        {/* Tabs Header with Animated Underline */}
+                        < div className="border-b border-gray-200 px-6" >
+                            <div className="flex gap-8 relative">
+                                {tabs.map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`relative py-4 px-2 font-bold text-base transition-colors ${activeTab === tab.id
+                                            ? 'text-brand-orange'
+                                            : 'text-gray-500 hover:text-gray-700'
+                                            }`}
+                                    >
+                                        {tab.label} ({tab.count})
+
+                                        {/* Animated Underline */}
+                                        {activeTab === tab.id && (
+                                            <motion.div
+                                                layoutId="underline"
+                                                className="absolute bottom-0 left-0 right-0 h-1 bg-brand-orange"
+                                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                            />
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </div >
+
+                        {/* Tab Content */}
+                        < div className="p-8" >
+                            {
+                                ordersLoading ? (
+                                    <div className="flex items-center justify-center py-20" >
+                                        <div className="w-12 h-12 border-4 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
+                                    </div>
+                                ) : (
+                                    <AnimatePresence mode="wait">
+                                        {/* Purchases Tab */}
+                                        {activeTab === 'purchases' && (
+                                            <motion.div
+                                                key="purchases"
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                {purchases.length > 0 ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        {purchases.map((book, index) => (
+                                                            <motion.div
+                                                                key={book.id}
+                                                                initial={{ opacity: 0, y: 20 }}
+                                                                whileInView={{ opacity: 1, y: 0 }}
+                                                                viewport={{ once: true, margin: "-50px" }}
+                                                                transition={{ delay: index * 0.1 }}
+                                                                whileHover={{
+                                                                    y: -8,
+                                                                    rotateZ: -1,
+                                                                    boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
+                                                                    transition: { type: "spring", stiffness: 400, damping: 25 }
+                                                                }}
+                                                            >
+                                                                <OrderBookCard book={book} />
+                                                            </motion.div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                                                        <ShoppingBag size={64} className="mb-4 opacity-20" />
+                                                        <p className="text-xl font-bold mb-2">لا توجد مشتريات بعد</p>
+                                                        <p className="text-sm mb-6">ابدأ بتصفح الكتب المتاحة</p>
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.05 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => navigate('/marketplace')}
+                                                            className="bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-bold transition-colors"
+                                                        >
+                                                            تصفح السوق
+                                                        </motion.button>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )}
+
+                                        {/* Sales Tab */}
+                                        {activeTab === 'sales' && (
+                                            <motion.div
+                                                key="sales"
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                {sales.length > 0 ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        {sales.map((book, index) => (
+                                                            <motion.div
+                                                                key={`sold-${book.id}`}
+                                                                initial={{ opacity: 0, y: 20 }}
+                                                                whileInView={{ opacity: 1, y: 0 }}
+                                                                viewport={{ once: true, margin: "-50px" }}
+                                                                transition={{ delay: index * 0.1 }}
+                                                                whileHover={{
+                                                                    y: -8,
+                                                                    rotateZ: 1,
+                                                                    boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
+                                                                    transition: { type: "spring", stiffness: 400, damping: 25 }
+                                                                }}
+                                                            >
+                                                                <OrderBookCard book={book} />
+                                                            </motion.div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                                                        <DollarSign size={64} className="mb-4 opacity-20" />
+                                                        <p className="text-xl font-bold mb-2">لا توجد مبيعات بعد</p>
+                                                        <p className="text-sm mb-6">قم بعرض كتبك للبيع</p>
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.05 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => navigate('/sell')}
+                                                            className="bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-bold transition-colors flex items-center gap-2"
+                                                        >
+                                                            <Plus size={20} />
+                                                            <span>عرض كتاب للبيع</span>
+                                                        </motion.button>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )}
+
+                                        {/* Listings Tab */}
+                                        {activeTab === 'listings' && (
+                                            <motion.div
+                                                key="listings"
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                {myListedBooks.length > 0 ? (
+                                                    <>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                            {myListedBooks.map((book, index) => (
+                                                                <motion.div
+                                                                    key={book.id}
+                                                                    initial={{ opacity: 0, y: 20 }}
+                                                                    whileInView={{ opacity: 1, y: 0 }}
+                                                                    viewport={{ once: true, margin: "-50px" }}
+                                                                    transition={{ delay: index * 0.1 }}
+                                                                    whileHover={{
+                                                                        y: -8,
+                                                                        boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
+                                                                        transition: { type: "spring", stiffness: 400, damping: 25 }
+                                                                    }}
+                                                                    className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200"
+                                                                >
+                                                                    <div className="flex gap-4">
+                                                                        <div className="w-20 h-28 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                                                                            {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
+                                                                        </div>
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <h4 className="font-bold text-gray-900 text-base mb-1 truncate">
+                                                                                {book.title}
+                                                                            </h4>
+                                                                            <p className="text-sm text-gray-600 mb-2">{book.author}</p>
+                                                                            <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-2 mt-2">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <PackageCheck size={16} className="text-yellow-700" />
+                                                                                    <div className="text-xs">
+                                                                                        <p className="font-bold text-yellow-900">📍 موقع التسليم:</p>
+                                                                                        <p className="text-yellow-800">
+                                                                                            مكتبة {UNIVERSITIES[book.university]?.nameAr || book.university || 'الجامعة'}
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </motion.div>
+                                                            ))}
+                                                        </div>
+                                                        <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                                            <p className="text-yellow-900 text-sm flex items-start gap-2">
+                                                                <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
+                                                                <span>بعد التسليم والمراجعة، سيتم عرض كتبك في المتجر ليراها آلاف الطلاب.</span>
+                                                            </p>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                                                        <BookOpen size={64} className="mb-4 opacity-20" />
+                                                        <p className="text-xl font-bold mb-2">لا توجد كتب معروضة</p>
+                                                        <p className="text-sm mb-6">ابدأ ببيع كتبك الآن</p>
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.05 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => navigate('/sell')}
+                                                            className="bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-bold transition-colors flex items-center gap-2"
+                                                        >
+                                                            <Plus size={20} />
+                                                            <span>عرض كتاب للبيع</span>
+                                                        </motion.button>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                )}
+                        </div >
+                    </motion.section >
+
+                    {/* Quick Actions with Gradient Buttons */}
+                    < motion.section
+                        variants={fadeInUp}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                    >
+                        <motion.button
+                            whileHover={{ scale: 1.02, y: -4 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => navigate('/sell')}
+                            className="bg-gradient-to-r from-brand-orange to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+                        >
+                            <Plus size={24} />
+                            <span>عرض كتاب للبيع</span>
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.02, y: -4 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => navigate('/marketplace')}
+                            className="bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-200 hover:border-gray-300 px-6 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg"
+                        >
+                            <Store size={24} />
+                            <span>تصفح السوق</span>
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.02, y: -4 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={handleLogout}
+                            className="bg-white hover:bg-red-50 text-red-600 border-2 border-red-200 hover:border-red-300 px-6 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg"
+                        >
+                            <LogOut size={24} />
+                            <span>تسجيل الخروج</span>
+                        </motion.button>
+                    </motion.section >
+                </div >
+            </motion.main >
+
+            <Footer />
+        </div >
     );
+
+
+
+
 };
 
 export default Profile;

@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import { CheckCircle, XCircle, Home, RotateCcw, ShoppingBag } from 'lucide-react';
 import { checkoutCart } from '../services/bookService';
 import { useCart } from '../context/CartContext';
+import { motion } from 'framer-motion';
 
 const PaymentSuccess = () => {
     const [searchParams] = useSearchParams();
@@ -31,34 +32,37 @@ const PaymentSuccess = () => {
         const messageParam = searchParams.get('message');
         const idParam = searchParams.get('id');
 
-        // Support both single bookId and multiple bookIds (comma-separated)
-        const bookIdParam = searchParams.get('bookId');
-        const bookIdsParam = searchParams.get('bookIds');
+        // SECURITY: Retrieve transaction details from session storage
+        // We do NOT trust URL parameters for bookIds to prevent manipulation
+        const pendingTransactionStr = sessionStorage.getItem('pendingTransaction');
+        let pendingTransaction = null;
 
-        // Parse book IDs
-        let parsedBookIds = [];
-        if (bookIdsParam) {
-            parsedBookIds = bookIdsParam.split(',').filter(id => id.trim());
-        } else if (bookIdParam) {
-            parsedBookIds = [bookIdParam];
+        try {
+            if (pendingTransactionStr) {
+                pendingTransaction = JSON.parse(pendingTransactionStr);
+            }
+        } catch (e) {
+            console.error("Failed to parse pending transaction", e);
         }
+
+        const validBookIds = pendingTransaction ? pendingTransaction.bookIds : [];
 
         setStatus(statusParam);
         setMessage(messageParam);
         setPaymentId(idParam);
-        setBookIds(parsedBookIds);
+        setBookIds(validBookIds);
 
         const verifyPayment = async () => {
-            // Only verify if status is paid and we have payment ID and book IDs
+            // Only verify if status is paid and we have payment ID and VALID book IDs from session
             // AND we haven't already initiated verification
-            if (statusParam === 'paid' && idParam && parsedBookIds.length > 0 && !hasVerifiedRef.current) {
+            if (statusParam === 'paid' && idParam && validBookIds.length > 0 && !hasVerifiedRef.current) {
                 hasVerifiedRef.current = true; // Mark as verified to prevent duplicate calls
 
                 try {
                     setIsVerifying(true);
 
-                    // Use the new single checkout API for all books
-                    const { data, error } = await checkoutCart(parsedBookIds, idParam);
+                    // Use the securely stored book IDs
+                    const { data, error } = await checkoutCart(validBookIds, idParam);
 
                     if (error) {
                         setVerificationError(error);
@@ -68,6 +72,9 @@ const PaymentSuccess = () => {
                         setCheckoutResult(data);
                         clearCart();
                         setVerificationError(null);
+
+                        // Clear the secure transaction from session
+                        sessionStorage.removeItem('pendingTransaction');
 
                         // Check if all books were purchased
                         if (data.status !== 'COMPLETED') {
@@ -81,7 +88,11 @@ const PaymentSuccess = () => {
                     setIsVerifying(false);
                 }
             } else if (!hasVerifiedRef.current) {
-                // If failed query param or missing ID, stop verifying
+                // If failed query param or missing ID or missing SESSION context
+                if (statusParam === 'paid' && validBookIds.length === 0) {
+                    setVerificationError('لم يتم العثور على بيانات العملية. الرجاء المحاولة مرة أخرى.');
+                    setStatus('failed');
+                }
                 setIsVerifying(false);
             }
         };
@@ -111,120 +122,219 @@ const PaymentSuccess = () => {
     const totalAmount = checkoutResult?.totalAmount || 0;
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#f5f5f5] font-sans rtl">
+        <div className="min-h-screen flex flex-col font-sans bg-[#2c3e50] pt-20 relative" dir="rtl">
+            {/* Subtle background pattern */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+                <div className="absolute inset-0" style={{
+                    backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                    backgroundSize: '40px 40px'
+                }}></div>
+            </div>
             <Navbar />
 
-            <div className="flex-1 flex items-center justify-center p-6">
-                <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-8 text-center border border-gray-100">
+            <motion.main
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex-1 w-full relative z-10"
+            >
+                {/* Hero Section - Orange Pill */}
+                <section className="py-12 px-4 md:px-8">
+                    <div className="max-w-7xl mx-auto">
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2, duration: 0.6 }}
+                            className={`${isSuccess ? 'bg-brand-orange' : 'bg-red-500'} rounded-3xl p-8 shadow-2xl relative overflow-hidden`}
+                            style={{
+                                clipPath: 'polygon(0 0, 98% 0, 100% 50%, 98% 100%, 0 100%)'
+                            }}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
 
-                    {isVerifying ? (
-                        <div className="flex flex-col items-center justify-center py-12">
-                            <div className="w-12 h-12 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mb-4"></div>
-                            <h2 className="text-xl font-bold text-gray-700">جاري التحقق من عملية الدفع...</h2>
-                            <p className="text-gray-500 text-sm mt-2">
-                                {bookIds.length > 1
-                                    ? `جاري معالجة ${bookIds.length} كتب...`
-                                    : 'يرجى الانتظار قليلاً'}
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="animate-in zoom-in duration-300">
-                            <div className={`w-20 h-20 ${isSuccess ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'} rounded-full flex items-center justify-center mx-auto mb-6`}>
-                                {isSuccess ? <CheckCircle size={48} /> : <XCircle size={48} />}
-                            </div>
-
-                            <h1 className="text-3xl font-black text-brand-slate mb-2">
-                                {isSuccess
-                                    ? (purchasedCount > 1 ? `تم شراء ${purchasedCount} كتب بنجاح!` : 'تم الدفع بنجاح!')
-                                    : 'حدث خطأ في الدفع'}
-                            </h1>
-
-                            <p className="text-gray-500 mb-8">
-                                {isSuccess
-                                    ? 'شكراً لك، تم التحقق من الدفع وتأكيد شراء الكتب.'
-                                    : 'عذراً، لم نتمكن من إتمام عملية الدفع.'}
-                            </p>
-
-                            {/* Error Message if any */}
-                            {(message || verificationError) && !isSuccess && (
-                                <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-lg text-sm font-bold border border-red-100">
-                                    {verificationError || message}
-                                </div>
-                            )}
-
-                            {/* Order Summary */}
-                            <div className="bg-gray-50 rounded-xl p-4 mb-8 text-sm text-right border border-gray-200/50">
-                                {paymentId && (
-                                    <div className="flex justify-between py-2 border-b border-gray-100">
-                                        <span className="text-gray-500">رقم العملية</span>
-                                        <span className="font-mono font-bold text-gray-700 text-xs">{paymentId}</span>
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                                <div className="flex items-center gap-6">
+                                    <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-md shadow-xl border border-white/30 text-white">
+                                        {isVerifying ? (
+                                            <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        ) : isSuccess ? (
+                                            <CheckCircle size={48} />
+                                        ) : (
+                                            <XCircle size={48} />
+                                        )}
                                     </div>
-                                )}
-                                {purchasedCount > 0 && (
-                                    <div className="flex justify-between py-2 border-b border-gray-100">
-                                        <span className="text-gray-500">عدد الكتب</span>
-                                        <span className="font-bold text-gray-700">{purchasedCount} كتب</span>
+                                    <div className="text-right">
+                                        <h1 className="text-4xl font-black text-white drop-shadow-lg mb-2">
+                                            {isVerifying ? 'جاري التحقق...' : isSuccess ? 'تمت العملية بنجاح' : 'تعذر إتمام الدفع'}
+                                        </h1>
+                                        <p className="text-white/80 text-lg font-medium">
+                                            {isVerifying ? 'يرجى عدم إغلاق الصفحة' : isSuccess ? 'شكراً لثقتك بنا، تم تأكيد طلبك.' : 'حدث خطأ أثناء معالجة العملية.'}
+                                        </p>
                                     </div>
-                                )}
-                                {totalAmount > 0 && (
-                                    <div className="flex justify-between py-2 border-b border-gray-100">
-                                        <span className="text-gray-500">المبلغ الإجمالي</span>
-                                        <span className="font-bold text-brand-orange">{totalAmount} ر.س</span>
-                                    </div>
-                                )}
-                                <div className="flex justify-between py-2">
-                                    <span className="text-gray-500">الحالة</span>
-                                    <span className={`font-bold ${statusConfig.color}`}>
-                                        {checkoutResult?.status === 'COMPLETED' ? 'مكتملة' : statusConfig.text}
-                                    </span>
                                 </div>
                             </div>
+                        </motion.div>
+                    </div>
+                </section>
 
-                            {/* Purchased Books List */}
-                            {isSuccess && checkoutResult?.purchasedBooks?.length > 0 && (
-                                <div className="mb-8">
-                                    <h3 className="text-sm font-bold text-gray-600 mb-3 flex items-center gap-2 justify-center">
-                                        <ShoppingBag size={16} />
-                                        الكتب المشتراة
-                                    </h3>
-                                    <div className="bg-brand-slate/5 rounded-xl p-3 max-h-[200px] overflow-y-auto">
-                                        {checkoutResult.purchasedBooks.map((book, index) => (
-                                            <div key={book.id || index} className="flex items-center gap-3 py-2 border-b border-gray-200 last:border-0">
-                                                <div className="w-10 h-12 bg-gray-200 rounded overflow-hidden flex-shrink-0">
-                                                    {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
-                                                </div>
-                                                <div className="flex-1 text-right min-w-0">
-                                                    <p className="font-bold text-sm text-brand-slate truncate">{book.title}</p>
-                                                    <p className="text-xs text-gray-500">{book.price} ر.س</p>
-                                                </div>
+                <div className="max-w-3xl mx-auto w-full px-4 md:px-8 pb-20">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100 overflow-hidden"
+                    >
+                        {isVerifying ? (
+                            <div className="py-20 text-center">
+                                <div className="w-16 h-16 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+                                <h3 className="text-xl font-black text-brand-slate">جاري معالجة طلبك...</h3>
+                                <p className="text-gray-400 mt-2">نقوم الآن بتأكيد تفاصيل الدفع مع Moyasar</p>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Status Icon & Main Title */}
+                                <div className="text-center mb-10">
+                                    <div className={`w-24 h-24 rounded-3xl mx-auto mb-6 flex items-center justify-center rotate-3 shadow-lg ${isSuccess ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                                        {isSuccess ? <ShoppingBag size={48} /> : <XCircle size={48} />}
+                                    </div>
+                                    <h2 className="text-3xl font-black text-brand-slate mb-3">
+                                        {isSuccess ? 'اكتملت العملية!' : 'فشل الدفع'}
+                                    </h2>
+                                    {isSuccess && (
+                                        <div className="bg-green-50 text-green-700 px-6 py-2 rounded-full inline-flex font-black text-sm uppercase tracking-wide">
+                                            رقم الطلب: #{paymentId?.slice(-6).toUpperCase()}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Order Summary Card - Premium Styling */}
+                                <div className="bg-[#2c3e50] text-white rounded-2xl p-8 mb-10 shadow-xl border border-white/5 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-orange to-orange-600"></div>
+
+                                    <div className="space-y-4 relative z-10 font-bold">
+                                        {paymentId && (
+                                            <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                                <span className="text-white/50">رقم العملية</span>
+                                                <span className="font-mono text-xs">{paymentId}</span>
                                             </div>
-                                        ))}
+                                        )}
+                                        {purchasedCount > 0 && (
+                                            <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                                <span className="text-white/50">عدد الكتب</span>
+                                                <span className="text-brand-orange">{purchasedCount}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                            <span className="text-white/50">الحالة</span>
+                                            <span className={statusConfig.color}>{statusConfig.text}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center pt-4">
+                                            <span className="text-xl font-black">إجمالي المبلغ</span>
+                                            <span className="text-3xl font-black text-brand-orange">{totalAmount.toFixed(2)} ر.س</span>
+                                        </div>
                                     </div>
                                 </div>
-                            )}
 
-                            <div className="flex gap-3">
-                                {!isSuccess && (
-                                    <button
-                                        onClick={() => navigate('/cart')}
-                                        className="flex-1 bg-brand-slate text-white font-bold py-3 rounded-xl hover:bg-brand-slate/90 transition shadow-lg flex items-center justify-center gap-2"
+                                {/* Pickup Instructions */}
+                                {isSuccess && checkoutResult?.purchasedBooks?.[0] && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                        className="mb-10 p-6 bg-brand-orange/5 border-2 border-brand-orange/20 rounded-3xl flex items-center gap-6"
                                     >
-                                        <RotateCcw size={18} />
-                                        <span>العودة للسلة</span>
-                                    </button>
+                                        <div className="w-16 h-16 bg-brand-orange text-white rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3">
+                                            <ShoppingBag size={32} />
+                                        </div>
+                                        <div className="text-right">
+                                            <h4 className="font-black text-brand-slate text-lg mb-1">تعليمات الاستلام</h4>
+                                            <p className="text-brand-orange font-bold">
+                                                يرجى استلام الكتب من مكتبة جامعة {checkoutResult.purchasedBooks[0].university}
+                                            </p>
+                                        </div>
+                                    </motion.div>
                                 )}
-                                <button
-                                    onClick={() => navigate('/')}
-                                    className={`flex-1 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 ${isSuccess ? 'bg-brand-orange text-white hover:bg-brand-orange/90 shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                                >
-                                    <Home size={18} />
-                                    <span>الرئيسية</span>
-                                </button>
-                            </div>
-                        </div>
-                    )}
+
+                                {/* Purchased Books */}
+                                {isSuccess && checkoutResult?.purchasedBooks?.length > 0 && (
+                                    <div className="mb-10">
+                                        <h3 className="text-brand-slate font-black text-lg mb-6 flex items-center gap-3">
+                                            <div className="w-1 h-6 bg-brand-orange rounded-full"></div>
+                                            الكتب التي تم شراؤها
+                                        </h3>
+                                        <div className="space-y-4">
+                                            {checkoutResult.purchasedBooks.map((book, index) => (
+                                                <motion.div
+                                                    key={book.id || index}
+                                                    initial={{ opacity: 0, x: 20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ delay: 0.6 + (index * 0.1) }}
+                                                    className="flex gap-6 p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-lg transition-all group"
+                                                >
+                                                    <div className="w-20 h-24 bg-white rounded-xl overflow-hidden flex-shrink-0 shadow-md transform group-hover:-rotate-2 transition-transform">
+                                                        {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
+                                                    </div>
+                                                    <div className="flex-1 flex flex-col justify-center text-right">
+                                                        <h4 className="font-black text-brand-slate text-lg group-hover:text-brand-orange transition-colors">{book.title}</h4>
+                                                        <p className="text-brand-orange font-black mt-1">{book.price} ر.س</p>
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Error Context if any */}
+                                {(message || verificationError) && !isSuccess && (
+                                    <div className="mb-10 p-6 bg-red-50 border-2 border-red-100 rounded-2xl flex items-start gap-4">
+                                        <div className="p-2 bg-white rounded-lg text-red-500 shadow-sm">
+                                            <XCircle size={24} />
+                                        </div>
+                                        <div className="text-right">
+                                            <h4 className="font-black text-red-700">تفاصيل الخطأ</h4>
+                                            <p className="text-red-600 text-sm font-bold mt-1">{verificationError || message}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Actions */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    {!isSuccess ? (
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => navigate('/cart')}
+                                            className="bg-slate-100 text-brand-slate font-black py-4 rounded-2xl hover:bg-slate-200 transition shadow-sm flex items-center justify-center gap-3"
+                                        >
+                                            <RotateCcw size={20} />
+                                            <span>العودة للسلة</span>
+                                        </motion.button>
+                                    ) : (
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => navigate('/profile')}
+                                            className="bg-slate-100 text-brand-slate font-black py-4 rounded-2xl hover:bg-slate-200 transition shadow-sm flex items-center justify-center gap-3"
+                                        >
+                                            <ShoppingBag size={20} />
+                                            <span>طلباتي</span>
+                                        </motion.button>
+                                    )}
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => navigate('/')}
+                                        className="bg-brand-orange text-white font-black py-4 rounded-2xl hover:bg-orange-600 transition shadow-xl flex items-center justify-center gap-3"
+                                    >
+                                        <Home size={20} />
+                                        <span>الرئيسية</span>
+                                    </motion.button>
+                                </div>
+                            </>
+                        )}
+                    </motion.div>
                 </div>
-            </div>
+            </motion.main>
+
             <Footer />
         </div>
     );

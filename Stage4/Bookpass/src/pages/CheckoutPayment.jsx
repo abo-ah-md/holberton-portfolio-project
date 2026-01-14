@@ -2,32 +2,49 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { CreditCard, Lock, CheckCircle, ArrowRight, ShoppingCart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CreditCard, Lock, CheckCircle, ArrowRight, ShoppingCart, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+
+// Animation variants
+const container = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+            delayChildren: 0.1
+        }
+    }
+};
+
+const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+    }
+};
 
 const CheckoutPayment = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { clearCart } = useCart();
 
-    // Support both single book (from Buy Now) and multiple books (from Cart)
     const [items, setItems] = useState([]);
     const [total, setTotal] = useState(0);
-    const [showTestGuide, setShowTestGuide] = useState(false);
 
     useEffect(() => {
-        // Check for cart items first (multi-book checkout)
         if (location.state?.cartItems && location.state.cartItems.length > 0) {
             setItems(location.state.cartItems);
             setTotal(location.state.total || location.state.cartItems.reduce((sum, item) => sum + item.price, 0));
         }
-        // Fall back to single book (Buy Now button)
         else if (location.state?.book) {
             setItems([location.state.book]);
             setTotal(parseFloat(location.state.book.price));
         }
         else {
-            // Redirect if no items found
             navigate('/');
         }
     }, [location.state, navigate]);
@@ -35,14 +52,15 @@ const CheckoutPayment = () => {
     useEffect(() => {
         if (items.length > 0 && window.Moyasar) {
             const amountInHalalas = Math.round(total * 100);
-
-            // Build description with all book titles
             const description = items.length === 1
                 ? `Payment for ${items[0].title}`
                 : `Payment for ${items.length} books: ${items.map(b => b.title).join(', ')}`;
 
-            // Build callback URL with all book IDs
-            const bookIds = items.map(b => b.id).join(',');
+            sessionStorage.setItem('pendingTransaction', JSON.stringify({
+                bookIds: items.map(b => b.id),
+                total: total,
+                timestamp: Date.now()
+            }));
 
             try {
                 window.Moyasar.init({
@@ -51,139 +69,183 @@ const CheckoutPayment = () => {
                     currency: 'SAR',
                     description: description,
                     publishable_api_key: import.meta.env.VITE_MOYASAR_PUBLIC_KEY,
-                    callback_url: window.location.origin + `/payment-success?bookIds=${bookIds}`,
+                    callback_url: window.location.origin + `/payment-success`,
                     methods: ['creditcard', 'stcpay']
                 });
             } catch (error) {
                 console.error("Moyasar init error:", error);
             }
         }
-    }, [items, total, clearCart]);
+    }, [items, total]);
 
     if (items.length === 0) return null;
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#f5f5f5] font-sans rtl">
+        <div className="min-h-screen flex flex-col font-sans bg-[#2c3e50] pt-20 relative" dir="rtl">
+            {/* Subtle background pattern */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+                <div className="absolute inset-0" style={{
+                    backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                    backgroundSize: '40px 40px'
+                }}></div>
+            </div>
             <Navbar />
 
-            <div className="flex-1 max-w-5xl mx-auto w-full px-6 py-12">
+            <motion.main
+                variants={container}
+                initial="hidden"
+                animate="show"
+                className="flex-1 w-full relative z-10"
+            >
+                {/* Dark Navy Hero Section */}
+                <motion.section
+                    variants={fadeInUp}
+                    className="bg-[#2c3e50] py-12 px-4 md:px-8 relative"
+                >
+                    <div className="max-w-7xl mx-auto relative z-10">
+                        {/* Orange Pill Card */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2, duration: 0.6 }}
+                            className="bg-brand-orange rounded-3xl p-8 shadow-2xl relative overflow-hidden"
+                            style={{
+                                clipPath: 'polygon(0 0, 98% 0, 100% 50%, 98% 100%, 0 100%)'
+                            }}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
 
-                <h1 className="text-3xl font-bold mb-8 text-brand-slate text-center">صفحة الدفع الآمن</h1>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                    {/* Payment Form */}
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 order-2 md:order-1">
-                        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-                            <CreditCard className="text-brand-orange" />
-                            <h2 className="text-xl font-bold text-brand-slate">بيانات الدفع</h2>
-                        </div>
-
-                        {/* Moyasar Form Container */}
-                        <div className="mysr-form"></div>
-
-                        {/* Test Guide Section */}
-                        <div className="mt-8 border-t border-gray-100 pt-6">
-                            <button
-                                onClick={() => setShowTestGuide(!showTestGuide)}
-                                className="w-full flex items-center justify-between text-brand-slate font-bold p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition"
-                            >
-                                <span className="flex items-center gap-2">
-                                    <Lock size={18} className="text-brand-orange" />
-                                    <span>كيف تختبر الدفع ؟ (بطاقات تجريبية)</span>
-                                </span>
-                                <span>{showTestGuide ? '▲' : '▼'}</span>
-                            </button>
-
-                            {showTestGuide && (
-                                <div className="mt-4 bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm animate-in slide-in-from-top-2 fade-in">
-                                    <p className="mb-3 text-blue-800 font-bold">استخدم البطاقات التالية لاختبار الدفع بنجاح:</p>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-left bg-white rounded-lg border border-blue-100 overflow-hidden">
-                                            <thead>
-                                                <tr className="bg-blue-100 text-blue-900 border-b border-blue-200">
-                                                    <th className="p-2 text-right">النوع</th>
-                                                    <th className="p-2 text-center" dir="ltr">Card Number</th>
-                                                    <th className="p-2 text-center" dir="ltr">CVV</th>
-                                                    <th className="p-2 text-center" dir="ltr">Expiry</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="text-gray-600">
-                                                <tr className="border-b border-gray-100">
-                                                    <td className="p-2 font-bold text-right">مدى (Mada)</td>
-                                                    <td className="p-2 font-mono text-center select-all" dir="ltr">4000 0000 0000 0000</td>
-                                                    <td className="p-2 text-center">123</td>
-                                                    <td className="p-2 text-center" dir="ltr">12/26</td>
-                                                </tr>
-                                                <tr className="border-b border-gray-100">
-                                                    <td className="p-2 font-bold text-right">فيزا (Visa)</td>
-                                                    <td className="p-2 font-mono text-center select-all" dir="ltr">4111 1111 1111 1111</td>
-                                                    <td className="p-2 text-center">123</td>
-                                                    <td className="p-2 text-center" dir="ltr">12/26</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="p-2 font-bold text-right">ماستركارد</td>
-                                                    <td className="p-2 font-mono text-center select-all" dir="ltr">5111 1111 1111 1111</td>
-                                                    <td className="p-2 text-center">123</td>
-                                                    <td className="p-2 text-center" dir="ltr">12/26</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                                <div className="flex items-center gap-6">
+                                    <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-md shadow-xl border border-white/30 text-white">
+                                        <Lock size={48} />
                                     </div>
-                                    <p className="mt-3 text-xs text-blue-600">
-                                        * الاسم: Test Card <br />
-                                        * كلمة المرور (OTP) للتجربة: 1234
-                                    </p>
+                                    <div className="text-right">
+                                        <h1 className="text-4xl font-black text-white drop-shadow-lg mb-2">
+                                            إتمام عملية الدفع
+                                        </h1>
+                                        <p className="text-white/80 text-lg font-medium flex items-center gap-2">
+                                            <ShieldCheck size={20} />
+                                            بوابة دفع آمنة 100%
+                                        </p>
+                                    </div>
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        </motion.div>
                     </div>
+                </motion.section>
 
-                    {/* Order Summary */}
-                    <div className="order-1 md:order-2">
-                        <div className="bg-brand-slate text-white rounded-2xl shadow-xl overflow-hidden sticky top-24">
-                            <div className="p-8 bg-[#3A4958]">
-                                <h3 className="text-lg font-bold opacity-80 mb-1">ملخص الطلب</h3>
-                                <div className="text-3xl font-black">
-                                    {total.toFixed(2)} <span className="text-sm font-bold opacity-60">ر.س</span>
+                <div className="max-w-7xl mx-auto w-full px-4 md:px-8 py-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+                        {/* Payment Form */}
+                        <motion.div variants={fadeInUp} className="order-2 lg:order-1">
+                            <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100">
+                                <div className="flex items-center gap-4 mb-10 pb-6 border-b-2 border-gray-50 uppercase tracking-widest text-gray-400 font-black text-sm">
+                                    <CreditCard className="text-brand-orange" size={20} />
+                                    <span>بيانات بطاقة الدفع</span>
                                 </div>
-                                {items.length > 1 && (
-                                    <div className="mt-2 flex items-center gap-2 text-sm opacity-70">
-                                        <ShoppingCart size={16} />
-                                        <span>{items.length} كتب</span>
-                                    </div>
-                                )}
-                            </div>
 
-                            <div className="p-8 bg-[#2C3945] max-h-[400px] overflow-y-auto">
-                                {/* Book list */}
-                                <div className="space-y-4 mb-6">
-                                    {items.map((item, index) => (
-                                        <div key={item.id || index} className="flex gap-4">
-                                            <div className="w-16 h-20 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
-                                                {item.image && <img src={item.image} alt={item.title} className="w-full h-full object-cover" />}
+                                <div className="mysr-form mb-10"></div>
+
+                                {/* Test Guide Section */}
+                                <div className="pt-8 border-t-2 border-gray-50">
+                                    <div className="flex flex-col gap-4">
+                                        <motion.button
+                                            whileHover={{ scale: 1.02, backgroundColor: '#f0f9ff' }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => {
+                                                const form = document.querySelector('.mysr-form');
+                                                if (form) {
+                                                    const fields = {
+                                                        'mysr-cc-name': 'Test User',
+                                                        'mysr-cc-number': '4111 1111 1111 1111',
+                                                        'mysr-cc-csc': '123',
+                                                        'mysr-cc-exp': '12 / 26'
+                                                    };
+                                                    Object.entries(fields).forEach(([id, value]) => {
+                                                        const input = document.getElementById(id);
+                                                        if (input) {
+                                                            input.value = value;
+                                                            // Dispatch events to trigger Moyasar's validation/state updates
+                                                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                                                            input.dispatchEvent(new Event('change', { bubbles: true }));
+                                                            input.dispatchEvent(new Event('blur', { bubbles: true }));
+                                                        }
+                                                    });
+                                                }
+                                            }}
+                                            className="w-full flex items-center justify-center gap-3 text-blue-700 font-black p-5 bg-blue-50/50 rounded-2xl transition-all border-2 border-blue-100 hover:border-blue-200 shadow-sm"
+                                        >
+                                            <div className="p-2 bg-white rounded-lg shadow-sm text-blue-600">
+                                                <CheckCircle size={20} />
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="font-bold text-sm truncate leading-tight mb-1">{item.title}</h4>
-                                                <p className="text-xs opacity-60 mb-1">{item.author}</p>
-                                                <span className="text-brand-orange font-bold text-sm">{item.price} ر.س</span>
-                                            </div>
+                                            <span>تعبئة بيانات بطاقة التجربة تلقائياً (Visa)</span>
+                                        </motion.button>
+
+                                        <p className="text-center text-gray-400 text-xs font-bold italic">
+                                            * استخدم الرمز <span className="text-blue-600">1234</span> عند طلب رمز التحقق (OTP)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Order Summary Sidebar */}
+                        <motion.div variants={fadeInUp} className="order-1 lg:order-2">
+                            <div className="bg-[#2c3e50] text-white rounded-3xl shadow-2xl overflow-hidden sticky top-24 border border-white/10">
+                                <div className="p-10 bg-gradient-to-br from-brand-orange to-orange-600">
+                                    <h3 className="text-white/80 font-black text-sm uppercase tracking-widest mb-2 text-right">إجمالي المبلغ المستحق</h3>
+                                    <div className="text-5xl font-black text-white text-right drop-shadow-xl">
+                                        {total.toFixed(2)} <span className="text-xl">ر.س</span>
+                                    </div>
+                                    {items.length > 1 && (
+                                        <div className="mt-4 flex items-center gap-2 text-white/90 font-bold bg-white/10 self-start px-4 py-2 rounded-xl backdrop-blur-md border border-white/20 w-fit mr-0 ml-auto">
+                                            <ShoppingCart size={18} />
+                                            <span>{items.length} كتب في طلبك</span>
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
 
-                                {/* Total */}
-                                <div className="pt-4 border-t border-white/10">
-                                    <div className="flex justify-between font-bold text-lg">
-                                        <span>الإجمالي</span>
-                                        <span className="text-brand-orange">{total.toFixed(2)} ر.س</span>
+                                <div className="p-10 space-y-8">
+                                    <div className="space-y-6 max-h-[400px] overflow-y-auto custom-scrollbar pl-4">
+                                        {items.map((item, index) => (
+                                            <motion.div
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.4 + (index * 0.1) }}
+                                                key={item.id || index}
+                                                className="flex gap-6 group"
+                                            >
+                                                <div className="w-20 h-24 bg-white/10 rounded-2xl overflow-hidden flex-shrink-0 shadow-lg border border-white/5 group-hover:border-white/20 transition-colors duration-500">
+                                                    {item.image && <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />}
+                                                </div>
+                                                <div className="flex-1 min-w-0 flex flex-col justify-center text-right">
+                                                    <h4 className="font-black text-lg truncate leading-tight mb-1 text-white group-hover:text-brand-orange transition-colors">{item.title}</h4>
+                                                    <p className="text-sm text-white/50 font-bold mb-2 uppercase tracking-wide">{item.author}</p>
+                                                    <span className="text-brand-orange font-black text-lg">{item.price} ر.س</span>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </div>
+
+                                    {/* Final Summary Row */}
+                                    <div className="pt-8 border-t border-white/10">
+                                        <div className="flex justify-between items-center text-xl font-black">
+                                            <span className="text-white opacity-80">الإجمالي</span>
+                                            <span className="text-brand-orange text-3xl">{total.toFixed(2)} ر.س</span>
+                                        </div>
+                                        <p className="text-center text-white/40 font-bold text-xs mt-6 flex items-center gap-2 justify-center">
+                                            <ShieldCheck size={14} />
+                                            <span>دفع مشفر وآمن عبر بوابة Moyasar</span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
-            </div>
+            </motion.main>
 
             <Footer />
         </div>

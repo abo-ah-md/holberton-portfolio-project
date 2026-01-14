@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, BookOpen, DollarSign } from 'lucide-react';
 
 const HowTo = () => {
@@ -10,7 +11,7 @@ const HowTo = () => {
         const stepCount = activeTab === 'buying' ? 3 : 5;
         const interval = setInterval(() => {
             setCurrentStep((prev) => (prev + 1) % stepCount);
-        }, 2000); // Change step every 2 seconds
+        }, 2500); // Slower loop for better readability
 
         return () => clearInterval(interval);
     }, [activeTab]);
@@ -19,14 +20,6 @@ const HowTo = () => {
     useEffect(() => {
         setCurrentStep(0);
     }, [activeTab]);
-
-    // Handle keyboard navigation
-    const handleKeyDown = (e, tab) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setActiveTab(tab);
-        }
-    };
 
     const buyingSteps = [
         { icon: Search, label: 'البحث عن الكتاب', number: 1 },
@@ -45,229 +38,203 @@ const HowTo = () => {
     const steps = activeTab === 'buying' ? buyingSteps : sellingSteps;
 
     return (
-        <div className="relative overflow-hidden min-h-[550px]" style={{ backgroundColor: '#475a67', marginTop: '-1px' }}>
+        <div className="relative overflow-hidden min-h-[600px] bg-[#475a67]">
             <section
-                className="relative bg-[#475a67] pt-16 md:pt-24 pb-24 md:pb-32 lg:pb-40"
+                className="relative py-24 md:py-32"
                 aria-label="كيفية استخدام بوك باس"
             >
-                {/* Main Content Container - Absolute Centering */}
+                {/* Main Content Container */}
                 <div className="relative w-full px-6 md:px-12 flex flex-col items-center justify-center">
-                    {/* Tab Navigation - Perfectly Centered Row */}
-                    <div
-                        className="flex flex-row flex-wrap items-center justify-center gap-6 md:gap-12 mb-0"
-                        role="tablist"
-                        aria-label="اختر نوع العملية"
+
+                    {/* Header Label - Renamed/Enhanced */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-center mb-16"
                     >
-                        {/* Header Label */}
-                        <div
-                            className="text-white text-3xl md:text-6xl font-black px-4"
-                            aria-hidden="true"
-                        >
-                            كيفية
+                        <h2 className="text-white text-4xl md:text-7xl font-black mb-4 drop-shadow-xl">
+                            كيف تـبـدأ؟
+                        </h2>
+                        <div className="h-1.5 w-24 bg-[#c8876f] mx-auto rounded-full" />
+                    </motion.div>
+
+                    {/* Tab Navigation - Pill Design */}
+                    <div className="flex bg-white/5 backdrop-blur-md p-2 rounded-3xl border border-white/10 mb-24 relative z-20">
+                        <div className="relative flex gap-2">
+                            {/* Sliding Active Background */}
+                            <motion.div
+                                className="absolute h-full rounded-2xl bg-white shadow-xl"
+                                initial={false}
+                                animate={{
+                                    x: activeTab === 'buying' ? '0%' : '100%',
+                                    width: activeTab === 'buying' ? '50%' : '50%',
+                                    backgroundColor: activeTab === 'buying' ? '#c8876f' : '#ffffff'
+                                }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                style={{
+                                    right: activeTab === 'buying' ? '0' : 'auto',
+                                    left: activeTab === 'selling' ? '0' : 'auto'
+                                }}
+                            />
+
+                            <button
+                                onClick={() => setActiveTab('buying')}
+                                className={`relative px-12 py-4 rounded-2xl text-xl md:text-3xl font-black transition-colors duration-300 z-10 min-w-[160px] ${activeTab === 'buying' ? 'text-white' : 'text-white/50 hover:text-white'
+                                    }`}
+                            >
+                                الشراء
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('selling')}
+                                className={`relative px-12 py-4 rounded-2xl text-xl md:text-3xl font-black transition-colors duration-300 z-10 min-w-[160px] ${activeTab === 'selling' ? 'text-[#c8876f]' : 'text-white/50 hover:text-white'
+                                    }`}
+                            >
+                                البيع
+                            </button>
                         </div>
-
-                        {/* Selling Tab */}
-                        <button
-                            role="tab"
-                            id="selling-tab"
-                            aria-selected={activeTab === 'selling'}
-                            aria-controls="selling-panel"
-                            onClick={() => setActiveTab('selling')}
-                            onKeyDown={(e) => handleKeyDown(e, 'selling')}
-                            className={`min-w-[120px] md:min-w-[240px] px-8 py-4 md:py-6 rounded-2xl text-xl md:text-4xl font-black transition-all duration-300 ${activeTab === 'selling'
-                                ? 'bg-white text-[#c8876f] shadow-2xl scale-110'
-                                : 'bg-white/10 text-white hover:bg-white/20'
-                                }`}
-                        >
-                            <span>البيع</span>
-                        </button>
-
-                        {/* Buying Tab */}
-                        <button
-                            role="tab"
-                            id="buying-tab"
-                            aria-selected={activeTab === 'buying'}
-                            aria-controls="buying-panel"
-                            onClick={() => setActiveTab('buying')}
-                            onKeyDown={(e) => handleKeyDown(e, 'buying')}
-                            className={`min-w-[120px] md:min-w-[240px] px-8 py-4 md:py-6 rounded-2xl text-xl md:text-4xl font-black transition-all duration-300 ${activeTab === 'buying'
-                                ? 'bg-[#c8876f] text-white shadow-2xl scale-110 border-2 border-white'
-                                : 'bg-white/10 text-white hover:bg-white/20'
-                                }`}
-                        >
-                            <span>الشراء</span>
-                        </button>
                     </div>
 
-                    {/* SPACER DIV - Balanced space between tabs and steps */}
-                    <div className="h-20 md:h-28 lg:h-32 w-full"></div>
-
-                    {/* Process Diagrams Container */}
-                    <div className="mb-32 max-w-5xl mx-auto">
-                        <div
-                            id={`${activeTab}-panel`}
-                            role="tabpanel"
-                            aria-labelledby={`${activeTab}-tab`}
-                            className="animate-fadeIn"
-                        >
-                            {/* Vertical on Mobile, Horizontal on Desktop - Aligned by Circles (items-start) */}
-                            <div className="flex flex-col md:!flex-row items-center md:items-start justify-center gap-4 md:gap-6 pb-16" dir="rtl">
+                    {/* Process Steps */}
+                    <div className="w-full max-w-7xl">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={activeTab}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.5 }}
+                                className="flex flex-col md:flex-row items-center md:items-start justify-center gap-8 md:gap-4 lg:gap-10"
+                                dir="rtl"
+                            >
                                 {steps.map((step, index) => (
                                     <React.Fragment key={index}>
-                                        {/* Step Container */}
-                                        <div className="relative flex flex-col items-center gap-3">
-                                            {/* Animated Number Badge */}
-                                            <div
-                                                className={`absolute -top-10 md:-top-14 bg-white rounded-xl shadow-lg transition-all duration-500 flex items-center justify-center min-w-[50px] h-[50px] md:min-w-[60px] md:h-[60px] ${currentStep === index
-                                                    ? 'opacity-100 -translate-y-2 scale-110'
-                                                    : 'opacity-0 translate-y-0 scale-100'
-                                                    }`}
-                                                style={{
-                                                    animationDelay: `${index * 0.2}s`
+                                        <div className="relative flex flex-col items-center group">
+                                            {/* Number Badge */}
+                                            <motion.div
+                                                animate={{
+                                                    y: currentStep === index ? -15 : 0,
+                                                    opacity: currentStep === index ? 1 : 0.3,
+                                                    scale: currentStep === index ? 1.2 : 1
                                                 }}
+                                                className="mb-4 bg-white text-[#c8876f] w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl shadow-lg"
                                             >
-                                                <span className="text-[#c8876f] font-bold text-2xl md:text-3xl">
-                                                    {step.number}
-                                                </span>
-                                            </div>
+                                                {step.number}
+                                            </motion.div>
 
-                                            {/* Circle Icon */}
-                                            <div
-                                                className={`w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-full bg-[#c8876f] border-4 md:border-[5px] border-white flex items-center justify-center shadow-lg transition-all duration-500 ${currentStep === index
-                                                    ? 'scale-110 shadow-2xl ring-4 ring-white/50'
-                                                    : 'scale-100'
-                                                    }`}
-                                            >
-                                                {step.icon && (
-                                                    <step.icon
-                                                        className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 text-white"
-                                                        strokeWidth={2.5}
-                                                    />
-                                                )}
-                                                {step.customIcon === 'book-add' && (
-                                                    <svg
-                                                        className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 text-white"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="2"
-                                                    >
-                                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                                                        <path d="M12 8v8M8 12h8" />
-                                                    </svg>
-                                                )}
-                                                {step.customIcon === 'badge' && (
-                                                    <svg
-                                                        className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 text-white"
-                                                        viewBox="0 0 24 24"
-                                                        fill="currentColor"
-                                                    >
-                                                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                                                        <circle cx="12" cy="12" r="4" fill="#c8876f" stroke="currentColor" strokeWidth="1.5" />
-                                                    </svg>
-                                                )}
-                                                {step.customIcon === true && (
-                                                    <svg
-                                                        className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 text-white"
-                                                        viewBox="0 0 24 24"
-                                                        fill="currentColor"
-                                                    >
-                                                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                                                        <circle cx="12" cy="12" r="4" fill="#c8876f" stroke="currentColor" strokeWidth="1.5" />
-                                                    </svg>
-                                                )}
+                                            {/* Step Circle with Pulse Effect */}
+                                            <div className="relative">
+                                                <AnimatePresence>
+                                                    {currentStep === index && (
+                                                        <motion.div
+                                                            initial={{ scale: 0.8, opacity: 0 }}
+                                                            animate={{ scale: 1.5, opacity: 0 }}
+                                                            exit={{ opacity: 0 }}
+                                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                                            className="absolute inset-0 bg-white/20 rounded-full z-0"
+                                                        />
+                                                    )}
+                                                </AnimatePresence>
+
+                                                <motion.div
+                                                    animate={{
+                                                        scale: currentStep === index ? 1.1 : 1,
+                                                        borderColor: currentStep === index ? '#ffffff' : 'rgba(255,255,255,0.3)'
+                                                    }}
+                                                    className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-[#c8876f] border-4 flex items-center justify-center shadow-2xl relative z-10 transition-all duration-500"
+                                                >
+                                                    {step.icon ? (
+                                                        <step.icon className="w-10 h-10 md:w-14 md:h-14 text-white" strokeWidth={2.5} />
+                                                    ) : (
+                                                        <div className="text-white">
+                                                            {step.customIcon === 'book-add' && (
+                                                                <svg className="w-10 h-10 md:w-14 md:h-14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /><path d="M12 8v8M8 12h8" />
+                                                                </svg>
+                                                            )}
+                                                            {step.customIcon === 'badge' && (
+                                                                <svg className="w-10 h-10 md:w-14 md:h-14" fill="currentColor" viewBox="0 0 24 24">
+                                                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" /><circle cx="12" cy="12" r="4" fill="#c8876f" stroke="currentColor" strokeWidth="1.5" />
+                                                                </svg>
+                                                            )}
+                                                            {step.customIcon === true && (
+                                                                <svg className="w-10 h-10 md:w-14 md:h-14" fill="currentColor" viewBox="0 0 24 24">
+                                                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" /><circle cx="12" cy="12" r="4" fill="#c8876f" stroke="currentColor" strokeWidth="1.5" />
+                                                                </svg>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </motion.div>
                                             </div>
 
                                             {/* Label */}
-                                            <p className="text-white text-base md:text-lg lg:text-xl xl:text-[22px] font-bold text-center whitespace-pre-line">
+                                            <motion.p
+                                                animate={{
+                                                    opacity: currentStep === index ? 1 : 0.6,
+                                                    y: currentStep === index ? 5 : 0
+                                                }}
+                                                className="mt-6 text-white text-lg md:text-xl font-black text-center whitespace-pre-line leading-tight"
+                                            >
                                                 {step.label}
-                                            </p>
+                                            </motion.p>
                                         </div>
 
-                                        {/* Animated Arrow Connector - Aligned with Circles */}
+                                        {/* Animated Path Connector */}
                                         {index < steps.length - 1 && (
-                                            <div className="flex items-center justify-center pt-8 md:pt-14 lg:pt-16">
-                                                {/* Vertical Arrow on Mobile */}
-                                                <svg
-                                                    className="  md:block md:hidden w-8 h-16"
-                                                    viewBox="0 0 24 50"
-                                                    fill="none"
-                                                >
-                                                    <path
-                                                        d="M12 5 L12 40 M12 40 L8 36 M12 40 L16 36"
+                                            <div className="flex items-center justify-center py-4 md:py-0 md:pt-14">
+                                                {/* Desktop Path */}
+                                                <svg className="hidden md:block w-16 lg:w-28 h-10" viewBox="0 0 100 20">
+                                                    <motion.path
+                                                        d="M0 10 L100 10"
                                                         stroke="white"
-                                                        strokeWidth="2"
+                                                        strokeWidth="3"
                                                         strokeLinecap="round"
-                                                        className={`transition-all duration-500 ${currentStep === index
-                                                            ? 'opacity-100 stroke-[3]'
-                                                            : 'opacity-60'
-                                                            }`}
-                                                        style={{
-                                                            strokeDasharray: currentStep === index ? '50' : '0',
-                                                            strokeDashoffset: currentStep === index ? '0' : '50',
-                                                            transition: 'stroke-dashoffset 0.5s ease-in-out'
-                                                        }}
+                                                        strokeDasharray="100"
+                                                        initial={{ pathLength: 0 }}
+                                                        animate={{ pathLength: currentStep === index ? 1 : 0 }}
+                                                        transition={{ duration: 0.8 }}
+                                                        className="opacity-30"
+                                                    />
+                                                    <motion.path
+                                                        d="M90 5 L100 10 L90 15"
+                                                        stroke="white"
+                                                        strokeWidth="3"
+                                                        strokeLinecap="round"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: currentStep === index ? 1 : 0 }}
                                                     />
                                                 </svg>
-
-                                                {/* Horizontal Arrow on Desktop */}
-                                                <svg
-                                                    className=" hidden md:block w-16 md:w-20 lg:w-24 h-8"
-                                                    viewBox="0 0 50 24"
-                                                    fill="none"
-                                                >
-                                                    <path
-                                                        d="M45 12 L5 12 M5 12 L9 8 M5 12 L9 16"
+                                                {/* Mobile Path */}
+                                                <svg className="md:hidden w-10 h-12" viewBox="0 0 20 50">
+                                                    <motion.path
+                                                        d="M10 0 L10 50"
                                                         stroke="white"
-                                                        strokeWidth="2"
+                                                        strokeWidth="3"
                                                         strokeLinecap="round"
-                                                        className={`transition-all duration-500 ${currentStep === index
-                                                            ? 'opacity-100 stroke-[3]'
-                                                            : 'opacity-60'
-                                                            }`}
-                                                        style={{
-                                                            strokeDasharray: currentStep === index ? '50' : '0',
-                                                            strokeDashoffset: currentStep === index ? '0' : '50',
-                                                            transition: 'stroke-dashoffset 0.5s ease-in-out'
-                                                        }}
+                                                        strokeDasharray="50"
+                                                        initial={{ pathLength: 0 }}
+                                                        animate={{ pathLength: currentStep === index ? 1 : 0 }}
+                                                        transition={{ duration: 0.8 }}
+                                                        className="opacity-30"
+                                                    />
+                                                    <motion.path
+                                                        d="M5 40 L10 50 L15 40"
+                                                        stroke="white"
+                                                        strokeWidth="3"
+                                                        strokeLinecap="round"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: currentStep === index ? 1 : 0 }}
                                                     />
                                                 </svg>
                                             </div>
                                         )}
                                     </React.Fragment>
                                 ))}
-                            </div>
-                        </div>
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
                 </div>
             </section>
-
-            {/* Animations */}
-            <style>{`
-                @keyframes fadeIn {
-                    from {
-                        opacity: 0;
-                        transform: translateY(10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                .animate-fadeIn {
-                    animation: fadeIn 0.3s ease-in-out;
-                }
-                
-                @keyframes arrowFlow {
-                    0%, 100% {
-                        stroke-dashoffset: 50;
-                    }
-                    50% {
-                        stroke-dashoffset: 0;
-                    }
-                }
-            `}</style>
         </div>
     );
 };

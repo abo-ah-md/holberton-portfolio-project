@@ -8,6 +8,8 @@ import AuthRequiredModal from './AuthRequiredModal';
 import { getUniversityName } from '../constants/universities';
 import { getStatusLabel } from '../constants/status';
 
+import ImageWithLoader from './ImageWithLoader';
+
 const BookCard = ({ book }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAdded, setIsAdded] = useState(false);
@@ -92,10 +94,14 @@ const BookCard = ({ book }) => {
                     </span>
 
                     {book.image ? (
-                        <img src={book.image} alt={book.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        <ImageWithLoader
+                            src={book.image}
+                            alt={book.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full text-gray-300">
-                            <span className="text-[10px] font-bold">PDF</span>
+                            <span className="text-xs font-bold">PDF</span>
                         </div>
                     )}
 
@@ -130,7 +136,7 @@ const BookCard = ({ book }) => {
                             </button>
 
                             {/* Quick View Label */}
-                            <span className="bg-white/90 backdrop-blur text-brand-slate text-[10px] font-bold px-3 py-1 rounded-full shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75">
+                            <span className="bg-white/90 backdrop-blur text-brand-slate text-xs font-bold px-3 py-1 rounded-full shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75">
                                 نظرة سريعة
                             </span>
                         </div>
@@ -209,7 +215,14 @@ const BookCard = ({ book }) => {
 
                         <div className="w-full md:w-5/12 bg-gray-50 relative p-6 flex items-center justify-center">
                             <div className="aspect-[3/4] w-full max-w-[220px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-lg overflow-hidden relative">
-                                {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
+                                {book.image && (
+                                    <ImageWithLoader
+                                        src={book.image}
+                                        alt={book.title}
+                                        className="w-full h-full object-cover"
+                                        priority={true} // Modal image should load eagerly
+                                    />
+                                )}
                                 <span className={`absolute top-4 right-4 text-white text-xs px-3 py-1 rounded-full font-bold shadow-md ${statusBadge.color}`}>
                                     {statusBadge.text}
                                 </span>

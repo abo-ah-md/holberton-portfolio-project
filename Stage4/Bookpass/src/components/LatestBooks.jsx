@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { usePageLoading } from './PageTransition';
 import useEmblaCarousel from 'embla-carousel-react';
 import AutoScroll from 'embla-carousel-auto-scroll';
 import BookCard from './BookCard';
@@ -12,7 +13,7 @@ const timeoutPromise = (ms) => new Promise((_, reject) => setTimeout(() => rejec
 
 const LatestBooks = () => {
     const [books, setBooks] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { setIsLoading, setLoadingMessage } = usePageLoading();
     const navigate = useNavigate();
 
     // Embla Carousel with AutoScroll Plugin (Conveyor Belt Effect)
@@ -32,7 +33,8 @@ const LatestBooks = () => {
 
     useEffect(() => {
         const fetchBooks = async () => {
-            setLoading(true);
+            setLoadingMessage("جاري تحميل الكتب...");
+            setIsLoading(true);
             try {
                 // Race between fetch and 5s timeout
                 const { data, error } = await Promise.race([
@@ -58,7 +60,7 @@ const LatestBooks = () => {
                 console.error("Fetch failed, using mock data", err);
                 setBooks(MOCK_BOOKS || []);
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
@@ -70,7 +72,7 @@ const LatestBooks = () => {
     };
 
     return (
-        <section className="py-20 relative z-10 w-full overflow-hidden" style={{ background: 'linear-gradient(180deg, #C17554 0%, #3A4958 100%)', marginTop: '-1px' }}>
+        <section className="py-20 relative z-10 w-full overflow-hidden" style={{ background: 'linear-gradient(180deg, #c8876f 0%, #3A4958 100%)' }}>
 
             {/* Header Section - Centered */}
             {/* Header Section - Centered */}
@@ -85,40 +87,36 @@ const LatestBooks = () => {
                 </div>
             </div>
 
-            {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 className="animate-spin text-white" size={48} />
-                </div>
-            ) : (
-                <div className="relative w-full">
-                    {/* Carousel Container - Full Width */}
-                    {/* Important: w-full and no max-width constraints */}
-                    <div className="w-full overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef} dir="rtl">
-                        <div className="flex touch-pan-y -ml-4 py-8 px-0">
-                            {books.map((book, index) => (
-                                // Using index in key because we might have duplicates for looping
-                                <div key={`${book.id}-${index}`} className="flex-[0_0_auto] min-w-0 pl-4 basis-[260px] md:basis-[280px]">
-                                    <div className="transform transition-transform duration-300 hover:-translate-y-2">
-                                        <BookCard book={book} darkBackground={true} />
-                                    </div>
+            {/* Removed redundant local LoadingSpinner as global overlay handles it */}
+            <div className="relative w-full">
+                {/* Carousel Container - Full Width */}
+                {/* Important: w-full and no max-width constraints */}
+                <div className="w-full overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef} dir="rtl">
+                    <div className="flex touch-pan-y -ml-4 py-8 px-0">
+                        {books.map((book, index) => (
+                            // Using index in key because we might have duplicates for looping
+                            <div key={`${book.id}-${index}`} className="flex-[0_0_auto] min-w-0 pl-4 basis-[260px] md:basis-[280px]">
+                                <div className="transform transition-transform duration-300 hover:-translate-y-2">
+                                    <BookCard book={book} darkBackground={true} />
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* More Button - Centered */}
-                    <div className="flex justify-center mt-12 w-full max-w-[1400px] mx-auto px-4 md:px-8">
-                        <button
-                            onClick={handleNavigateToMarketplace}
-                            className="bg-[#C17554] hover:bg-[#a05e40] text-white border border-white/20 font-bold py-3 px-12 rounded-full transition-all flex items-center gap-2 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 group"
-                        >
-                            <span>المزيد من الكتب</span>
-                            <ChevronLeft size={20} className="transform transition-transform group-hover:-translate-x-1" />
-                        </button>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            )}
-        </section>
+
+                {/* More Button - Centered */}
+                <div className="flex justify-center mt-12 w-full max-w-[1400px] mx-auto px-4 md:px-8">
+                    <button
+                        onClick={handleNavigateToMarketplace}
+                        className="bg-[#C17554] hover:bg-[#a05e40] text-white border border-white/20 font-bold py-3 px-12 rounded-full transition-all flex items-center gap-2 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 group"
+                    >
+                        <span>المزيد من الكتب</span>
+                        <ChevronLeft size={20} className="transform transition-transform group-hover:-translate-x-1" />
+                    </button>
+                </div>
+            </div>
+
+        </section >
     );
 };
 

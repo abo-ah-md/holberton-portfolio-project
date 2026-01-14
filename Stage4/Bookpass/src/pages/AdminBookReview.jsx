@@ -1,61 +1,55 @@
-
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ReviewBookCard from '../components/ReviewBookCard';
 import SoldBookCard from '../components/SoldBookCard';
+import { usePageLoading } from '../components/PageTransition';
 import { getStorePendingBooks, getStoreSoldBooks, reviewBook, markBookAsPicked } from '../services/bookService';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingBag } from 'lucide-react';
 
 const AdminBookReview = () => {
     const [booksToReview, setBooksToReview] = React.useState([]);
-    const [soldBooks, setSoldBooks] = React.useState([]); // New state for Sold Books
-    const [activeTab, setActiveTab] = React.useState('pending'); // 'pending' or 'sold'
-    const [loading, setLoading] = React.useState(true);
+    const [soldBooks, setSoldBooks] = React.useState([]);
+    const [activeTab, setActiveTab] = React.useState('pending');
+    const { isLoading, setIsLoading, setLoadingMessage } = usePageLoading();
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         const fetchData = async () => {
-            setLoading(true);
+            setLoadingMessage("جاري تحميل الكتب...");
+            setIsLoading(true);
             try {
-                if (activeTab === 'pending') {
-                    const { data } = await getStorePendingBooks();
-                    if (data) {
-                        // Ensure unique items and strict filtering
-                        const uniqueBooks = Array.from(new Map(data.map(book => [book.id, book])).values());
-                        setBooksToReview(uniqueBooks);
-                    }
-                } else {
-                    const { data } = await getStoreSoldBooks();
-                    if (data) {
-                        // Ensure unique items and strict filtering
-                        const uniqueBooks = Array.from(new Map(data.map(book => [book.id, book])).values());
-                        setSoldBooks(uniqueBooks);
-                    }
+                const [pendingRes, soldRes] = await Promise.all([
+                    getStorePendingBooks(),
+                    getStoreSoldBooks()
+                ]);
+
+                if (pendingRes.data) {
+                    const uniqueBooks = Array.from(new Map(pendingRes.data.map(book => [book.id, book])).values());
+                    setBooksToReview(uniqueBooks);
+                }
+                if (soldRes.data) {
+                    const uniqueBooks = Array.from(new Map(soldRes.data.map(book => [book.id, book])).values());
+                    setSoldBooks(uniqueBooks);
                 }
             } catch (err) {
                 console.error("Failed to fetch books", err);
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
         fetchData();
-    }, [activeTab]);
+    }, [setIsLoading, setLoadingMessage]);
 
     const handleAccept = async (updatedBook) => {
         try {
-            console.log("Accepting book:", updatedBook.title, "Condition:", updatedBook.status);
-
-            const { data, error } = await reviewBook(updatedBook.id, updatedBook.status);
-
+            const { error } = await reviewBook(updatedBook.id, updatedBook.status);
             if (error) {
-                console.error("Failed to approve book:", error);
                 alert("فشل في قبول الكتاب: " + error);
                 return;
             }
-
-            // Remove the accepted book from the list
             setBooksToReview(prev => prev.filter(b => b.id !== updatedBook.id));
-
         } catch (err) {
             console.error("Error in handleAccept:", err);
             alert("حدث خطأ غير متوقع");
@@ -65,18 +59,12 @@ const AdminBookReview = () => {
     const handlePicked = async (bookId) => {
         try {
             if (!confirm("هل أنت متأكد من تسليم الكتاب للمشتري؟")) return;
-
-            const { data, error } = await markBookAsPicked(bookId);
-
+            const { error } = await markBookAsPicked(bookId);
             if (error) {
-                console.error("Failed to mark book as picked:", error);
                 alert("فشل في تحديث حالة الكتاب: " + error);
                 return;
             }
-
-            // Remove the picked book from the sold list
             setSoldBooks(prev => prev.filter(b => b.id !== bookId));
-
         } catch (err) {
             console.error("Error in handlePicked:", err);
             alert("حدث خطأ غير متوقع");
@@ -84,100 +72,154 @@ const AdminBookReview = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col font-sans bg-[#3A4958]" dir="rtl">
+        <div className="min-h-screen flex flex-col font-sans bg-[#2c3e50] pt-20 relative" dir="rtl">
+            {/* Subtle background pattern */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+                <div className="absolute inset-0" style={{
+                    backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                    backgroundSize: '40px 40px'
+                }}></div>
+            </div>
             <Navbar />
 
-            {/* Header Section */}
-            <div className="relative bg-[#2c3e50] h-[220px] flex items-center justify-end px-10 md:px-20 overflow-hidden shadow-xl z-20">
-                {/* Banner/Ribbon */}
-                <div className="relative z-10 mr-0 md:mr-10">
-                    <div
-                        className="relative bg-[#c8876f] text-white py-6 px-16 pr-24 shadow-2xl flex items-center"
-                        style={{
-                            // Arrow shape pointing right (visually left in RTL context if we think about reading direction, but conventionally "pointing right" usually means arrow head on right side >)
-                            // The user said "Arrow shape pointing right".
-                            // Let's assume standard right-pointing arrow:  |______>
-                            clipPath: 'polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%)'
-                        }}
-                    >
-                        <h1 className="text-4xl md:text-5xl font-bold leading-tight drop-shadow-md">
-                            تقييم الكتب
-                        </h1>
+            <motion.main
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex-1 w-full relative z-10"
+            >
+                {/* Hero Section - Orange Pill */}
+                <section className="py-12 px-4 md:px-8">
+                    <div className="max-w-7xl mx-auto">
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2, duration: 0.6 }}
+                            className="bg-brand-orange rounded-3xl p-8 shadow-2xl relative overflow-hidden"
+                            style={{
+                                clipPath: 'polygon(0 0, 98% 0, 100% 50%, 98% 100%, 0 100%)'
+                            }}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
+
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                                <div className="text-right">
+                                    <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-lg mb-2">
+                                        لوحة التحكم والمراجعة
+                                    </h1>
+                                    <p className="text-white/80 text-lg font-medium">
+                                        إدارة الكتب المرفوعة والطلبات التي تنتظر التسليم
+                                    </p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center border border-white/30 shadow-xl min-w-[120px]">
+                                        <div className="text-3xl font-black text-white">{booksToReview.length}</div>
+                                        <div className="text-xs font-bold text-white/70 uppercase">بانتظار المراجعة</div>
+                                    </div>
+                                    <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center border border-white/30 shadow-xl min-w-[120px]">
+                                        <div className="text-3xl font-black text-white">{soldBooks.length}</div>
+                                        <div className="text-xs font-bold text-white/70 uppercase">بانتظار التسليم</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
                     </div>
+                </section>
+
+                <div className="max-w-7xl mx-auto px-4 md:px-8 pb-20">
+                    {/* Tabs Section */}
+                    <div className="flex justify-center mb-12 p-1.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl w-fit mx-auto shadow-2xl overflow-hidden">
+                        <button
+                            onClick={() => setActiveTab('pending')}
+                            className={`px-10 py-4 rounded-2xl font-black text-lg transition-all relative z-10 flex items-center gap-3 ${activeTab === 'pending'
+                                ? 'bg-brand-orange text-white shadow-xl scale-105'
+                                : 'text-white/50 hover:text-white hover:bg-white/5'
+                                }`}
+                        >
+                            <span>مراجعة الكتب</span>
+                            <div className={`w-2 h-2 rounded-full ${activeTab === 'pending' ? 'bg-white animate-pulse' : 'bg-white/20'}`}></div>
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('sold')}
+                            className={`px-10 py-4 rounded-2xl font-black text-lg transition-all relative z-10 flex items-center gap-3 ${activeTab === 'sold'
+                                ? 'bg-brand-orange text-white shadow-xl scale-105'
+                                : 'text-white/50 hover:text-white hover:bg-white/5'
+                                }`}
+                        >
+                            <span>تسليم الكتب</span>
+                            <div className={`w-2 h-2 rounded-full ${activeTab === 'sold' ? 'bg-white animate-pulse' : 'bg-white/20'}`}></div>
+                        </button>
+                    </div>
+
+                    {/* Content Container */}
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                            className="w-full"
+                        >
+                            {isLoading ? (
+                                <div className="flex flex-col items-center justify-center h-96">
+                                    <div className="w-16 h-16 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mb-6"></div>
+                                    <h3 className="text-xl font-black text-white/50">جاري جلب القائمة...</h3>
+                                </div>
+                            ) : activeTab === 'pending' ? (
+                                booksToReview.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                        {booksToReview.map((book, index) => (
+                                            <motion.div
+                                                key={book.id}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: index * 0.1 }}
+                                            >
+                                                <ReviewBookCard
+                                                    book={book}
+                                                    onAccept={handleAccept}
+                                                />
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-96 text-white/30 bg-white/5 rounded-3xl border border-white/5 text-center px-4">
+                                        <ShoppingBag size={64} className="mb-6 opacity-20" />
+                                        <span className="text-2xl font-black mb-2 text-white/50">لا توجد كتب للمراجعة</span>
+                                        <p className="font-bold">جميع الكتب تمت مراجعتها وإدراجها في المتجر.</p>
+                                    </div>
+                                )
+                            ) : (
+                                activeTab === 'sold' && (
+                                    soldBooks.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                            {soldBooks.map((book, index) => (
+                                                <motion.div
+                                                    key={book.id}
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: index * 0.1 }}
+                                                >
+                                                    <SoldBookCard
+                                                        book={book}
+                                                        onPicked={handlePicked}
+                                                    />
+                                                </motion.div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center h-96 text-white/30 bg-white/5 rounded-3xl border border-white/5 text-center px-4">
+                                            <ShoppingBag size={64} className="mb-6 opacity-20" />
+                                            <span className="text-2xl font-black mb-2 text-white/50">لا توجد كتب بانتظار التسليم</span>
+                                            <p className="font-bold">سيتم ظهور الكتب هنا بمجرد إتمام عملية البيع.</p>
+                                        </div>
+                                    )
+                                )
+                            )}
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
-            </div>
-
-            {/* Main Content Area */}
-            <main className="flex-1 w-full max-w-[1600px] mx-auto px-4 py-8 md:px-8 md:py-12">
-
-                {/* Tabs */}
-                <div className="flex justify-center mb-8 gap-4">
-                    <button
-                        onClick={() => setActiveTab('pending')}
-                        className={`px-8 py-3 rounded-full font-bold text-lg transition-all ${activeTab === 'pending'
-                            ? 'bg-white text-[#C17554] shadow-lg scale-105'
-                            : 'bg-[#C17554]/20 text-white hover:bg-[#C17554]/40'
-                            }`}
-                    >
-                        كتب بانتظار المراجعة ({booksToReview.length})
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('sold')}
-                        className={`px-8 py-3 rounded-full font-bold text-lg transition-all ${activeTab === 'sold'
-                            ? 'bg-white text-[#C17554] shadow-lg scale-105'
-                            : 'bg-[#C17554]/20 text-white hover:bg-[#C17554]/40'
-                            }`}
-                    >
-                        كتب مباعة (بانتظار التسليم) ({soldBooks.length})
-                    </button>
-                </div>
-
-                {/* Content Container */}
-                <div className="bg-gradient-to-b from-[#C17554] to-[#3A4958] p-8 md:p-12 shadow-2xl overflow-hidden"
-                    style={{
-                        borderTopLeftRadius: '80px',
-                        borderBottomLeftRadius: '80px',
-                        borderTopRightRadius: '12px',
-                        borderBottomRightRadius: '12px',
-                    }}
-                >
-                    {activeTab === 'pending' ? (
-                        booksToReview.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {booksToReview.map((book) => (
-                                    <ReviewBookCard
-                                        key={book.id}
-                                        book={book}
-                                        onAccept={handleAccept}
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center h-64 text-white/80">
-                                <span className="text-2xl font-bold mb-2">لا توجد كتب للمراجعة</span>
-                                <p>جميع الكتب تمت مراجعتها.</p>
-                            </div>
-                        )
-                    ) : (
-                        soldBooks.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {soldBooks.map((book) => (
-                                    <SoldBookCard
-                                        key={book.id}
-                                        book={book}
-                                        onPicked={handlePicked}
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center h-64 text-white/80">
-                                <span className="text-2xl font-bold mb-2">لا توجد كتب مباعة بانتظار التسليم</span>
-                            </div>
-                        )
-                    )}
-                </div>
-
-            </main>
+            </motion.main>
 
             <Footer />
         </div>
@@ -185,4 +227,3 @@ const AdminBookReview = () => {
 };
 
 export default AdminBookReview;
-

@@ -1,26 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ShoppingCart, CheckCircle, Zap, ShieldCheck } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import WhatIsBookPass from '../components/WhatIsBookPass';
 import HowTo from '../components/HowTo';
-import CurvedSection from '../components/CurvedSection';
+import CurvedSection from '../components/WhyBookPass';
 import BookCard from '../components/BookCard';
 import Footer from '../components/Footer';
 import BookRating from '../components/BookRating';
-import RibbonLogo from '../components/ribbon-logo';
 import whiteBookmark from '../components/white-bookmark';
 import { MiddleLogoComplex, Step } from '../components/BookPassUI';
 import { MOCK_BOOKS } from '../constants/Books';
 import LatestBooks from '../components/LatestBooks';
+import { usePageLoading } from '../components/PageTransition';
 
 
 
 const Home = () => {
+  const { setLoadingMessage } = usePageLoading();
   const [activeTab, setActiveTab] = useState('buy');
 
+  useEffect(() => {
+    setLoadingMessage("");
+    return () => setLoadingMessage("جاري التحميل...");
+  }, [setLoadingMessage]);
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#f5f5f5] font-sans rtl scroll-smooth">
+    <div className="min-h-screen flex flex-col bg-[#f5f5f5] font-sans rtl scroll-smooth pt-20">
       {/* NAVBAR */}
       <Navbar />
       {/* HERO SECTION */}

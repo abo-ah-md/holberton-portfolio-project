@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -6,15 +6,16 @@ import BookCard from '../components/BookCard';
 import { MOCK_BOOKS_EXTENDED } from '../constants/Books';
 import { getAllBooks, searchBooks } from '../services/bookService';
 import { UNIVERSITIES, getUniversityName } from '../constants/universities';
-import { Search, Filter, SortAsc, SlidersHorizontal, ChevronDown, Loader2 } from 'lucide-react';
+import { Search, Filter, SortAsc, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { usePageLoading } from '../components/PageTransition';
 
 const Marketplace = () => {
     const location = useLocation();
     // State for Filter Inputs
     const [searchQuery, setSearchQuery] = useState('');
     const [books, setBooks] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { setIsLoading, setLoadingMessage } = usePageLoading();
 
     useEffect(() => {
         if (location.state?.initialQuery) {
@@ -30,18 +31,18 @@ const Marketplace = () => {
     const [visibleCount, setVisibleCount] = useState(30);
 
     // Fetch books from API
-    useEffect(() => {
+    useLayoutEffect(() => {
         const fetchBooks = async () => {
-            setLoading(true);
+            setLoadingMessage("جاري البحث في المكتبة...");
+            setIsLoading(true);
             setError(null);
             try {
                 const { data, fetchError } = await getAllBooks();
                 if (fetchError) {
                     console.error('API error:', fetchError);
-                    // setBooks(MOCK_BOOKS_EXTENDED); // Disable mock data fallback to prevent UUID errors
                     setBooks([]);
                 } else if (data && data.length > 0) {
-                    setBooks(data); // Use ONLY real API data
+                    setBooks(data);
                 } else {
                     setBooks([]);
                 }
@@ -49,7 +50,7 @@ const Marketplace = () => {
                 console.error('Failed to fetch books:', err);
                 setBooks([]);
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
@@ -99,11 +100,11 @@ const Marketplace = () => {
     const universities = [...new Set(books.map(b => b.university).filter(Boolean))];
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#f5f5f5] font-sans rtl">
+        <div className="min-h-screen flex flex-col bg-[#f5f5f5] font-sans rtl pt-20">
             <Navbar />
 
             {/* Filter Header Section */}
-            <div className="bg-white border-b border-gray-200 sticky top-16 z-40 shadow-sm">
+            <div className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
 
                     {/* Top Row: Search & Main Filters */}
