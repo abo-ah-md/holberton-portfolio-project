@@ -49,7 +49,13 @@ const Login = () => {
       return;
     }
 
-    navigate('/');
+    if (data.role === 'BOOKSTORE') {
+      navigate('/admin/review');
+    } else if (data.role === 'ADMIN') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/');
+    }
   };
 
   return (

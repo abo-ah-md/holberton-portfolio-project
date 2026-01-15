@@ -1,7 +1,11 @@
 import RibbonLogoCombined from './RibbonLogoCombined';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Footer = () => {
+    const { user } = useAuth();
+    const isReviewer = user?.role === 'BOOKSTORE';
+
     return (
         <footer className="border-t-[20px] border-[#c8876f] bg-[#3A4958] text-white font-sans" dir="rtl">
             <div className="flex flex-wrap justify-center md:justify-between items-start max-w-[1400px] mx-auto px-6 md:px-[60px] py-6 gap-8 text-center md:text-right">
@@ -41,7 +45,9 @@ const Footer = () => {
                 <div className="flex-[1.3] min-w-[150px]">
                     <h3 className="text-base font-semibold mb-4 text-white">المنصة</h3>
                     <nav className="flex flex-col gap-2">
-                        <Link to="/" className="text-[#b0bcc5] hover:text-white transition-colors text-sm no-underline">من نحن</Link>
+                        {!isReviewer && (
+                            <Link to="/" className="text-[#b0bcc5] hover:text-white transition-colors text-sm no-underline">من نحن</Link>
+                        )}
                         <Link to="/terms" className="text-[#b0bcc5] hover:text-white transition-colors text-sm no-underline">الشروط والأحكام وسياسة الإستخدام</Link>
                     </nav>
                 </div>

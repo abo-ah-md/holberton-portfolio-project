@@ -5,6 +5,7 @@ import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PageTransition from './components/PageTransition';
 import Navbar from './components/Navbar'; // Assuming Navbar is used inside pages or layout, but verifying App structure it's not used directly here? Wait, App.jsx doesn't use Navbar directly, pages do.
+import ReviewerGuard from './components/ReviewerGuard';
 
 // Pages
 import Home from './pages/Home';
@@ -21,6 +22,7 @@ import ResetPassword from './pages/ResetPassword';
 import Logout from './pages/Logout';
 import Profile from './pages/Profile';
 import AdminBookReview from './pages/AdminBookReview';
+import AdminDashboard from './pages/AdminDashboard';
 import ComponentTest from './pages/ComponentTest';
 import TestLoading from './pages/TestLoading';
 import ErrorPage from './pages/ErrorPage';
@@ -32,73 +34,83 @@ function App() {
             <CartProvider>
                 <Router>
                     <PageTransition>
-                        <Routes>
-                            <Route path="/loading-test" element={<TestLoading />} />
-                            <Route path="/component-test" element={<ComponentTest />} />
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/forgot-password" element={<ForgotPassword />} />
-                            <Route path="/reset-password" element={<ResetPassword />} />
-                            <Route path="/register" element={<Register />} />
-                            <Route path="/logout" element={<Logout />} />
+                        <ReviewerGuard>
+                            <Routes>
+                                <Route path="/loading-test" element={<TestLoading />} />
+                                <Route path="/component-test" element={<ComponentTest />} />
+                                <Route path="/login" element={<Login />} />
+                                <Route path="/forgot-password" element={<ForgotPassword />} />
+                                <Route path="/reset-password" element={<ResetPassword />} />
+                                <Route path="/register" element={<Register />} />
+                                <Route path="/logout" element={<Logout />} />
 
-                            {/* Public Routes */}
-                            <Route path="/" element={<Home />} />
-                            <Route path="/marketplace" element={<Marketplace />} />
-                            <Route path="/terms" element={<Terms />} />
+                                {/* Public Routes */}
+                                <Route path="/" element={<Home />} />
+                                <Route path="/marketplace" element={<Marketplace />} />
+                                <Route path="/terms" element={<Terms />} />
 
-                            {/* Protected Routes */}
-                            <Route
-                                path="/cart"
-                                element={
-                                    <ProtectedRoute>
-                                        <Cart />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/checkout"
-                                element={
-                                    <ProtectedRoute>
-                                        <CheckoutPayment />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/payment-success"
-                                element={
-                                    <ProtectedRoute>
-                                        <PaymentSuccess />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/sell"
-                                element={
-                                    <ProtectedRoute>
-                                        <SellBook />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/profile"
-                                element={
-                                    <ProtectedRoute>
-                                        <Profile />
-                                    </ProtectedRoute>
-                                }
-                            />
-                            <Route
-                                path="/admin/review"
-                                element={
-                                    <ProtectedRoute allowedRoles={['ADMIN', 'BOOKSTORE']}>
-                                        <AdminBookReview />
-                                    </ProtectedRoute>
-                                }
-                            />
+                                {/* Protected Routes */}
+                                <Route
+                                    path="/cart"
+                                    element={
+                                        <ProtectedRoute>
+                                            <Cart />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/checkout"
+                                    element={
+                                        <ProtectedRoute>
+                                            <CheckoutPayment />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/payment-success"
+                                    element={
+                                        <ProtectedRoute>
+                                            <PaymentSuccess />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/sell"
+                                    element={
+                                        <ProtectedRoute>
+                                            <SellBook />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/profile"
+                                    element={
+                                        <ProtectedRoute>
+                                            <Profile />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/admin/review"
+                                    element={
+                                        <ProtectedRoute allowedRoles={['ADMIN', 'BOOKSTORE']}>
+                                            <AdminBookReview />
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/admin/dashboard"
+                                    element={
+                                        <ProtectedRoute allowedRoles={['ADMIN']}>
+                                            <AdminDashboard />
+                                        </ProtectedRoute>
+                                    }
+                                />
 
-                            {/* 404 Page */}
-                            <Route path="*" element={<ErrorPage type="404" />} />
-                        </Routes>
+                                {/* 404 Page */}
+                                <Route path="*" element={<ErrorPage type="404" />} />
+                            </Routes>
+                        </ReviewerGuard>
                     </PageTransition>
                 </Router>
             </CartProvider>
