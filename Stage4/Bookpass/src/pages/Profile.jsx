@@ -71,7 +71,7 @@ const Profile = () => {
         iban: ''
     });
 
-    // Orders state
+    // Orders state//
     const [purchases, setPurchases] = useState([]);
     const [sales, setSales] = useState([]);
     const [activeListings, setActiveListings] = useState([]);
