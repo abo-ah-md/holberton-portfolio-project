@@ -25,12 +25,10 @@ const AdminBookReview = () => {
                 ]);
 
                 if (pendingRes.data) {
-                    const uniqueBooks = Array.from(new Map(pendingRes.data.map(book => [book.id, book])).values());
-                    setBooksToReview(uniqueBooks);
+                    setBooksToReview(pendingRes.data);
                 }
                 if (soldRes.data) {
-                    const uniqueBooks = Array.from(new Map(soldRes.data.map(book => [book.id, book])).values());
-                    setSoldBooks(uniqueBooks);
+                    setSoldBooks(soldRes.data);
                 }
             } catch (err) {
                 console.error("Failed to fetch books", err);

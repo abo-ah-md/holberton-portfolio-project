@@ -479,7 +479,7 @@ export const getMySales = async () => {
  */
 const transformBook = (book) => {
   return {
-    id: book.bookId,
+    id: book.bookId || book.id,
     title: book.title,
     description: book.description,
     price: parseFloat(book.price),

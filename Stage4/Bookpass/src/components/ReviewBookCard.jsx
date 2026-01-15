@@ -5,7 +5,8 @@ import { getUniversityName } from '../constants/universities';
 import { getStatusLabel } from '../constants/status';
 
 const ReviewBookCard = ({ book, onAccept }) => {
-    const [selectedStatus, setSelectedStatus] = React.useState(book.status || 'pending');
+    // Normalize status to lowercase to handle 'PENDING' vs 'pending'
+    const [selectedStatus, setSelectedStatus] = React.useState((book.status || 'pending').toLowerCase());
     const [showConditionDropdown, setShowConditionDropdown] = React.useState(false);
 
     const conditions = ['excellent', 'very good', 'good', 'poor'];
@@ -14,6 +15,8 @@ const ReviewBookCard = ({ book, onAccept }) => {
         setSelectedStatus(status);
         setShowConditionDropdown(false);
     };
+
+    const isPending = selectedStatus === 'pending';
 
     return (
         <div className="flex flex-col w-full h-full bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 group hover:shadow-2xl transition-all duration-500">
@@ -66,7 +69,7 @@ const ReviewBookCard = ({ book, onAccept }) => {
                     <div className="relative flex-1">
                         <button
                             onClick={() => setShowConditionDropdown(!showConditionDropdown)}
-                            className={`w-full bg-white border font-black py-3 px-4 rounded-2xl flex items-center justify-between transition-all shadow-sm group/btn ${selectedStatus === 'pending' ? 'border-amber-200 text-amber-600 italic' : 'border-gray-200 text-brand-slate hover:border-brand-orange'
+                            className={`w-full bg-white border font-black py-3 px-4 rounded-2xl flex items-center justify-between transition-all shadow-sm group/btn ${isPending ? 'border-amber-200 text-amber-600 italic' : 'border-gray-200 text-brand-slate hover:border-brand-orange'
                                 }`}
                         >
                             <span className="flex items-center gap-2">
@@ -75,7 +78,7 @@ const ReviewBookCard = ({ book, onAccept }) => {
                                         selectedStatus === 'good' ? 'bg-yellow-500' :
                                             selectedStatus === 'poor' ? 'bg-orange-500' : 'bg-amber-400 animate-pulse'
                                     }`}></div>
-                                {selectedStatus === 'pending' ? 'بانتظار التقييم' : getStatusLabel(selectedStatus)}
+                                {isPending ? 'بانتظار التقييم' : getStatusLabel(selectedStatus)}
                             </span>
                             <ChevronDown size={18} className={`transition-transform duration-300 ${showConditionDropdown ? 'rotate-180 text-brand-orange' : 'text-gray-400'}`} />
                         </button>
@@ -108,11 +111,11 @@ const ReviewBookCard = ({ book, onAccept }) => {
 
                     {/* Accept Button */}
                     <motion.button
-                        whileHover={selectedStatus !== 'pending' ? { scale: 1.05 } : {}}
-                        whileTap={selectedStatus !== 'pending' ? { scale: 0.95 } : {}}
-                        disabled={selectedStatus === 'pending'}
+                        whileHover={!isPending ? { scale: 1.05 } : {}}
+                        whileTap={!isPending ? { scale: 0.95 } : {}}
+                        disabled={isPending}
                         onClick={() => onAccept && onAccept({ ...book, status: selectedStatus })}
-                        className={`font-black px-6 py-3 rounded-2xl shadow-lg transition-all flex items-center gap-2 ${selectedStatus === 'pending'
+                        className={`font-black px-6 py-3 rounded-2xl shadow-lg transition-all flex items-center gap-2 ${isPending
                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
                             : 'bg-brand-orange text-white hover:shadow-orange-200'
                             }`}

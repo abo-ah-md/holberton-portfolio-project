@@ -18,13 +18,12 @@ const BookCard = ({ book }) => {
     const { addToCart } = useCart();
     const { user } = useAuth();
 
-    const isPending = book.listingStatus === 'PENDING';
+    // Check both listingStatus and status for "PENDING" to ensure we catch all cases
+    // Also ensure not sold - Sold takes precedence
+    const isPending = !book.isSold && (book.listingStatus === 'PENDING' || book.status === 'PENDING' || book.status === 'pending');
 
     const toggleModal = () => {
         // Allow opening modal for Pending books, but keep Sold books restricted if that was the intent.
-        // User asked: "unselectable to buy ... but it can be open in the modal view" for Pending.
-        // Existing code blocked Sold. We'll keep Sold blocked for now unless requested otherwise, 
-        // but ensure Pending is NOT blocked.
         if (!book.isSold || isPending) {
             setIsModalOpen(!isModalOpen);
         }
@@ -59,7 +58,8 @@ const BookCard = ({ book }) => {
 
     const getStatusBadge = () => {
         if (book.isSold) return { text: 'تم البيع', color: 'bg-gray-100 text-gray-500 border border-gray-200' };
-        if (isPending) return { text: 'قريبا', color: 'bg-blue-50 text-blue-600 border border-blue-100' };
+        // Changed Pending color to Amber/Yellow for "Coming Soon" vibe
+        if (isPending) return { text: 'قريبا', color: 'bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A]' };
 
         // Gradient logic for status
         const status = book.status ? book.status.toLowerCase() : '';
@@ -82,7 +82,7 @@ const BookCard = ({ book }) => {
             <div
                 className={`group bg-white rounded-xl pt-4 px-5 pb-5 shadow-sm transition-all duration-300 border border-transparent relative overflow-hidden w-[240px] flex-shrink-0 flex flex-col 
                 ${book.isSold ? 'opacity-75 grayscale pointer-events-none' : 'hover:shadow-xl hover:border-brand-orange/20'} 
-                ${isPending ? 'opacity-90' : ''}`}
+                ${isPending ? 'relative' : ''}`}
             >
                 {/* Image - Click triggers modal */}
                 <div
@@ -97,7 +97,7 @@ const BookCard = ({ book }) => {
                         <ImageWithLoader
                             src={book.image}
                             alt={book.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${isPending ? 'grayscale' : ''}`}
                         />
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full text-gray-300">
@@ -114,18 +114,33 @@ const BookCard = ({ book }) => {
                         </div>
                     )}
 
-                    {/* Pending Overlay */}
+                    {/* Shimmer Overlay for Pending - Locked look */}
                     {isPending && (
-                        <div className="absolute inset-0 bg-blue-900/10 flex items-center justify-center z-0">
-                            <div className="bg-blue-600/90 text-white text-xs font-bold px-3 py-1 rounded border border-white/20 shadow-lg">
-                                قريبا
+                        <>
+                            <style>{`
+                                @keyframes gradient-xy {
+                                    0% { background-position: 0% 50%; }
+                                    50% { background-position: 100% 50%; }
+                                    100% { background-position: 0% 50%; }
+                                }
+                                .shimmer-bg {
+                                     background: linear-gradient(135deg, #1e293b, #334155, #C17554, #2c3e50);
+                                     background-size: 400% 400%;
+                                     animation: gradient-xy 8s ease infinite;
+                                }
+                            `}</style>
+                            <div className="absolute inset-0 shimmer-bg opacity-90 flex flex-col items-center justify-center z-10 transition-all duration-500">
+                                <div className="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-full mb-2 shadow-xl">
+                                    <Clock size={24} className="text-white" />
+                                </div>
+                                <span className="text-white font-bold text-lg drop-shadow-md tracking-wide">قريبا</span>
                             </div>
-                        </div>
+                        </>
                     )}
 
-                    {/* Hover Overlay */}
+                    {/* Hover Overlay - Hidden on Mobile */}
                     {!book.isSold && !isPending && (
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center z-20">
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex flex-col gap-2 items-center justify-center z-20">
                             {/* Quick Add to Cart Button */}
                             <button
                                 onClick={handleAddToCart}
@@ -143,13 +158,14 @@ const BookCard = ({ book }) => {
                     )}
 
                     {/* Hover Overlay for Pending - just View */}
-                    {isPending && (
+                    {/* This overlay is now redundant as the shimmer overlay covers it and the CTA buttons are removed */}
+                    {/* {isPending && (
                         <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center z-20">
-                            <span className="bg-white/90 backdrop-blur text-blue-600 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                            <span className="bg-white/90 backdrop-blur text-[#D97706] text-[10px] font-bold px-3 py-1 rounded-full shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                                 نظرة سريعة
                             </span>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 {/* Content - Detailed & Exposed */}
@@ -177,25 +193,32 @@ const BookCard = ({ book }) => {
                         </div>
 
                         {/* Action Buttons - Equal Width */}
-                        <div className="flex gap-2">
-                            <button
-                                onClick={handleBuyNow}
-                                disabled={book.isSold || isPending}
-                                className={`flex-1 text-white text-sm font-bold py-3.5 px-4 rounded-xl transition shadow-sm whitespace-nowrap min-h-[44px] 
-                                    ${book.isSold || isPending ? 'bg-gray-300 cursor-not-allowed' : 'bg-brand-orange hover:bg-brand-orange/90'} `}
-                            >
-                                {book.isSold ? 'مباع' : (isPending ? 'قريبا' : 'شراء')}
-                            </button>
-                            <button
-                                onClick={handleAddToCart}
-                                disabled={book.isSold || isPending}
-                                className={`flex-1 text-white text-sm font-bold py-3.5 px-4 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap min-h-[44px] 
-                                    ${book.isSold || isPending ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-green-400 hover:bg-green-500' : 'bg-brand-orange hover:bg-brand-orange/90')} `}
-                            >
-                                {isAdded ? <Check size={14} /> : (book.isSold ? <Slash size={14} /> : (isPending ? <Clock size={14} /> : <ShoppingCart size={14} />))}
-                                <span>{isAdded ? 'تمت' : (book.isSold ? '' : (isPending ? '' : 'سلة'))}</span>
-                            </button>
-                        </div>
+                        {isPending ? (
+                            <div className="w-full bg-gray-100 text-gray-400 font-bold text-sm py-3 rounded-xl text-center flex items-center justify-center gap-2 border border-gray-200">
+                                <Clock size={16} />
+                                <span>قريبا في المتجر</span>
+                            </div>
+                        ) : (
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleBuyNow}
+                                    disabled={book.isSold}
+                                    className={`flex-1 text-white text-sm font-bold py-3.5 px-4 rounded-xl transition shadow-sm whitespace-nowrap min-h-[44px] 
+                                    ${book.isSold ? 'bg-gray-300 cursor-not-allowed' : 'bg-brand-orange hover:bg-brand-orange/90'} `}
+                                >
+                                    {book.isSold ? 'مباع' : 'شراء'}
+                                </button>
+                                <button
+                                    onClick={handleAddToCart}
+                                    disabled={book.isSold}
+                                    className={`flex-1 text-white text-sm font-bold py-3.5 px-4 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap min-h-[44px] 
+                                    ${book.isSold ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-green-400 hover:bg-green-500' : 'bg-brand-orange hover:bg-brand-orange/90')} `}
+                                >
+                                    {isAdded ? <Check size={14} /> : (book.isSold ? <Slash size={14} /> : <ShoppingCart size={14} />)}
+                                    <span>{isAdded ? 'تمت' : (book.isSold ? '' : 'سلة')}</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -204,7 +227,7 @@ const BookCard = ({ book }) => {
             {/* MODAL - Detailed Horizontal View */}
             {isModalOpen && (!book.isSold || isPending) && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200" style={{ margin: 0 }}>
-                    <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col md:flex-row rtl" dir="rtl">
+                    <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col md:flex-row rtl max-h-[90vh] md:max-h-none overflow-y-auto md:overflow-y-visible" dir="rtl">
 
                         <button
                             onClick={toggleModal}
@@ -213,26 +236,38 @@ const BookCard = ({ book }) => {
                             <X size={20} />
                         </button>
 
-                        <div className="w-full md:w-5/12 bg-gray-50 relative p-6 flex items-center justify-center">
-                            <div className="aspect-[3/4] w-full max-w-[220px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-lg overflow-hidden relative">
+                        <div className="w-full md:w-5/12 bg-gray-50 relative p-4 md:p-6 flex items-center justify-center shrink-0">
+                            <div className="aspect-[3/4] w-[160px] md:w-full md:max-w-[220px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-lg overflow-hidden relative">
                                 {book.image && (
                                     <ImageWithLoader
                                         src={book.image}
                                         alt={book.title}
-                                        className="w-full h-full object-cover"
+                                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${isPending ? 'grayscale' : ''}`}
                                         priority={true} // Modal image should load eagerly
                                     />
                                 )}
-                                <span className={`absolute top-4 right-4 text-white text-xs px-3 py-1 rounded-full font-bold shadow-md ${statusBadge.color}`}>
+                                <span className={`absolute top-4 right-4 text-xs px-3 py-1 rounded-full font-bold shadow-md ${statusBadge.color}`}>
                                     {statusBadge.text}
                                 </span>
+
+                                {/* Shimmer Overlay for Pending - Locked look */}
+                                {isPending && (
+                                    <div className="absolute inset-0 shimmer-bg opacity-90 flex flex-col items-center justify-center z-10 transition-all duration-500">
+                                        <div className="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-full mb-2 shadow-xl">
+                                            <Clock size={24} className="text-white" />
+                                        </div>
+                                        <span className="text-white font-bold text-lg drop-shadow-md tracking-wide">قريبا</span>
+                                    </div>
+                                )}
+
+
                             </div>
                         </div>
 
-                        <div className="w-full md:w-7/12 p-8 flex flex-col justify-between">
-                            <div className="space-y-6">
+                        <div className="w-full md:w-7/12 p-5 md:p-8 flex flex-col justify-between">
+                            <div className="space-y-4 md:space-y-6">
                                 <div>
-                                    <h2 className="text-2xl font-black text-brand-slate mb-2 leading-tight">{book.title}</h2>
+                                    <h2 className="text-xl md:text-2xl font-black text-brand-slate mb-2 leading-tight">{book.title}</h2>
                                     <div className="flex items-center gap-2 text-sm text-gray-500 font-semibold">
                                         <div className="w-2 h-2 bg-brand-orange rounded-full"></div>
                                         <span>{getUniversityName(book.university)}</span>
@@ -254,39 +289,51 @@ const BookCard = ({ book }) => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="font-bold text-gray-500 text-sm">الحالة:</span>
-                                        <span className={`font-bold text-sm px-2 py-0.5 rounded-md ${isPending ? 'text-blue-600 bg-blue-50' : 'text-emerald-600 bg-emerald-50'}`}>
+                                        <span className={`font-bold text-sm px-2 py-0.5 rounded-md ${isPending ? 'text-[#D97706] bg-[#FEF3C7]' : 'text-emerald-600 bg-emerald-50'}`}>
                                             {isPending ? 'قريبا' : getStatusLabel(book.status)}
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="mt-8 flex items-center justify-between gap-4 pt-6 border-t border-gray-100">
+                            <div className="mt-6 md:mt-8 flex items-center justify-between gap-4 pt-6 border-t border-gray-100">
                                 <div className="flex flex-col">
                                     <span className="text-xs text-gray-400 font-bold">السعر المطلوب</span>
-                                    <span className="text-3xl font-black text-brand-slate flex items-end gap-1">
+                                    <span className="text-2xl md:text-3xl font-black text-brand-slate flex items-end gap-1">
                                         {book.price} <span className="text-sm font-bold text-gray-500 mb-1">ر.س</span>
                                     </span>
                                 </div>
-                                <div className="flex gap-3 flex-1">
-                                    <button
-                                        onClick={handleBuyNow}
-                                        disabled={isPending}
-                                        className={`flex-1 font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-brand-slate/20 whitespace-nowrap text-center
-                                            ${isPending ? 'bg-gray-300 text-white cursor-not-allowed' : 'bg-brand-slate hover:bg-brand-slate/90 text-[#C17554]'}`}
-                                    >
-                                        {isPending ? 'قريبا' : 'شراء مباشر'}
-                                    </button>
-                                    <button
-                                        onClick={handleAddToCart}
-                                        disabled={isPending}
-                                        className={`flex-1 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 whitespace-nowrap 
-                                            ${isPending ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-green-400 hover:bg-green-500' : 'bg-brand-orange hover:bg-brand-orange/90')}`}
-                                    >
-                                        {isAdded ? <Check size={20} /> : (isPending ? <Clock size={20} /> : <ShoppingCart size={20} />)}
-                                        <span>{isAdded ? 'تمت الإضافة' : (isPending ? 'غير متاح' : 'الإضافة للسلة')}</span>
-                                    </button>
-                                </div>
+
+                                {isPending ? (
+                                    <div className="flex-1 bg-gray-50 rounded-xl border border-gray-100 p-4 flex items-center justify-center gap-3">
+                                        <Clock className="text-gray-400" size={24} />
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-gray-600">هذا الكتاب غير متاح حالياً</span>
+                                            <span className="text-xs text-gray-400">سيتم توفيره قريباً في المتجر</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex gap-2 md:gap-3 flex-1">
+                                        <button
+                                            onClick={handleBuyNow}
+                                            disabled={book.isSold}
+                                            className={`flex-1 font-bold py-3 px-4 md:py-3.5 md:px-6 rounded-xl transition-all shadow-lg shadow-brand-slate/20 whitespace-nowrap text-center text-sm md:text-base
+                                                ${book.isSold ? 'bg-gray-300 text-white cursor-not-allowed' : 'bg-brand-slate hover:bg-brand-slate/90 text-[#C17554]'}`}
+                                        >
+                                            شراء مباشر
+                                        </button>
+                                        <button
+                                            onClick={handleAddToCart}
+                                            disabled={book.isSold}
+                                            className={`flex-1 text-white font-bold py-3 px-4 md:py-3.5 md:px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base
+                                                ${book.isSold ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-green-400 hover:bg-green-500' : 'bg-brand-orange hover:bg-brand-orange/90')}`}
+                                        >
+                                            {isAdded ? <Check size={20} /> : <ShoppingCart size={20} />}
+                                            <span className="hidden md:inline">{isAdded ? 'تمت الإضافة' : 'الإضافة للسلة'}</span>
+                                            <span className="md:hidden">{isAdded ? 'تمت' : 'سلة'}</span>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

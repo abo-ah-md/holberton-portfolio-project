@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Lock, Mail, CreditCard, ChevronLeft, Camera, Phone, Edit2, Save, X, AlertCircle, PackageCheck, ShoppingBag, DollarSign, BookOpen, TrendingUp, LogOut, Plus, Store, FileText } from 'lucide-react';
+import { User, Lock, Mail, CreditCard, ChevronLeft, Camera, Phone, Edit2, Save, X, AlertCircle, PackageCheck, ShoppingBag, DollarSign, BookOpen, TrendingUp, LogOut, Plus, Store, FileText, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { usePageLoading } from '../components/PageTransition';
 import { updateUserProfile } from '../services/authService';
@@ -74,9 +74,10 @@ const Profile = () => {
     // Orders state
     const [purchases, setPurchases] = useState([]);
     const [sales, setSales] = useState([]);
-    const [myListedBooks, setMyListedBooks] = useState([]); // Books I've listed for sale
+    const [activeListings, setActiveListings] = useState([]);
+    const [pendingListings, setPendingListings] = useState([]);
     const [ordersLoading, setOrdersLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('purchases'); // 'purchases', 'sales', 'listings'
+    const [activeTab, setActiveTab] = useState('purchases'); // 'purchases', 'sales', 'active', 'pending'
 
 
     useEffect(() => {
@@ -116,7 +117,17 @@ const Profile = () => {
             }
 
             if (!myBooksResult.error) {
-                setMyListedBooks(myBooksResult.data);
+                const allBooks = myBooksResult.data;
+                const isPending = (b) =>
+                    b.listingStatus === 'PENDING' ||
+                    b.status === 'PENDING' ||
+                    b.status === 'pending';
+
+                // Active: Not sold AND Not pending
+                setActiveListings(allBooks.filter(b => !b.isSold && !isPending(b)));
+
+                // Pending: Not sold AND Pending
+                setPendingListings(allBooks.filter(b => !b.isSold && isPending(b)));
             }
 
             setOrdersLoading(false);
@@ -254,7 +265,7 @@ const Profile = () => {
         {
             id: 'listings',
             label: 'الكتب المعروضة',
-            value: myListedBooks.length,
+            value: activeListings.length,
             sublabel: 'كتاب نشط',
             icon: BookOpen,
             color: 'from-brand-orange to-orange-600',
@@ -276,7 +287,8 @@ const Profile = () => {
     const tabs = [
         { id: 'purchases', label: 'مشترياتي', count: purchases.length },
         { id: 'sales', label: 'مبيعاتي', count: sales.length },
-        { id: 'listings', label: 'كتبي المعروضة', count: myListedBooks.length }
+        { id: 'active', label: 'كتبي المعروضة', count: activeListings.length },
+        { id: 'pending', label: 'بانتظار المراجعة', count: pendingListings.length }
     ];
 
     return (
@@ -648,19 +660,83 @@ const Profile = () => {
                                             </motion.div>
                                         )}
 
-                                        {/* Listings Tab */}
-                                        {activeTab === 'listings' && (
+                                        {/* Active Listings Tab */}
+                                        {activeTab === 'active' && (
                                             <motion.div
-                                                key="listings"
+                                                key="active"
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -10 }}
                                                 transition={{ duration: 0.3 }}
                                             >
-                                                {myListedBooks.length > 0 ? (
+                                                {activeListings.length > 0 ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        {activeListings.map((book, index) => (
+                                                            <motion.div
+                                                                key={book.id}
+                                                                initial={{ opacity: 0, y: 20 }}
+                                                                whileInView={{ opacity: 1, y: 0 }}
+                                                                viewport={{ once: true, margin: "-50px" }}
+                                                                transition={{ delay: index * 0.1 }}
+                                                                whileHover={{
+                                                                    y: -8,
+                                                                    boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
+                                                                    transition: { type: "spring", stiffness: 400, damping: 25 }
+                                                                }}
+                                                                className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200"
+                                                            >
+                                                                <div className="flex gap-4">
+                                                                    <div className="w-20 h-28 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                                                                        {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
+                                                                    </div>
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <h4 className="font-bold text-gray-900 text-base mb-1 truncate">
+                                                                            {book.title}
+                                                                        </h4>
+                                                                        <p className="text-sm text-gray-600">{book.author}</p>
+                                                                        <div className="bg-green-50 border border-green-200 rounded-lg p-2 mt-2">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <CheckCircle size={16} className="text-green-600" />
+                                                                                <p className="text-xs font-bold text-green-700">الكتاب معروض حالياً في المتجر</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </motion.div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                                                        <BookOpen size={64} className="mb-4 opacity-20" />
+                                                        <p className="text-xl font-bold mb-2">لا توجد كتب معروضة</p>
+                                                        <p className="text-sm mb-6">كتبك النشطة ستظهر هنا</p>
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.05 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => navigate('/sell')}
+                                                            className="bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-bold transition-colors flex items-center gap-2"
+                                                        >
+                                                            <Plus size={20} />
+                                                            <span>عرض كتاب للبيع</span>
+                                                        </motion.button>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )}
+
+                                        {/* Pending Listings Tab */}
+                                        {activeTab === 'pending' && (
+                                            <motion.div
+                                                key="pending"
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                {pendingListings.length > 0 ? (
                                                     <>
                                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                            {myListedBooks.map((book, index) => (
+                                                            {pendingListings.map((book, index) => (
                                                                 <motion.div
                                                                     key={book.id}
                                                                     initial={{ opacity: 0, y: 20 }}
@@ -682,7 +758,7 @@ const Profile = () => {
                                                                             <h4 className="font-bold text-gray-900 text-base mb-1 truncate">
                                                                                 {book.title}
                                                                             </h4>
-                                                                            <p className="text-sm text-gray-600 mb-2">{book.author}</p>
+                                                                            <p className="text-sm text-gray-600">{book.author}</p>
                                                                             <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-2 mt-2">
                                                                                 <div className="flex items-center gap-2">
                                                                                     <PackageCheck size={16} className="text-yellow-700" />
@@ -708,18 +784,9 @@ const Profile = () => {
                                                     </>
                                                 ) : (
                                                     <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                                                        <BookOpen size={64} className="mb-4 opacity-20" />
-                                                        <p className="text-xl font-bold mb-2">لا توجد كتب معروضة</p>
-                                                        <p className="text-sm mb-6">ابدأ ببيع كتبك الآن</p>
-                                                        <motion.button
-                                                            whileHover={{ scale: 1.05 }}
-                                                            whileTap={{ scale: 0.95 }}
-                                                            onClick={() => navigate('/sell')}
-                                                            className="bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-bold transition-colors flex items-center gap-2"
-                                                        >
-                                                            <Plus size={20} />
-                                                            <span>عرض كتاب للبيع</span>
-                                                        </motion.button>
+                                                        <PackageCheck size={64} className="mb-4 opacity-20" />
+                                                        <p className="text-xl font-bold mb-2">لا توجد كتب قيد المراجعة</p>
+                                                        <p className="text-sm">جميع كتبك تم نشرها أو بيعها</p>
                                                     </div>
                                                 )}
                                             </motion.div>

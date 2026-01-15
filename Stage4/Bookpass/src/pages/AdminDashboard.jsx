@@ -7,6 +7,7 @@ import {
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getDashboardStats } from '../services/adminService';
+import { getStorePendingBooks, getStoreSoldBooks } from '../services/bookService';
 import { usePageLoading } from '../components/PageTransition';
 import { UNIVERSITIES } from '../constants/universities';
 
@@ -39,14 +40,32 @@ const StatsCard = ({ title, value, subtext, icon: Icon, color, delay, iconPaddin
 const AdminDashboard = () => {
     const { setIsLoading, setLoadingMessage } = usePageLoading();
     const [stats, setStats] = useState(null);
+    const [pendingCounts, setPendingCounts] = useState({ review: 0, pickup: 0 });
 
     useEffect(() => {
         const loadStats = async () => {
             setLoadingMessage("جاري تحليل البيانات...");
             setIsLoading(true);
-            const { data } = await getDashboardStats();
-            setStats(data);
-            setIsLoading(false);
+            try {
+                const [statsRes, pendingRes, soldRes] = await Promise.all([
+                    getDashboardStats(),
+                    getStorePendingBooks(),
+                    getStoreSoldBooks()
+                ]);
+
+                setStats(statsRes.data);
+
+                // Calculate unique counts
+                const uniqueReview = pendingRes.data ? new Set(pendingRes.data.map(b => b.id)).size : 0;
+                const uniquePickup = soldRes.data ? new Set(soldRes.data.map(b => b.id)).size : 0;
+
+                setPendingCounts({ review: uniqueReview, pickup: uniquePickup });
+
+            } catch (error) {
+                console.error("Failed to load dashboard data", error);
+            } finally {
+                setIsLoading(false);
+            }
         };
         loadStats();
     }, [setIsLoading, setLoadingMessage]);
@@ -138,9 +157,16 @@ const AdminDashboard = () => {
                                 <h3 className="font-bold text-lg"> كتب بانتظار المراجعة والتسليم </h3>
                             </div>
 
-                            <div className="flex items-end gap-2 mb-6">
-                                <span className="text-5xl font-black">{metrics.pendingBooks}</span>
-                                <span className="text-lg opacity-80 mb-2">كتاب</span>
+                            <div className="flex items-center gap-8 mb-6">
+                                <div className="flex flex-col">
+                                    <span className="text-4xl font-black">{pendingCounts.review}</span>
+                                    <span className="text-sm opacity-80 font-bold">بانتظار المراجعة</span>
+                                </div>
+                                <div className="w-px bg-white/30 h-10 rounded-full"></div>
+                                <div className="flex flex-col">
+                                    <span className="text-4xl font-black">{pendingCounts.pickup}</span>
+                                    <span className="text-sm opacity-80 font-bold">بانتظار التسليم</span>
+                                </div>
                             </div>
 
                             <button
