@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: bookpass-frontend
+    image: ghcr.io/abo-ah-md/holberton-portfolio-project/bookpass-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    # helper to ensure we always pull the latest image on 'up' if we used 'docker compose up --pull always'
+    pull_policy: always 
