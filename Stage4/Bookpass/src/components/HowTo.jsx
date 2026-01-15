@@ -59,35 +59,23 @@ const HowTo = () => {
                         <div className="h-1.5 w-24 bg-[#c8876f] mx-auto rounded-full" />
                     </motion.div>
 
-                    {/* Tab Navigation - Pill Design */}
+                    {/* Tab Navigation - Switch Design */}
                     <div className="flex bg-white/5 backdrop-blur-md p-2 rounded-3xl border border-white/10 mb-24 relative z-20">
                         <div className="relative flex gap-2">
-                            {/* Sliding Active Background */}
-                            <motion.div
-                                className="absolute h-full rounded-2xl bg-white shadow-xl"
-                                initial={false}
-                                animate={{
-                                    x: activeTab === 'buying' ? '0%' : '100%',
-                                    width: activeTab === 'buying' ? '50%' : '50%',
-                                    backgroundColor: activeTab === 'buying' ? '#c8876f' : '#ffffff'
-                                }}
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                style={{
-                                    right: activeTab === 'buying' ? '0' : 'auto',
-                                    left: activeTab === 'selling' ? '0' : 'auto'
-                                }}
-                            />
-
                             <button
                                 onClick={() => setActiveTab('buying')}
-                                className={`relative px-12 py-4 rounded-2xl text-xl md:text-3xl font-black transition-colors duration-300 z-10 min-w-[160px] ${activeTab === 'buying' ? 'text-white' : 'text-white/50 hover:text-white'
+                                className={`relative px-12 py-4 rounded-2xl text-xl md:text-3xl font-black transition-all duration-300 z-10 min-w-[160px] ${activeTab === 'buying'
+                                    ? 'bg-[#c8876f] text-white shadow-xl'
+                                    : 'bg-transparent text-white/60 hover:text-white'
                                     }`}
                             >
                                 الشراء
                             </button>
                             <button
                                 onClick={() => setActiveTab('selling')}
-                                className={`relative px-12 py-4 rounded-2xl text-xl md:text-3xl font-black transition-colors duration-300 z-10 min-w-[160px] ${activeTab === 'selling' ? 'text-[#c8876f]' : 'text-white/50 hover:text-white'
+                                className={`relative px-12 py-4 rounded-2xl text-xl md:text-3xl font-black transition-all duration-300 z-10 min-w-[160px] ${activeTab === 'selling'
+                                    ? 'bg-[#c8876f] text-white shadow-xl'
+                                    : 'bg-transparent text-white/60 hover:text-white'
                                     }`}
                             >
                                 البيع
@@ -195,14 +183,6 @@ const HowTo = () => {
                                                         transition={{ duration: 0.8 }}
                                                         className="opacity-30"
                                                     />
-                                                    <motion.path
-                                                        d="M90 5 L100 10 L90 15"
-                                                        stroke="white"
-                                                        strokeWidth="3"
-                                                        strokeLinecap="round"
-                                                        initial={{ opacity: 0 }}
-                                                        animate={{ opacity: currentStep === index ? 1 : 0 }}
-                                                    />
                                                 </svg>
                                                 {/* Mobile Path */}
                                                 <svg className="md:hidden w-10 h-12" viewBox="0 0 20 50">
@@ -216,14 +196,6 @@ const HowTo = () => {
                                                         animate={{ pathLength: currentStep === index ? 1 : 0 }}
                                                         transition={{ duration: 0.8 }}
                                                         className="opacity-30"
-                                                    />
-                                                    <motion.path
-                                                        d="M5 40 L10 50 L15 40"
-                                                        stroke="white"
-                                                        strokeWidth="3"
-                                                        strokeLinecap="round"
-                                                        initial={{ opacity: 0 }}
-                                                        animate={{ opacity: currentStep === index ? 1 : 0 }}
                                                     />
                                                 </svg>
                                             </div>

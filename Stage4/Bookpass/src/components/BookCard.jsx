@@ -181,7 +181,7 @@ const BookCard = ({ book }) => {
                             <button
                                 onClick={handleBuyNow}
                                 disabled={book.isSold || isPending}
-                                className={`flex-1 text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow-sm whitespace-nowrap 
+                                className={`flex-1 text-white text-sm font-bold py-3.5 px-4 rounded-xl transition shadow-sm whitespace-nowrap min-h-[44px] 
                                     ${book.isSold || isPending ? 'bg-gray-300 cursor-not-allowed' : 'bg-brand-orange hover:bg-brand-orange/90'} `}
                             >
                                 {book.isSold ? 'مباع' : (isPending ? 'قريبا' : 'شراء')}
@@ -189,7 +189,7 @@ const BookCard = ({ book }) => {
                             <button
                                 onClick={handleAddToCart}
                                 disabled={book.isSold || isPending}
-                                className={`flex-1 text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap 
+                                className={`flex-1 text-white text-sm font-bold py-3.5 px-4 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap min-h-[44px] 
                                     ${book.isSold || isPending ? 'bg-gray-300 cursor-not-allowed' : (isAdded ? 'bg-green-400 hover:bg-green-500' : 'bg-brand-orange hover:bg-brand-orange/90')} `}
                             >
                                 {isAdded ? <Check size={14} /> : (book.isSold ? <Slash size={14} /> : (isPending ? <Clock size={14} /> : <ShoppingCart size={14} />))}

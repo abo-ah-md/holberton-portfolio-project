@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
     return (
         <footer className="border-t-[20px] border-[#c8876f] bg-[#3A4958] text-white font-sans" dir="rtl">
-            <div className="flex flex-wrap justify-between items-start max-w-[1400px] mx-auto px-6 md:px-[60px] py-6 gap-8">
+            <div className="flex flex-wrap justify-center md:justify-between items-start max-w-[1400px] mx-auto px-6 md:px-[60px] py-6 gap-8 text-center md:text-right">
 
                 {/* Brand Section - Right side (first in RTL) */}
-                <div className="flex-[1.2] min-w-[200px] flex flex-col items-start">
+                <div className="flex-[1.2] min-w-[200px] flex flex-col items-center md:items-start w-full md:w-auto">
                     <div className="mb-4">
                         <RibbonLogoCombined className="w-[200px] h-auto" />
                         <p className="text-sm text-[#b0bcc5] mt-4 leading-relaxed max-w-[250px] font-medium">
@@ -15,7 +15,7 @@ const Footer = () => {
                         </p>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 justify-center md:justify-start">
                         <a href="#" className="w-8 h-8 flex items-center justify-center text-white hover:opacity-70 hover:-translate-y-0.5 transition-all" aria-label="Instagram">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
@@ -65,7 +65,7 @@ const Footer = () => {
                         </button>
                         <input
                             type="email"
-                            placeholder="Your email address"
+                            placeholder="بريدك الإلكتروني"
                             className="flex-1 bg-transparent border-none px-4 py-3 text-sm text-white outline-none text-right placeholder-[#b0bcc5]"
                         />
                     </div>

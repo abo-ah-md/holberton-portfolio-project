@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -11,6 +11,9 @@ import { usePageLoading } from '../components/PageTransition';
 
 const Marketplace = () => {
     const location = useLocation();
+    // Navbar visibility tracking (mirrors navbar logic)
+    const [isNavbarVisible, setIsNavbarVisible] = useState(true);
+    const lastScrollY = useRef(0);
     // State for Filter Inputs
     const [searchQuery, setSearchQuery] = useState('');
     const [books, setBooks] = useState([]);
@@ -29,6 +32,26 @@ const Marketplace = () => {
 
     // Pagination (load more)
     const [visibleCount, setVisibleCount] = useState(30);
+
+    // Scroll detection to mirror navbar visibility (same logic as Navbar.jsx)
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+                // Scrolling DOWN -> Navbar hides
+                setIsNavbarVisible(false);
+            } else {
+                // Scrolling UP -> Navbar shows
+                setIsNavbarVisible(true);
+            }
+
+            lastScrollY.current = currentScrollY;
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Fetch books from API
     useLayoutEffect(() => {
@@ -104,7 +127,7 @@ const Marketplace = () => {
             <Navbar />
 
             {/* Filter Header Section */}
-            <div className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+            <div className={`bg-white border-b border-gray-200 sticky z-40 shadow-sm transition-all duration-300 ${isNavbarVisible ? 'top-20' : 'top-0'}`}>
                 <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
 
                     {/* Top Row: Search & Main Filters */}
@@ -142,7 +165,7 @@ const Marketplace = () => {
                         <div className="flex w-full md:w-auto gap-2 overflow-x-auto pb-2 md:pb-0">
 
                             {/* University Filter */}
-                            <div className="relative min-w-[150px]">
+                            <div className="relative flex-1 min-w-[130px]">
                                 <select
                                     value={selectedUniversity}
                                     onChange={(e) => setSelectedUniversity(e.target.value)}
@@ -159,7 +182,7 @@ const Marketplace = () => {
                             </div>
 
                             {/* Sort Filter */}
-                            <div className="relative min-w-[150px]">
+                            <div className="relative flex-1 min-w-[130px]">
                                 <select
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
@@ -195,7 +218,7 @@ const Marketplace = () => {
             <div className="flex-1 w-full max-w-[1400px] mx-auto p-4 md:p-8">
                 {displayedBooks.length > 0 ? (
                     <>
-                        <div className="flex flex-wrap justify-center gap-6 mb-12" dir="rtl">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-12 justify-items-center" dir="rtl">
                             {displayedBooks.map((book) => (
                                 <BookCard key={book.id} book={book} />
                             ))}

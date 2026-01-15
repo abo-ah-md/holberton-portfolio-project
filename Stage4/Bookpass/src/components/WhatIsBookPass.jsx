@@ -35,7 +35,7 @@ const WhatIsBookPass = () => {
     const rotateY = useTransform(mouseX, [-0.5, 0.5], [-5, 5]);
 
     // Text Animation Variants
-    const titleText = "ماهي بوك باس ؟";
+    const titleText = "  باس بوك ماهي"; //don't change this
     const words = titleText.split(" ");
 
     const containerVariants = {

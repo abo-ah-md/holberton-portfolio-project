@@ -14,34 +14,43 @@ import Footer from '../components/Footer';
 
 
 const OrderBookCard = ({ book }) => (
-    <div className="flex bg-white rounded-xl overflow-hidden shadow-lg h-[140px] w-[280px] shrink-0 transform transition-transform hover:scale-105 border border-gray-100">
-        {/* Image - Left (in RTL) / Right (in structure) -> Visually Right in RTL */}
-        <div className="w-[100px] bg-gray-200 shrink-0">
-            {book.image && <img src={book.image} alt={book.title} className="w-full h-full object-cover" />}
+    <div className="flex bg-white rounded-xl overflow-hidden shadow-lg h-[160px] w-full transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-gray-100">
+        {/* Image */}
+        <div className="w-[120px] min-w-[120px] bg-gray-100 flex-shrink-0">
+            {book.image ? (
+                <img src={book.image} alt={book.title} className="w-full h-full object-cover" />
+            ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-300">
+                    <BookOpen size={32} />
+                </div>
+            )}
         </div>
 
-        <div className="flex-1 p-4 flex flex-col justify-between">
+        {/* Content */}
+        <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
             <div>
-                <div className="flex justify-between items-start mb-1">
-                    <span className="text-xs text-gray-500 font-bold">{book.university || 'جامعة'}</span>
-                    <div className="bg-[#1e40af] text-white text-xs font-bold px-2 py-1 rounded leading-tight truncate max-w-[140px]">
+                {/* Title & University */}
+                <div className="flex items-start justify-between gap-2 mb-2">
+                    <h4 className="font-bold text-gray-900 text-sm leading-tight line-clamp-2 flex-1">
                         {book.title}
-                    </div>
+                    </h4>
+                    <span className="text-[10px] text-white font-bold bg-brand-slate px-2 py-1 rounded flex-shrink-0">
+                        {book.university || 'جامعة'}
+                    </span>
                 </div>
-                <h4 className="text-sm text-gray-600 font-bold leading-tight mb-2 truncate">
-                    {book.author}
-                </h4>
+                {/* Author */}
+                <p className="text-xs text-gray-500 font-medium truncate">
+                    {book.author || 'غير معروف'}
+                </p>
             </div>
 
-            <div className="flex flex-col gap-1.5 text-xs text-gray-500 border-t border-gray-100 pt-2">
-                <div className="flex justify-between">
+            {/* Footer: ISBN & Price */}
+            <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-2 mt-2">
+                <div className="flex items-center gap-1">
                     <span className="font-bold">ISBN:</span>
-                    <span className="font-mono text-xs">{book.isbn ? book.isbn.slice(-4) + '..' : 'N/A'}</span>
+                    <span className="font-mono">{book.isbn || 'N/A'}</span>
                 </div>
-                <div className="flex justify-between">
-                    <span className="font-bold">السعر:</span>
-                    <span className="text-brand-orange font-bold">{book.price} ر.س</span>
-                </div>
+                <span className="text-brand-orange font-black text-base">{book.price} ر.س</span>
             </div>
         </div>
     </div>
@@ -341,7 +350,7 @@ const Profile = () => {
                                 <div className="flex-1 text-center md:text-right space-y-3">
                                     {isEditing ? (
                                         <div className="space-y-3">
-                                            <div className="flex gap-2">
+                                            <div className="flex flex-col md:flex-row gap-2">
                                                 <input
                                                     type="text"
                                                     name="firstName"
@@ -404,13 +413,13 @@ const Profile = () => {
                                 </div>
 
                                 {/* Edit/Save Buttons */}
-                                <div className="flex gap-2">
+                                <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                                     {!isEditing ? (
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => setIsEditing(true)}
-                                            className="bg-white text-brand-orange px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2 shadow-lg hover:bg-gray-100"
+                                            className="bg-white text-brand-orange px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 shadow-lg hover:bg-gray-100 w-full md:w-auto"
                                         >
                                             <Edit2 size={18} />
                                             <span>تعديل الملف</span>
@@ -422,7 +431,7 @@ const Profile = () => {
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={handleSave}
                                                 disabled={isLoading}
-                                                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2 shadow-lg disabled:opacity-50"
+                                                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 flex-1"
                                             >
                                                 <Save size={18} />
                                                 <span>حفظ</span>
@@ -432,7 +441,7 @@ const Profile = () => {
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={handleCancel}
                                                 disabled={isLoading}
-                                                className="bg-white/20 hover:bg-white/30 text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2 shadow-lg disabled:opacity-50"
+                                                className="bg-white/20 hover:bg-white/30 text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 flex-1"
                                             >
                                                 <X size={18} />
                                                 <span>إلغاء</span>
@@ -467,7 +476,7 @@ const Profile = () => {
                                     className="relative bg-white rounded-2xl overflow-hidden shadow-lg cursor-pointer"
                                 >
                                     {/* Diagonal Split */}
-                                    <div className="flex h-full min-h-[140px]">
+                                    <div className="flex h-full min-h-[110px] md:min-h-[140px]">
                                         {/* Left 20% - Colored Section with Icon */}
                                         <motion.div
                                             whileHover={{ x: 4 }}
@@ -509,13 +518,13 @@ const Profile = () => {
                         className="bg-white rounded-2xl shadow-lg overflow-hidden"
                     >
                         {/* Tabs Header with Animated Underline */}
-                        < div className="border-b border-gray-200 px-6" >
-                            <div className="flex gap-8 relative">
+                        < div className="border-b border-gray-200 px-4 md:px-6 overflow-x-auto" >
+                            <div className="flex gap-4 md:gap-8 relative min-w-max">
                                 {tabs.map((tab) => (
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
-                                        className={`relative py-4 px-2 font-bold text-base transition-colors ${activeTab === tab.id
+                                        className={`relative py-4 px-1 md:px-2 font-bold text-sm md:text-base transition-colors whitespace-nowrap ${activeTab === tab.id
                                             ? 'text-brand-orange'
                                             : 'text-gray-500 hover:text-gray-700'
                                             }`}

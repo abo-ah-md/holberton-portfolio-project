@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,8 +8,8 @@ const AuthRequiredModal = ({ isOpen, onClose, message = "يجب عليك تسج�
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    return createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" style={{ margin: 0 }}>
             <div
                 className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100"
                 dir="rtl"
@@ -59,7 +60,8 @@ const AuthRequiredModal = ({ isOpen, onClose, message = "يجب عليك تسج�
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

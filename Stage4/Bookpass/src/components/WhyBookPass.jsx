@@ -165,7 +165,7 @@ const WhyBookPass = () => {
                                 className="w-12 h-12 md:w-20 md:h-20 drop-shadow-2xl"
                             />
                             <h2 className="text-white text-4xl md:text-7xl font-black tracking-tight drop-shadow-xl">
-                                لماذا بوك باس ؟
+                               لماذا بوك باس ؟
                             </h2>
                         </div>
                         <div className="h-1.5 w-32 bg-white/20 rounded-full" />
