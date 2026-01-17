@@ -31,6 +31,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create .env file for build
+        run: |
+          echo "VITE_API_URL=https://api.book-pass.com" > ./Stage4/Bookpass/.env
+          echo "VITE_MOYASAR_PUBLIC_KEY=${{ secrets.MOYASAR_PUBLIC_KEY }}" >> ./Stage4/Bookpass/.env
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -39,9 +44,6 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          build-args: |
-            VITE_API_URL=https://api.book-pass.com
-            VITE_MOYASAR_PUBLIC_KEY=${{ secrets.MOYASAR_PUBLIC_KEY }}
 
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
