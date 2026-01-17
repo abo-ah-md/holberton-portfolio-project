@@ -32,7 +32,7 @@ import usePageTitle from '../hooks/usePageTitle';
 const Cart = () => {
     usePageTitle('سلة المشتريات');
     const navigate = useNavigate();
-    const { cartItems, removeFromCart, clearCart } = useCart();
+    const { cartItems, removeFromCart, clearCart, validateCart } = useCart();
 
     const calculateTotal = () => {
         return cartItems.reduce((acc, item) => acc + item.price, 0);
