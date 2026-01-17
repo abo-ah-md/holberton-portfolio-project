@@ -49,65 +49,35 @@ const Home = () => {
       </section>
 
       {/* LATEST BOOKS */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.1 }}
-        variants={fadeInUp}
-      >
+      {/* LATEST BOOKS */}
+      <section>
         <LatestBooks />
-      </motion.section>
+      </section>
 
       {/* ABOUT US (WHAT IS BOOKPASS) */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.1 }}
-        variants={fadeInUp}
-      >
+      <section>
         <WhatIsBookPass />
-      </motion.section>
+      </section>
 
       {/* TESTIMONIALS */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.1 }}
-        variants={fadeInUp}
-      >
+      <section>
         <Testimonials />
-      </motion.section>
+      </section>
 
 
       {/* WHY BOOKPASS (CURVED SECTION REPLACEMENT) */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.1 }}
-        variants={fadeInUp}
-      >
+      <section>
         <CurvedSection />
-      </motion.section>
+      </section>
 
       {/* FAQ & FOOTER */}
       <section>
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          variants={fadeInUp}
-        >
+        <div>
           <FAQ />
-        </motion.div>
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          variants={fadeInUp}
-          className="relative z-10"
-        >
+        </div>
+        <div className="relative z-10">
           <Footer />
-        </motion.div>
+        </div>
       </section>
     </div>
   );

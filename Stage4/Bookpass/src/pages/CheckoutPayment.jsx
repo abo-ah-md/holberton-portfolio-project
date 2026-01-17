@@ -1,8 +1,33 @@
-import { getBookById } from '../services/bookService'; // Added import
-
-// ... imports ...
-
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Lock, ShieldCheck, CreditCard, CheckCircle, ShoppingCart } from 'lucide-react';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import { useCart } from '../context/CartContext';
+import { usePageLoading } from '../components/PageTransition';
+import { getBookById } from '../services/bookService';
 import usePageTitle from '../hooks/usePageTitle';
+
+const container = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+            delayChildren: 0.1
+        }
+    }
+};
+
+const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+    }
+};
 
 const CheckoutPayment = () => {
     usePageTitle('الدفع');

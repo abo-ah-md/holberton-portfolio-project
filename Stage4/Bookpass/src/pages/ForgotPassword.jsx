@@ -5,6 +5,8 @@ import { requestPasswordReset } from '../services/authService';
 import { usePageLoading } from '../components/PageTransition';
 import { CheckCircle } from 'lucide-react';
 
+import ErrorPopup from '../components/ErrorPopup';
+
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
@@ -34,6 +36,8 @@ const ForgotPassword = () => {
 
     return (
         <div className="flex min-h-screen w-full flex-col md:flex-row-reverse font-sans">
+            <ErrorPopup message={error} onClose={() => setError('')} />
+
             {/* Left Side - Image */}
             <div
                 className="hidden md:block md:w-[45%] bg-cover bg-center relative"
@@ -60,12 +64,6 @@ const ForgotPassword = () => {
                             <p className="text-brand-muted mb-8 text-center text-sm font-medium leading-relaxed">
                                 أدخل بريدك الإلكتروني وسنرسل لك رابطاً لاستعادة كلمة المرور الخاصة بك.
                             </p>
-
-                            {error && (
-                                <div className="bg-red-50 text-brand-error border border-red-100 p-3 rounded-lg mb-6 text-sm text-right">
-                                    {error}
-                                </div>
-                            )}
 
                             <form onSubmit={handleSubmit} className="text-right">
                                 <div className="mb-6">

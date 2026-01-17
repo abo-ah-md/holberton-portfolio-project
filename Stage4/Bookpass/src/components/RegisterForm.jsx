@@ -6,6 +6,7 @@ import { uploadFile } from '../services/fileService';
 import { updateUserProfile } from '../services/authService';
 import { usePageLoading } from '../components/PageTransition';
 import { Camera, ChevronRight, ChevronLeft } from 'lucide-react';
+import ErrorPopup from '../components/ErrorPopup';
 
 const RegisterForm = ({ onSuccess, showBackButton = false, onBack }) => {
     const [formData, setFormData] = useState({
@@ -136,11 +137,7 @@ const RegisterForm = ({ onSuccess, showBackButton = false, onBack }) => {
                 <div className="w-full max-w-[400px] text-center relative z-10 mb-8">
                     <h1 className="text-3xl font-bold text-brand-secondary mb-8 leading-tight">انضم إلينا الآن وابدأ تسوقك</h1>
 
-                    {error && (
-                        <div className="bg-red-50 text-brand-error border border-red-100 p-3 rounded-lg mb-6 text-sm text-right">
-                            {error}
-                        </div>
-                    )}
+                    <ErrorPopup message={error} onClose={() => setError('')} />
 
                     <form onSubmit={handleSubmit} className="text-right">
                         {/* Profile Picture Upload */}
@@ -252,40 +249,38 @@ const RegisterForm = ({ onSuccess, showBackButton = false, onBack }) => {
                                     onChange={handleChange}
                                     className="w-4 h-4 accent-brand-primary cursor-pointer"
                                 />
-                                <span>أقبل سياسة الخصوصية والشروط <span className="text-red-500">*</span></span>
+                                <span>
+                                    أقبل <Link to="/terms" className="text-brand-primary hover:underline font-bold">سياسة الخصوصية والشروط</Link> <span className="text-red-500">*</span>
+                                </span>
                             </label>
                         </div>
 
+                        <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center items-center w-full">
+                            <button
+                                type="submit"
+                                className="w-full md:w-auto flex-1 bg-brand-primary hover:bg-brand-accent text-white px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                                disabled={isLoading}
+                            >
+                                <span>{isLoading ? 'جاري التسجيل...' : 'التسجيل'}</span>
+                                <ChevronRight size={20} />
+                            </button>
+                            {showBackButton && onBack && (
+                                <button
+                                    type="button"
+                                    onClick={onBack}
+                                    className="w-full md:w-auto text-brand-muted hover:text-brand-primary font-bold px-6 py-3 rounded-xl flex items-center justify-center gap-2 transition-colors border-2 border-transparent hover:bg-gray-50"
+                                >
+                                    <ChevronLeft size={20} />
+                                    <span>السابق</span>
+                                </button>
+                            )}
+                        </div>
                     </form>
 
                     <p className="mt-8 text-sm text-brand-muted font-medium">
                         لديك حساب مسجل ؟ <Link to="/login" className="text-brand-primary font-bold hover:underline">سجل الدخول</Link>
                     </p>
                 </div>
-            </div>
-
-            {/* Static Footer */}
-            <div className="w-full p-4 bg-white/80 border-t border-gray-100 backdrop-blur-xl flex justify-between items-center z-20 shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
-                <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="bg-brand-primary hover:bg-brand-accent text-white px-8 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
-                    disabled={isLoading}
-                >
-                    <span>{isLoading ? 'جاري التسجيل...' : 'التسجيل'}</span>
-                    <ChevronRight size={20} />
-                </button>
-                <div></div>
-                {showBackButton && onBack && (
-                    <button
-                        type="button"
-                        onClick={onBack}
-                        className="text-brand-muted hover:text-brand-primary font-bold flex items-center gap-2 transition-colors"
-                    >
-                        <ChevronLeft size={20} />
-                        <span>السابق</span>
-                    </button>
-                )}
             </div>
         </div >
     );

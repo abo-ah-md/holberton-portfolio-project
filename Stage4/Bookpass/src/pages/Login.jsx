@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { usePageLoading } from '../components/PageTransition';
 import Logo from '../components/Logo';
+import ErrorPopup from '../components/ErrorPopup';
 
 import usePageTitle from '../hooks/usePageTitle';
 
@@ -63,6 +64,8 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen w-full flex-col-reverse md:flex-row font-sans">
+      <ErrorPopup message={error} onClose={() => setError('')} />
+
       {/* Right Side - Form (Now First -> Right in RTL) */}
       <div className="flex-1 bg-white flex flex-col items-center justify-center p-6 md:p-20 relative overflow-hidden" dir="rtl">
 
@@ -76,12 +79,6 @@ const Login = () => {
 
         <div className="w-full max-w-[400px] text-center relative z-10">
           <h1 className="text-3xl font-bold text-brand-secondary mb-10 leading-tight">مرحباً بعودتك</h1>
-
-          {error && (
-            <div className="bg-red-50 text-brand-error border border-red-100 p-3 rounded-lg mb-6 text-sm text-right">
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="text-right">
             <div className="mb-6">
@@ -150,7 +147,7 @@ const Login = () => {
       >
         <div className="absolute inset-0 bg-black/20"></div>
       </div>
-    </div>
+    </div >
   );
 };
 

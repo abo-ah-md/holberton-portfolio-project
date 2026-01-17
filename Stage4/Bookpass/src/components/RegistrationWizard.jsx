@@ -6,6 +6,7 @@ import HowTo from './HowTo';
 
 const RegistrationWizard = ({ onComplete, children }) => {
     const [currentStep, setCurrentStep] = useState(0);
+    const [direction, setDirection] = useState(0);
 
     const steps = [
         { id: 'buying', title: 'كيفية الشراء', component: 'buying' },
@@ -14,19 +15,37 @@ const RegistrationWizard = ({ onComplete, children }) => {
         { id: 'complete', title: 'اكتمال', component: 'completion' }
     ];
 
+    const slideVariants = {
+        enter: (direction) => ({
+            x: direction > 0 ? 100 : -100,
+            opacity: 0
+        }),
+        center: {
+            x: 0,
+            opacity: 1
+        },
+        exit: (direction) => ({
+            x: direction < 0 ? 100 : -100,
+            opacity: 0
+        })
+    };
+
     const handleNext = () => {
         if (currentStep < steps.length - 1) {
+            setDirection(1);
             setCurrentStep(currentStep + 1);
         }
     };
 
     const handlePrev = () => {
         if (currentStep > 0) {
+            setDirection(-1);
             setCurrentStep(currentStep - 1);
         }
     };
 
     const handleSkipToSignup = () => {
+        setDirection(1);
         setCurrentStep(2); // Jump to signup step
     };
 
@@ -62,14 +81,14 @@ const RegistrationWizard = ({ onComplete, children }) => {
                 <div className="w-full bg-brand-secondary py-6 px-4 md:px-8">
                     <div className="max-w-4xl mx-auto" dir="ltr">
                         <div className="flex items-start justify-between relative">
-                            {/* Progress Line - Centered exactly on circles (Mobile: top-5=20px, Desktop: top-6=24px) */}
+                            {/* Progress Line */}
                             <div className="absolute top-5 md:top-6 left-0 right-0 h-1 bg-white/20 -translate-y-1/2 z-0" />
                             <div
                                 className="absolute top-5 md:top-6 left-0 h-1 bg-brand-primary -translate-y-1/2 z-0 transition-all duration-500"
                                 style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
                             />
 
-                            {/* Step Indicators - LTR Order */}
+                            {/* Step Indicators */}
                             {steps.map((step, index) => (
                                 <div key={step.id} className="flex flex-col items-center relative z-10">
                                     <motion.div
@@ -99,12 +118,14 @@ const RegistrationWizard = ({ onComplete, children }) => {
 
             {/* Content Area */}
             <div className={`flex-1 relative ${currentStep === 3 ? 'overflow-hidden' : 'overflow-hidden'}`}>
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="wait" custom={direction}>
                     <motion.div
                         key={currentStep}
-                        initial={{ opacity: 0, x: 100 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -100 }}
+                        custom={direction}
+                        variants={slideVariants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
                         transition={{ duration: 0.3 }}
                         className="absolute inset-0"
                     >
@@ -114,10 +135,11 @@ const RegistrationWizard = ({ onComplete, children }) => {
                                 <div className="flex-1 relative">
                                     <HowTo activeTab="buying" showTabSwitcher={false} />
                                 </div>
-                                <div className="absolute bottom-0 w-full z-10 p-4 bg-white/10 border-t border-white/20 backdrop-blur-xl shadow-2xl flex justify-between items-center">
+                                <div className="absolute bottom-0 w-full z-10 p-6 bg-white/10 border-t border-white/20 backdrop-blur-xl shadow-2xl flex justify-center items-center gap-6">
+                                    {/* Order: Next, Skip */}
                                     <button
                                         onClick={handleNext}
-                                        className="bg-brand-primary hover:bg-brand-accent text-white px-8 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg"
+                                        className="bg-brand-primary hover:bg-brand-accent text-white px-10 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg hover:-translate-y-0.5"
                                     >
                                         <span>التالي</span>
                                         <ChevronRight size={20} />
@@ -128,7 +150,6 @@ const RegistrationWizard = ({ onComplete, children }) => {
                                     >
                                         تخطي إلى التسجيل
                                     </button>
-                                    <div></div>
                                 </div>
                             </div>
                         )}
@@ -139,10 +160,11 @@ const RegistrationWizard = ({ onComplete, children }) => {
                                 <div className="flex-1 relative">
                                     <HowTo activeTab="selling" showTabSwitcher={false} />
                                 </div>
-                                <div className="absolute bottom-0 w-full z-10 p-4 bg-white/10 border-t border-white/20 backdrop-blur-xl shadow-2xl flex justify-between items-center">
+                                <div className="absolute bottom-0 w-full z-10 p-6 bg-white/10 border-t border-white/20 backdrop-blur-xl shadow-2xl flex justify-center items-center gap-6">
+                                    {/* Order: Next, Skip, Prev (Visual LTR: Prev, Skip, Next) */}
                                     <button
                                         onClick={handleNext}
-                                        className="bg-brand-primary hover:bg-brand-accent text-white px-8 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg"
+                                        className="bg-brand-primary hover:bg-brand-accent text-white px-10 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg hover:-translate-y-0.5"
                                     >
                                         <span>التالي</span>
                                         <ChevronRight size={20} />
@@ -155,10 +177,10 @@ const RegistrationWizard = ({ onComplete, children }) => {
                                     </button>
                                     <button
                                         onClick={handlePrev}
-                                        className="text-white hover:text-brand-primary font-bold flex items-center gap-2 transition-colors"
+                                        className="text-white hover:text-brand-primary font-bold flex items-center gap-2 transition-colors px-6"
                                     >
-                                        <ChevronLeft size={20} />
                                         <span>السابق</span>
+                                        <ChevronLeft size={20} />
                                     </button>
                                 </div>
                             </div>

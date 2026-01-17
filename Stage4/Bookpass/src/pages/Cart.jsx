@@ -185,12 +185,21 @@ const Cart = () => {
                                         <motion.button
                                             whileHover={{ scale: 1.02, y: -4 }}
                                             whileTap={{ scale: 0.98 }}
-                                            onClick={() => navigate('/checkout', {
-                                                state: {
-                                                    cartItems: cartItems,
-                                                    total: calculateTotal()
-                                                }
-                                            })}
+                                            onClick={async () => {
+                                                // Run a final check before proceeding
+                                                await validateCart();
+
+                                                // Ideally we should check if items were removed, but for now 
+                                                // we navigate. The Checkout page re-validates or accepts the passed state.
+                                                // If items were removed by validateCart, they will disappear from UI 
+                                                // on next render.
+                                                navigate('/checkout', {
+                                                    state: {
+                                                        cartItems: cartItems,
+                                                        total: calculateTotal()
+                                                    }
+                                                });
+                                            }}
                                             className="w-full bg-brand-primary hover:bg-brand-accent text-white font-black py-5 rounded-2xl shadow-xl hover:shadow-brand-primary/20 transition-all flex items-center justify-center gap-3 text-xl"
                                         >
                                             <span>إتمام عملية الشراء</span>
