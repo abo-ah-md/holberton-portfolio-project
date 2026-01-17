@@ -215,7 +215,7 @@ export const getStorePendingBooks = async () => {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch pending books');
+      throw new Error(`Failed to fetch pending books: ${response.status}`);
     }
 
     const data = await response.json();
@@ -246,7 +246,7 @@ export const getStoreSoldBooks = async () => {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch sold books');
+      throw new Error(`Failed to fetch sold books: ${response.status}`);
     }
 
     const data = await response.json();
@@ -475,6 +475,31 @@ export const getMySales = async () => {
 };
 
 /**
+ * Get a single book by ID
+ * GET /api/books/{id}
+ */
+export const getBookById = async (bookId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/books/${bookId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch book');
+    }
+
+    const data = await response.json();
+    return { data: transformBook(data), error: null };
+  } catch (error) {
+    console.error('Error fetching book:', error);
+    return { data: null, error: error.message };
+  }
+};
+
+/**
  * Transform backend book data to frontend format
  */
 const transformBook = (book) => {
@@ -489,7 +514,7 @@ const transformBook = (book) => {
     status: book.bookCondition || book.status, // Display Status (Excellent/Good)
     listingStatus: book.status, // Workflow Status (AVAILABLE/PENDING/SOLD)
     image: book.bookImages ? parseBookImage(book.bookImages) : null,
-    isSold: book.sold || book.status === 'SOLD',
+    isSold: book.sold || book.status === 'SOLD' || book.status === 'PICKED',
     sellerId: book.sellerId,
     sellerName: book.sellerName,
     sellerPhone: book.sellerPhone,

@@ -79,12 +79,12 @@ const WhatIsBookPass = () => {
             id="about-us"
             ref={sectionRef}
             onMouseMove={handleMouseMove}
-            className="relative overflow-hidden min-h-[700px] md:min-h-[850px] flex items-center justify-center py-20 px-6"
+            className="relative overflow-hidden min-h-[500px] flex items-center justify-center py-12 px-4"
             style={{ backgroundColor: '#475a67' }}
         >
             {/* Drifting Atmospheric Particles */}
             <div className="absolute inset-0 pointer-events-none z-10">
-                {[...Array(12)].map((_, i) => (
+                {[...Array(8)].map((_, i) => (
                     <motion.div
                         key={i}
                         className="absolute w-2 h-2 bg-white/10 rounded-full"
@@ -109,16 +109,16 @@ const WhatIsBookPass = () => {
             {/* Floating Branded Icons - Background Layer */}
             <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
                 <motion.div style={{ y: y1, rotate }} className="absolute top-[10%] left-[10%] text-white">
-                    <Book size={120} />
+                    <Book size={100} />
                 </motion.div>
                 <motion.div style={{ y: y2, rotate: -rotate.get() }} className="absolute bottom-[20%] right-[5%] text-white">
-                    <GraduationCap size={150} />
+                    <GraduationCap size={120} />
                 </motion.div>
                 <motion.div style={{ y: y1, x: 50 }} className="absolute top-[40%] right-[15%] text-white">
-                    <BookOpen size={80} />
+                    <BookOpen size={60} />
                 </motion.div>
                 <motion.div style={{ y: y2 }} className="absolute top-[60%] left-[20%] text-white">
-                    <Sparkles size={60} />
+                    <Sparkles size={50} />
                 </motion.div>
             </div>
 
@@ -131,66 +131,59 @@ const WhatIsBookPass = () => {
                     transformStyle: "preserve-3d",
                     zIndex: 30
                 }}
-                whileHover={{ scale: 1.02 }}
-                className="relative max-w-5xl w-full bg-white/5 backdrop-blur-sm border border-white/10 p-10 md:p-20 rounded-[4rem] shadow-2xl overflow-hidden group"
+                className="relative max-w-6xl w-full bg-white/5 backdrop-blur-sm border border-white/10 p-8 md:p-12 rounded-[3rem] shadow-xl overflow-hidden group flex flex-col md:flex-row items-center gap-8 md:gap-16"
             >
                 {/* Glow Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
-                {/* Header with Word Reveal Logo */}
-                <div className="flex flex-col items-center justify-center gap-8 mb-16" style={{ transform: "translateZ(50px)" }}>
-                    <div className="flex items-center gap-6">
+                {/* Right Side: Header with Logo */}
+                <div className="flex flex-col items-center justify-center gap-6 md:w-1/3 shrink-0" style={{ transform: "translateZ(50px)" }}>
+                    <div className="flex flex-col items-center gap-4">
+                        <motion.img
+                            initial={{ scale: 0, rotate: -180 }}
+                            whileInView={{ scale: 1, rotate: 0 }}
+                            transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
+                            viewport={{ once: true }}
+                            src={whiteLogo}
+                            alt="Book Pass Logo"
+                            className="w-20 h-20 md:w-32 md:h-32 drop-shadow-xl"
+                        />
                         <motion.div
                             variants={containerVariants}
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className="flex flex-row-reverse gap-3 md:gap-5"
+                            className="flex flex-row-reverse gap-2 flex-wrap justify-center"
                         >
                             {words.map((word, i) => (
                                 <motion.span
                                     key={i}
                                     variants={wordVariants}
-                                    className="text-white text-4xl md:text-8xl font-black drop-shadow-[0_10px_10px_rgba(0,0,0,0.3)]"
+                                    className="text-white text-3xl md:text-5xl font-black drop-shadow-lg"
                                 >
                                     {word}
                                 </motion.span>
                             ))}
                         </motion.div>
-                        <motion.img
-                            initial={{ scale: 0, rotate: -180 }}
-                            whileInView={{ scale: 1, rotate: 0 }}
-                            transition={{ type: "spring", stiffness: 100, delay: 1 }}
-                            viewport={{ once: true }}
-                            src={whiteLogo}
-                            alt="Book Pass Logo"
-                            className="w-16 h-16 md:w-28 md:h-28 drop-shadow-2xl"
-                        />
                     </div>
-                    <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: "100px" }}
-                        transition={{ delay: 1.5, duration: 1 }}
-                        className="h-1.5 bg-white/30 rounded-full"
-                    />
                 </div>
 
-                {/* Body Content with Floating Effect */}
-                <div className="space-y-12 text-center" style={{ transform: "translateZ(30px)" }}>
+                {/* Left Side: Body Content */}
+                <div className="space-y-6 text-center md:text-right md:w-2/3" style={{ transform: "translateZ(30px)" }}>
                     <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.6 }}
-                        className="text-white text-xl md:text-4xl font-black leading-relaxed"
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-white text-lg md:text-2xl font-bold leading-relaxed"
                     >
-                        بوك باس هي منصة صُمّمت من الطلاب، من أجل الطلاب لتربط بين الطلاب الراغبين في شراء و بيع الكتب الجامعية المستعملة بطريقة آمنة وسهلة و صفقات عادلة بين الطلاب.
+                        بوك باس هي منصة صُمّمت من الطلاب، من أجل الطلاب لتربط بين الطلاب الراغبين في شراء و بيع الكتب الجامعية المستعملة بطريقة آمنة وسهلة.
                     </motion.p>
 
                     <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.8 }}
-                        className="text-white/80 text-lg md:text-3xl font-bold leading-relaxed italic"
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.6 }}
+                        className="text-white/80 text-base md:text-xl font-medium leading-relaxed"
                     >
                         سواء كنت تهدف لتوفير المال أو كسب بعضه، نساعد الكتب على الاستمرار في التداول بدلاً من أن تتراكم على الرفوف.
                     </motion.p>
@@ -200,10 +193,10 @@ const WhatIsBookPass = () => {
                 <motion.div
                     animate="animate"
                     variants={floatingVariants}
-                    className="absolute -top-10 -right-10 opacity-20 group-hover:opacity-40 transition-opacity"
-                    style={{ transform: "translateZ(100px)" }}
+                    className="absolute -top-10 -right-10 opacity-10 group-hover:opacity-30 transition-opacity"
+                    style={{ transform: "translateZ(80px)" }}
                 >
-                    <BookOpen size={200} className="text-white" />
+                    <BookOpen size={180} className="text-white" />
                 </motion.div>
             </motion.div>
 

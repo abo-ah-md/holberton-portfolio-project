@@ -26,6 +26,10 @@ export const getDashboardStats = async () => {
             }
         });
 
+        if (!response.ok) {
+            throw new Error(`Failed to fetch stats: ${response.status}`);
+        }
+
         const data = await response.json();
 
         // Data Transformation & Defaults

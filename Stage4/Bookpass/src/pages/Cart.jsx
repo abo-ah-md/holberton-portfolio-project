@@ -27,16 +27,19 @@ const fadeInUp = {
     }
 };
 
+import usePageTitle from '../hooks/usePageTitle';
+
 const Cart = () => {
+    usePageTitle('سلة المشتريات');
     const navigate = useNavigate();
-    const { cartItems, removeFromCart } = useCart();
+    const { cartItems, removeFromCart, clearCart } = useCart();
 
     const calculateTotal = () => {
-        return cartItems.reduce((total, item) => total + item.price, 0);
+        return cartItems.reduce((acc, item) => acc + item.price, 0);
     };
 
     return (
-        <div className="min-h-screen flex flex-col font-sans bg-[#2c3e50] pt-20 relative" dir="rtl">
+        <div className="min-h-screen flex flex-col font-sans bg-brand-secondary pt-20 relative" dir="rtl">
             {/* Subtle background pattern */}
             <div className="absolute inset-0 opacity-5 pointer-events-none">
                 <div className="absolute inset-0" style={{
@@ -55,7 +58,7 @@ const Cart = () => {
                 {/* Dark Navy Hero Section */}
                 <motion.section
                     variants={fadeInUp}
-                    className="bg-[#2c3e50] py-12 px-4 md:px-8 relative"
+                    className="bg-brand-secondary py-12 px-4 md:px-8 relative"
                 >
                     <div className="max-w-7xl mx-auto relative z-10">
                         {/* Orange Pill Card */}
@@ -63,7 +66,7 @@ const Cart = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2, duration: 0.6 }}
-                            className="bg-brand-orange rounded-3xl p-8 shadow-2xl relative overflow-hidden"
+                            className="bg-brand-primary rounded-3xl p-8 shadow-2xl relative overflow-hidden"
                             style={{
                                 clipPath: 'polygon(0 0, 98% 0, 100% 50%, 98% 100%, 0 100%)'
                             }}
@@ -114,15 +117,15 @@ const Cart = () => {
                                                         }
                                                     </div>
                                                     <div className="flex-1 text-center sm:text-right">
-                                                        <h3 className="font-black text-2xl text-gray-900 mb-2">{item.title}</h3>
-                                                        <p className="text-lg text-gray-500 font-bold mb-3">{item.author}</p>
-                                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-orange/10 text-brand-orange rounded-lg text-sm font-black">
+                                                        <h3 className="font-black text-2xl text-brand-secondary mb-2">{item.title}</h3>
+                                                        <p className="text-lg text-brand-muted font-bold mb-3">{item.author}</p>
+                                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-lg text-sm font-black">
                                                             <BookOpen size={14} />
                                                             <span>جامعة {item.university}</span>
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-col items-center sm:items-end gap-6 w-full sm:w-auto">
-                                                        <span className="font-black text-3xl text-brand-orange leading-none">{item.price} <span className="text-base font-bold">ر.س</span></span>
+                                                        <span className="font-black text-3xl text-brand-primary leading-none">{item.price} <span className="text-base font-bold">ر.س</span></span>
                                                         <motion.button
                                                             whileHover={{ scale: 1.1 }}
                                                             whileTap={{ scale: 0.9 }}
@@ -145,7 +148,7 @@ const Cart = () => {
                                                 whileHover={{ scale: 1.05, y: -4 }}
                                                 whileTap={{ scale: 0.95 }}
                                                 onClick={() => navigate('/marketplace')}
-                                                className="bg-brand-orange hover:bg-orange-600 text-white font-black px-10 py-4 rounded-2xl shadow-xl transition-all"
+                                                className="bg-brand-primary hover:bg-brand-primary/90 text-white font-black px-10 py-4 rounded-2xl shadow-xl transition-all"
                                             >
                                                 تصفح الكتب المتاحة
                                             </motion.button>
@@ -159,8 +162,8 @@ const Cart = () => {
                         {/* Summary Section - Only show when cart has items */}
                         {cartItems.length > 0 && (
                             <motion.div variants={fadeInUp} className="w-full lg:w-[400px]">
-                                <div className="bg-white rounded-3xl shadow-2xl p-8 sticky top-24 border border-gray-100">
-                                    <h2 className="font-black text-2xl text-gray-900 mb-8 pb-4 border-b-2 border-gray-50">ملخص الطلب</h2>
+                                <div className="bg-white rounded-3xl shadow-2xl p-8 sticky top-24 border border-brand-border">
+                                    <h2 className="font-black text-2xl text-brand-secondary mb-8 pb-4 border-b-2 border-brand-background">ملخص الطلب</h2>
 
                                     <div className="space-y-6 mb-10">
                                         <div className="flex justify-between items-center text-gray-500 font-bold text-lg">
@@ -169,10 +172,10 @@ const Cart = () => {
                                         </div>
                                         <div className="h-0.5 bg-gray-50 w-full" />
                                         <div className="flex justify-between items-center pt-2">
-                                            <span className="font-black text-xl text-gray-900">الإجمالي النهائي</span>
+                                            <span className="font-black text-xl text-brand-secondary">الإجمالي النهائي</span>
                                             <div className="text-right">
-                                                <div className="text-4xl font-black text-brand-orange">{calculateTotal()} <span className="text-lg">ر.س</span></div>
-                                                <p className="text-xs text-gray-400 font-bold mt-1">شامل كافة الرسوم</p>
+                                                <div className="text-4xl font-black text-brand-primary">{calculateTotal()} <span className="text-lg">ر.س</span></div>
+                                                <p className="text-xs text-brand-muted font-bold mt-1">شامل كافة الرسوم</p>
                                             </div>
                                         </div>
                                     </div>
@@ -188,23 +191,23 @@ const Cart = () => {
                                                     total: calculateTotal()
                                                 }
                                             })}
-                                            className="w-full bg-gradient-to-r from-brand-orange to-orange-600 text-white font-black py-5 rounded-2xl shadow-xl hover:shadow-orange-500/20 transition-all flex items-center justify-center gap-3 text-xl"
+                                            className="w-full bg-brand-primary hover:bg-brand-accent text-white font-black py-5 rounded-2xl shadow-xl hover:shadow-brand-primary/20 transition-all flex items-center justify-center gap-3 text-xl"
                                         >
                                             <span>إتمام عملية الشراء</span>
                                             <ArrowRight size={24} className="rotate-180" />
                                         </motion.button>
                                         <button
                                             onClick={() => navigate('/marketplace')}
-                                            className="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 font-black py-5 rounded-2xl transition-all border-2 border-transparent hover:border-gray-200"
+                                            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-5 rounded-2xl transition-all border-none"
                                         >
                                             متابعة التسوق
                                         </button>
                                     </div>
 
-                                    <div className="mt-8 p-4 bg-orange-50/50 rounded-2xl border border-orange-100">
-                                        <div className="flex gap-4 items-start text-orange-800 text-sm">
+                                    <div className="mt-8 p-4 bg-brand-primary/5 rounded-2xl border border-brand-primary/10">
+                                        <div className="flex gap-4 items-start text-brand-primary text-sm">
                                             <div className="shrink-0 p-1 bg-white rounded-lg shadow-sm">
-                                                <ArrowRight size={16} className="text-brand-orange" />
+                                                <ArrowRight size={16} className="text-brand-primary" />
                                             </div>
                                             <p className="font-bold leading-relaxed">بإتمامك للطلب، أنت توافق على شروط وأحكام منصة بوك باس.</p>
                                         </div>

@@ -21,20 +21,20 @@ const Logout = () => {
     }, [signOut, navigate]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-brand-dark relative overflow-hidden text-center p-4">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-brand-secondary relative overflow-hidden text-center p-4">
             {/* Background elements */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 0.1, scale: 1.2 }}
                     transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
-                    className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-brand-orange blur-3xl"
+                    className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-brand-primary blur-3xl"
                 />
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 0.1, scale: 1.2 }}
                     transition={{ duration: 8, repeat: Infinity, repeatType: "reverse", delay: 2 }}
-                    className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-blue-400 blur-3xl opacity-10"
+                    className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-brand-accent blur-3xl opacity-10"
                 />
             </div>
 
@@ -45,7 +45,7 @@ const Logout = () => {
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
                     className="mb-8 flex justify-center"
                 >
-                    <div className="bg-brand-orange p-4 rounded-full shadow-lg">
+                    <div className="bg-brand-primary p-4 rounded-full shadow-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
@@ -65,7 +65,7 @@ const Logout = () => {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.3 }}
-                    className="text-gray-300 mb-8"
+                    className="text-brand-muted mb-8"
                 >
                     نأمل أن نراك قريبًا في بوك باس!
                 </motion.p>
@@ -78,7 +78,7 @@ const Logout = () => {
                 >
                     <button
                         onClick={() => navigate('/')}
-                        className="bg-brand-orange hover:bg-orange-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105"
+                        className="bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105"
                     >
                         العودة للرئيسية
                     </button>

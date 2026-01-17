@@ -41,4 +41,14 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           build-args: |
             VITE_API_URL=https://api.book-pass.com
-            VITE_MOYASAR_PUBLIC_KEY=${{ secrets.MOYASAR_PUBLIC_KEY }}
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            cd /opt/bookpass-frontend
+            docker compose pull frontend
+            docker compose up -d

@@ -82,7 +82,7 @@ const Hero = ({ title, subtitle, description, primaryButtonText, secondaryButton
     };
 
     return (
-        <section className="relative w-full h-[calc(100vh-80px)] min-h-[600px] overflow-hidden bg-slate-900 font-sans rtl">
+        <section className="relative w-full h-screen min-h-[700px] overflow-hidden bg-slate-900 font-sans rtl">
 
             {/* Global Background Image (Animated) */}
             {/* Global Background Image (Animated) */}
@@ -103,8 +103,19 @@ const Hero = ({ title, subtitle, description, primaryButtonText, secondaryButton
             {/* Global Dark Overlay: Stronger contrast for text readability */}
             <div className="absolute inset-0 bg-slate-900/80 z-0"></div>
 
-            {/* Bottom Shine/Fade - Full Width - Blends into About Section Brown (#c8876f) */}
-            <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[#c8876f] via-[#c8876f]/20 to-transparent z-10 pointer-events-none"></div>
+            {/* Bottom Shine/Fade - Condensed & Animated "Breathing" Glow */}
+            <motion.div
+                animate={{
+                    opacity: [0.7, 1, 0.7],
+                    height: ["8rem", "10rem", "8rem"] // Subtle expansion/contraction (h-32 is 8rem)
+                }}
+                transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+                className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#c8876f] via-[#c8876f]/30 to-transparent z-20 pointer-events-none"
+            />
 
             {/* Main Grid Container */}
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 h-full w-full">

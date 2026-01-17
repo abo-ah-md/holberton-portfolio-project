@@ -72,7 +72,7 @@ const LatestBooks = () => {
     };
 
     return (
-        <section className="py-20 relative z-10 w-full overflow-hidden" style={{ background: 'linear-gradient(180deg, #c8876f 0%, #3A4958 100%)' }}>
+        <section className="py-20 relative z-10 w-full overflow-hidden" style={{ background: 'linear-gradient(180deg, #C17554 0%, #3A4958 100%)' }}>
 
             {/* Header Section - Centered */}
             {/* Header Section - Centered */}

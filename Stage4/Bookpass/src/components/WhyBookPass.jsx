@@ -119,7 +119,7 @@ const WhyBookPass = () => {
         <div
             ref={sectionRef}
             onMouseMove={handleMouseMove}
-            className="relative w-full overflow-hidden bg-[#475a67] py-20 md:py-32"
+            className="relative w-full overflow-hidden bg-[#475a67] py-12 md:py-20"
         >
             {/* Background Decorative Icons Layer */}
             <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
@@ -144,9 +144,11 @@ const WhyBookPass = () => {
                     transformStyle: "preserve-3d",
                     zIndex: 10
                 }}
-                className="relative flex flex-col items-center justify-center pt-20 px-4"
+                className="relative flex flex-col items-center justify-center pt-10 px-4"
             >
-                <div className="relative z-30 w-full max-w-7xl mx-auto">
+                <div className="relative z-30 w-full max-w-7xl mx-auto bg-white/5 backdrop-blur-sm border border-white/10 p-8 md:p-12 rounded-[3rem] shadow-xl overflow-hidden">
+                    {/* Glow Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
                     {/* Header Group */}
                     <motion.div
@@ -154,7 +156,7 @@ const WhyBookPass = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         style={{ transform: "translateZ(60px)" }}
-                        className="flex flex-col items-center gap-6 mb-20"
+                        className="flex flex-col items-center gap-6 mb-12 relative z-10"
                     >
                         <div className="flex flex-row-reverse items-center justify-center gap-6">
                             <motion.img
@@ -164,8 +166,8 @@ const WhyBookPass = () => {
                                 alt="Book Pass Logo"
                                 className="w-12 h-12 md:w-20 md:h-20 drop-shadow-2xl"
                             />
-                            <h2 className="text-white text-4xl md:text-7xl font-black tracking-tight drop-shadow-xl">
-                               لماذا بوك باس ؟
+                            <h2 className="text-white text-3xl md:text-5xl font-black tracking-tight drop-shadow-xl">
+                                لماذا بوك باس ؟
                             </h2>
                         </div>
                         <div className="h-1.5 w-32 bg-white/20 rounded-full" />
@@ -176,9 +178,9 @@ const WhyBookPass = () => {
                         variants={containerVariants}
                         initial="hidden"
                         whileInView="visible"
-                        viewport={{ once: true, margin: "-100px" }}
+                        viewport={{ once: true, margin: "-50px" }}
                         style={{ transform: "translateZ(30px)" }}
-                        className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-8 lg:gap-12"
+                        className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-8 lg:gap-12 relative z-10"
                     >
                         {features.map((feature, idx) => (
                             <motion.div
@@ -190,7 +192,7 @@ const WhyBookPass = () => {
                                 <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 flex items-center justify-center mb-6 bg-white/10 rounded-3xl p-4 backdrop-blur-sm border border-white/5 group-hover:bg-white/20 group-hover:border-white/20 transition-all shadow-xl">
                                     {feature.icon}
                                 </div>
-                                <p className="text-white text-sm sm:text-base lg:text-[22px] font-black leading-tight whitespace-pre-line drop-shadow-md">
+                                <p className="text-white text-sm sm:text-base lg:text-lg font-bold leading-tight whitespace-pre-line drop-shadow-md">
                                     {feature.title}
                                 </p>
                             </motion.div>

@@ -90,25 +90,25 @@ const termsData = [
 
 const Terms = () => {
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col font-sans" dir="rtl">
+        <div className="min-h-screen bg-brand-background flex flex-col font-sans" dir="rtl">
             <Navbar />
 
             <main className="flex-grow container mx-auto px-4 py-8 md:py-12 max-w-4xl">
                 {/* Header */}
                 <div className="mb-10 text-center">
-                    <h1 className="text-3xl md:text-4xl font-black text-brand-slate mb-4">الشروط والأحكام وسياسة الاستخدام</h1>
-                    <div className="w-24 h-1 bg-brand-orange mx-auto rounded-full"></div>
-                    <p className="mt-4 text-gray-500">آخر تحديث: يناير 2026</p>
+                    <h1 className="text-3xl md:text-4xl font-black text-brand-secondary mb-4">الشروط والأحكام وسياسة الاستخدام</h1>
+                    <div className="w-24 h-1 bg-brand-primary mx-auto rounded-full"></div>
+                    <p className="mt-4 text-brand-muted">آخر تحديث: يناير 2026</p>
                 </div>
 
                 {/* Content */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10 space-y-8">
+                <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 md:p-10 space-y-8">
                     {termsData.map((term, index) => (
-                        <div key={index} className="border-b border-gray-50 last:border-0 pb-8 last:pb-0">
-                            <h2 className="text-xl md:text-2xl font-bold text-brand-slate mb-4">
+                        <div key={index} className="border-b border-brand-background last:border-0 pb-8 last:pb-0">
+                            <h2 className="text-xl md:text-2xl font-bold text-brand-secondary mb-4">
                                 {term.title}
                             </h2>
-                            <div className="text-gray-600 leading-relaxed text-base md:text-lg whitespace-pre-line text-justify">
+                            <div className="text-brand-muted leading-relaxed text-base md:text-lg whitespace-pre-line text-justify">
                                 {term.content}
                             </div>
                         </div>
@@ -117,7 +117,7 @@ const Terms = () => {
 
                 {/* Back Link */}
                 <div className="mt-8 text-center">
-                    <Link to="/" className="inline-flex items-center gap-2 text-brand-slate hover:text-brand-orange font-bold transition-colors">
+                    <Link to="/" className="inline-flex items-center gap-2 text-brand-secondary hover:text-brand-primary font-bold transition-colors">
                         <ArrowLeft size={20} />
                         العودة للرئيسية
                     </Link>

@@ -41,10 +41,24 @@ module.exports = {
                     foreground: "hsl(var(--card-foreground))",
                 },
                 brand: {
-                    orange: '#C17554',
-                    dark: '#1a2634',
-                    slate: '#2c3e50',
-                    lightGray: '#F5F5F5',
+                    primary: '#C17554',
+                    secondary: '#3A4958',
+                    background: '#F5F5F7',
+                    surface: '#FFFFFF',
+                    accent: '#F0C29A',
+                    muted: '#8FA2B2',
+                    error: '#D9605A',
+                    success: '#3FA47A',
+                    text: '#2B3540',
+                    border: '#E0E4E8',
+                },
+                primary: {
+                    DEFAULT: '#C17554',
+                    foreground: '#FFFFFF',
+                },
+                secondary: {
+                    DEFAULT: '#3A4958',
+                    foreground: '#FFFFFF',
                 },
             },
             borderRadius: {

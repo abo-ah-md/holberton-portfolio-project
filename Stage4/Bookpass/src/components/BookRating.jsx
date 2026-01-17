@@ -2,7 +2,7 @@ import './BookRating.css';
 
 const BookRating = () => {
     return (
-        <section className="book-rating border-b-[30px] border-[#c8876f]">
+        <section className="book-rating border-b-[30px] border-brand-primary">
             <style>{`
                 .rating-container {
                     display: flex;

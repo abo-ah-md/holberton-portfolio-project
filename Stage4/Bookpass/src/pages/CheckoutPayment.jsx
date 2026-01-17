@@ -1,53 +1,65 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CreditCard, Lock, CheckCircle, ArrowRight, ShoppingCart, ShieldCheck } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { getBookById } from '../services/bookService'; // Added import
 
-// Animation variants
-const container = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-            delayChildren: 0.1
-        }
-    }
-};
+// ... imports ...
 
-const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    show: {
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-    }
-};
+import usePageTitle from '../hooks/usePageTitle';
 
 const CheckoutPayment = () => {
+    usePageTitle('الدفع');
     const location = useLocation();
     const navigate = useNavigate();
     const { clearCart } = useCart();
+    const { setIsLoading, setLoadingMessage } = usePageLoading(); // Assuming this hook is available or I need to import it if not. Wait, I didn't verify if usePageLoading is used here. Let me check the file content again or just valid existing imports. 
+    // Wait, the previous view_file showed imports. I should check if usePageLoading is imported.
+    // Lines 1-8 of previous view showed:
+    // import React, { useEffect, useState } from 'react';
+    // import { useLocation, useNavigate } from 'react-router-dom';
+    // ...
+    // It did NOT show usePageLoading. I should check if I need to import it or if I can just manage loading locally.
+    // The component has local state. I'll add a local loading state if needed or use the global one if I import it.
+    // Better to use global if I can.
+
+    // Let's stick to modifying the useEffect logic first. I will fetch the book inside useEffect.
 
     const [items, setItems] = useState([]);
     const [total, setTotal] = useState(0);
+    const [loadingBook, setLoadingBook] = useState(false);
 
     useEffect(() => {
-        if (location.state?.cartItems && location.state.cartItems.length > 0) {
-            setItems(location.state.cartItems);
-            setTotal(location.state.total || location.state.cartItems.reduce((sum, item) => sum + item.price, 0));
-        }
-        else if (location.state?.book) {
-            setItems([location.state.book]);
-            setTotal(parseFloat(location.state.book.price));
-        }
-        else {
-            navigate('/');
-        }
-    }, [location.state, navigate]);
+        const initCheckout = async () => {
+            const searchParams = new URLSearchParams(location.search);
+            const bookId = searchParams.get('bookId');
+
+            if (location.state?.cartItems && location.state.cartItems.length > 0) {
+                setItems(location.state.cartItems);
+                setTotal(location.state.total || location.state.cartItems.reduce((sum, item) => sum + item.price, 0));
+            }
+            else if (location.state?.book) {
+                setItems([location.state.book]);
+                setTotal(parseFloat(location.state.book.price));
+            }
+            else if (bookId) {
+                // Fetch book by ID
+                setLoadingBook(true);
+                const { data, error } = await getBookById(bookId);
+                setLoadingBook(false);
+
+                if (data) {
+                    setItems([data]);
+                    setTotal(parseFloat(data.price));
+                } else {
+                    console.error("Failed to load book", error);
+                    navigate('/');
+                }
+            }
+            else {
+                navigate('/');
+            }
+        };
+
+        initCheckout();
+    }, [location.state, location.search, navigate]);
+
 
     useEffect(() => {
         if (items.length > 0 && window.Moyasar) {
@@ -61,6 +73,11 @@ const CheckoutPayment = () => {
                 total: total,
                 timestamp: Date.now()
             }));
+
+            // Save state for "Try Again" functionality
+            if (location.state) {
+                sessionStorage.setItem('lastCheckoutState', JSON.stringify(location.state));
+            }
 
             try {
                 window.Moyasar.init({
@@ -81,7 +98,7 @@ const CheckoutPayment = () => {
     if (items.length === 0) return null;
 
     return (
-        <div className="min-h-screen flex flex-col font-sans bg-[#2c3e50] pt-20 relative" dir="rtl">
+        <div className="min-h-screen flex flex-col font-sans bg-brand-secondary pt-20 relative" dir="rtl">
             {/* Subtle background pattern */}
             <div className="absolute inset-0 opacity-5 pointer-events-none">
                 <div className="absolute inset-0" style={{
@@ -100,7 +117,7 @@ const CheckoutPayment = () => {
                 {/* Dark Navy Hero Section */}
                 <motion.section
                     variants={fadeInUp}
-                    className="bg-[#2c3e50] py-12 px-4 md:px-8 relative"
+                    className="bg-brand-secondary py-12 px-4 md:px-8 relative"
                 >
                     <div className="max-w-7xl mx-auto relative z-10">
                         {/* Orange Pill Card */}
@@ -108,7 +125,7 @@ const CheckoutPayment = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2, duration: 0.6 }}
-                            className="bg-brand-orange rounded-3xl p-8 shadow-2xl relative overflow-hidden"
+                            className="bg-brand-primary rounded-3xl p-8 shadow-2xl relative overflow-hidden"
                             style={{
                                 clipPath: 'polygon(0 0, 98% 0, 100% 50%, 98% 100%, 0 100%)'
                             }}
@@ -140,9 +157,9 @@ const CheckoutPayment = () => {
 
                         {/* Payment Form */}
                         <motion.div variants={fadeInUp} className="order-2 lg:order-1">
-                            <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100">
-                                <div className="flex items-center gap-4 mb-10 pb-6 border-b-2 border-gray-50 uppercase tracking-widest text-gray-400 font-black text-sm">
-                                    <CreditCard className="text-brand-orange" size={20} />
+                            <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-brand-border">
+                                <div className="flex items-center gap-4 mb-10 pb-6 border-b-2 border-brand-background uppercase tracking-widest text-brand-muted font-black text-sm">
+                                    <CreditCard className="text-brand-primary" size={20} />
                                     <span>بيانات بطاقة الدفع</span>
                                 </div>
 
@@ -193,8 +210,8 @@ const CheckoutPayment = () => {
 
                         {/* Order Summary Sidebar */}
                         <motion.div variants={fadeInUp} className="order-1 lg:order-2">
-                            <div className="bg-[#2c3e50] text-white rounded-3xl shadow-2xl overflow-hidden sticky top-24 border border-white/10">
-                                <div className="p-10 bg-gradient-to-br from-brand-orange to-orange-600">
+                            <div className="bg-brand-secondary text-white rounded-3xl shadow-2xl overflow-hidden sticky top-24 border border-white/10">
+                                <div className="p-10 bg-brand-primary">
                                     <h3 className="text-white/80 font-black text-sm uppercase tracking-widest mb-2 text-right">إجمالي المبلغ المستحق</h3>
                                     <div className="text-5xl font-black text-white text-right drop-shadow-xl">
                                         {total.toFixed(2)} <span className="text-xl">ر.س</span>
@@ -221,9 +238,9 @@ const CheckoutPayment = () => {
                                                     {item.image && <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />}
                                                 </div>
                                                 <div className="flex-1 min-w-0 flex flex-col justify-center text-right">
-                                                    <h4 className="font-black text-lg truncate leading-tight mb-1 text-white group-hover:text-brand-orange transition-colors">{item.title}</h4>
+                                                    <h4 className="font-black text-lg truncate leading-tight mb-1 text-white group-hover:text-brand-primary transition-colors">{item.title}</h4>
                                                     <p className="text-sm text-white/50 font-bold mb-2 uppercase tracking-wide">{item.author}</p>
-                                                    <span className="text-brand-orange font-black text-lg">{item.price} ر.س</span>
+                                                    <span className="text-brand-primary font-black text-lg">{item.price} ر.س</span>
                                                 </div>
                                             </motion.div>
                                         ))}
@@ -233,7 +250,7 @@ const CheckoutPayment = () => {
                                     <div className="pt-8 border-t border-white/10">
                                         <div className="flex justify-between items-center text-xl font-black">
                                             <span className="text-white opacity-80">الإجمالي</span>
-                                            <span className="text-brand-orange text-3xl">{total.toFixed(2)} ر.س</span>
+                                            <span className="text-brand-primary text-3xl">{total.toFixed(2)} ر.س</span>
                                         </div>
                                         <p className="text-center text-white/40 font-bold text-xs mt-6 flex items-center gap-2 justify-center">
                                             <ShieldCheck size={14} />

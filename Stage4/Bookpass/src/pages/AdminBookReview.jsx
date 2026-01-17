@@ -7,12 +7,16 @@ import { usePageLoading } from '../components/PageTransition';
 import { getStorePendingBooks, getStoreSoldBooks, reviewBook, markBookAsPicked } from '../services/bookService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 
 const AdminBookReview = () => {
     const [booksToReview, setBooksToReview] = React.useState([]);
     const [soldBooks, setSoldBooks] = React.useState([]);
     const [activeTab, setActiveTab] = React.useState('pending');
+    usePageTitle('مراجعة الكتب');
     const { isLoading, setIsLoading, setLoadingMessage } = usePageLoading();
+
+    const [error, setError] = React.useState(null);
 
     React.useLayoutEffect(() => {
         const fetchData = async () => {
@@ -24,21 +28,32 @@ const AdminBookReview = () => {
                     getStoreSoldBooks()
                 ]);
 
+                if (pendingRes.error || soldRes.error) {
+                    const errorMsg = pendingRes.error || soldRes.error;
+                    if (errorMsg.includes('403') || errorMsg.includes('Not authenticated')) {
+                        setError('ACCESS_DENIED');
+                        return;
+                    }
+                }
+
                 if (pendingRes.data) {
                     setBooksToReview(pendingRes.data);
                 }
                 if (soldRes.data) {
-                    setSoldBooks(soldRes.data);
+                    // Only show books that are SOLD but not yet PICKED
+                    const pendingDelivery = soldRes.data.filter(book => book.listingStatus === 'SOLD');
+                    setSoldBooks(pendingDelivery);
                 }
             } catch (err) {
                 console.error("Failed to fetch books", err);
+                setError('ERROR');
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchData();
-    }, [setIsLoading, setLoadingMessage]);
+    }, []); // Run once on mount
 
     const handleAccept = async (updatedBook) => {
         try {
@@ -56,7 +71,7 @@ const AdminBookReview = () => {
 
     const handlePicked = async (bookId) => {
         try {
-            if (!confirm("هل أنت متأكد من تسليم الكتاب للمشتري؟")) return;
+            if (!bookId) return;
             const { error } = await markBookAsPicked(bookId);
             if (error) {
                 alert("فشل في تحديث حالة الكتاب: " + error);
@@ -69,8 +84,30 @@ const AdminBookReview = () => {
         }
     };
 
+    if (error === 'ACCESS_DENIED') {
+        return (
+            <div className="min-h-screen bg-brand-secondary pt-20 flex items-center justify-center text-center px-4" dir="rtl">
+                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
+                    <div className="mx-auto text-brand-error mb-4 flex justify-center">
+                        <ShoppingBag size={64} className="text-brand-error" />
+                    </div>
+                    {/* Using ShoppingBag as placeholder or maybe ShieldCheck like Dashboard */}
+
+                    <h1 className="text-2xl font-bold text-brand-secondary mb-2">تم رفض الوصول</h1>
+                    <p className="text-brand-muted mb-6">ليس لديك الصلاحيات الكافية لعرض هذه الصفحة أو انتهت جلسة تسجيل الدخول.</p>
+                    <a href="/login" className="block w-full bg-brand-primary text-white font-bold py-3 rounded-xl hover:bg-brand-primary/90 transition">
+                        تسجيل الدخول مجدداً
+                    </a>
+                    <a href="/" className="block mt-4 text-brand-muted hover:text-brand-secondary text-sm font-bold">
+                        العودة للرئيسية
+                    </a>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen flex flex-col font-sans bg-[#2c3e50] pt-20 relative" dir="rtl">
+        <div className="min-h-screen flex flex-col font-sans bg-brand-secondary pt-20 relative" dir="rtl">
             {/* Subtle background pattern */}
             <div className="absolute inset-0 opacity-5 pointer-events-none">
                 <div className="absolute inset-0" style={{
@@ -92,7 +129,7 @@ const AdminBookReview = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2, duration: 0.6 }}
-                            className="bg-brand-orange rounded-3xl p-8 shadow-2xl relative overflow-hidden"
+                            className="bg-brand-primary rounded-3xl p-8 shadow-2xl relative overflow-hidden"
                             style={{
                                 clipPath: 'polygon(0 0, 98% 0, 100% 50%, 98% 100%, 0 100%)'
                             }}
@@ -129,7 +166,7 @@ const AdminBookReview = () => {
                         <button
                             onClick={() => setActiveTab('pending')}
                             className={`px-10 py-4 rounded-2xl font-black text-lg transition-all relative z-10 flex items-center gap-3 ${activeTab === 'pending'
-                                ? 'bg-brand-orange text-white shadow-xl scale-105'
+                                ? 'bg-brand-primary text-white shadow-xl scale-105'
                                 : 'text-white/50 hover:text-white hover:bg-white/5'
                                 }`}
                         >
@@ -139,7 +176,7 @@ const AdminBookReview = () => {
                         <button
                             onClick={() => setActiveTab('sold')}
                             className={`px-10 py-4 rounded-2xl font-black text-lg transition-all relative z-10 flex items-center gap-3 ${activeTab === 'sold'
-                                ? 'bg-brand-orange text-white shadow-xl scale-105'
+                                ? 'bg-brand-primary text-white shadow-xl scale-105'
                                 : 'text-white/50 hover:text-white hover:bg-white/5'
                                 }`}
                         >
@@ -160,7 +197,7 @@ const AdminBookReview = () => {
                         >
                             {isLoading ? (
                                 <div className="flex flex-col items-center justify-center h-96">
-                                    <div className="w-16 h-16 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mb-6"></div>
+                                    <div className="w-16 h-16 border-4 border-brand-primary border-t-transparent rounded-full animate-spin mb-6"></div>
                                     <h3 className="text-xl font-black text-white/50">جاري جلب القائمة...</h3>
                                 </div>
                             ) : activeTab === 'pending' ? (

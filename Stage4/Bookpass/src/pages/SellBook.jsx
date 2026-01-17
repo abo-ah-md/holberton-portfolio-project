@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, CheckCircle, BookOpen, AlertCircle, X, Loader2, Plus, Camera, FileText } from 'lucide-react';
+import { Upload, CheckCircle, BookOpen, AlertCircle, X, Loader2, Plus, Camera, FileText, Store, Info } from 'lucide-react';
 import { addBook, uploadImage } from '../services/bookService';
 import { UNIVERSITIES } from '../constants/universities';
 import { useAuth } from '../context/AuthContext';
 import { usePageLoading } from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
+import IbanRequiredModal from '../components/IbanRequiredModal';
+import usePageTitle from '../hooks/usePageTitle';
 
 // Animation variants
 const container = {
@@ -32,9 +34,11 @@ const fadeInUp = {
 };
 
 const SellBook = () => {
+    usePageTitle('بيع كتابك');
     const [step, setStep] = useState(1);
     const [error, setError] = useState('');
     const [uploading, setUploading] = useState(false);
+    const [showIbanModal, setShowIbanModal] = useState(false);
     const { isLoading, setIsLoading, setLoadingMessage } = usePageLoading();
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -140,8 +144,14 @@ const SellBook = () => {
             return;
         }
 
-        setLoadingMessage("جاري نشر إعلانك...");
-        setIsLoading(true);
+        // Check if user has IBAN
+        if (!user.iban) {
+            setShowIbanModal(true);
+            return;
+        }
+
+        // setLoadingMessage("جاري نشر إعلانك...");
+        // setIsLoading(true);
         try {
             const bookData = {
                 title: formData.title,
@@ -153,10 +163,17 @@ const SellBook = () => {
                 bookImages: imageUrl || null
             };
 
+            // Start upload animation
+            setStep('uploading');
+
+            // Artificial delay to let the animation play (min 2.5s)
+            await new Promise(resolve => setTimeout(resolve, 2500));
+
             const { data, error: apiError } = await addBook(bookData);
 
             if (apiError) {
                 setError(apiError);
+                setStep(1); // Go back to form on error
                 return;
             }
 
@@ -165,7 +182,7 @@ const SellBook = () => {
         } catch (err) {
             setError('حدث خطأ أثناء إضافة الكتاب. يرجى المحاولة مرة أخرى.');
         } finally {
-            setIsLoading(false);
+            // setIsLoading(false);
         }
     };
 
@@ -185,7 +202,7 @@ const SellBook = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col font-sans bg-[#2c3e50] pt-20 relative" dir="rtl">
+        <div className="min-h-screen flex flex-col font-sans bg-brand-secondary pt-20 relative" dir="rtl">
             {/* Subtle background pattern */}
             <div className="absolute inset-0 opacity-5 pointer-events-none">
                 <div className="absolute inset-0" style={{
@@ -204,7 +221,7 @@ const SellBook = () => {
                 {/* Dark Navy Hero Section */}
                 <motion.section
                     variants={fadeInUp}
-                    className="bg-[#2c3e50] py-12 px-4 md:px-8 relative"
+                    className="bg-brand-secondary py-12 px-4 md:px-8 relative"
                 >
                     <div className="max-w-7xl mx-auto relative z-10">
                         {/* Orange Pill Card */}
@@ -212,7 +229,7 @@ const SellBook = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2, duration: 0.6 }}
-                            className="bg-brand-orange rounded-3xl p-8 shadow-2xl relative overflow-hidden"
+                            className="bg-brand-primary rounded-3xl p-8 shadow-2xl relative overflow-hidden"
                             style={{
                                 clipPath: 'polygon(0 0, 98% 0, 100% 50%, 98% 100%, 0 100%)'
                             }}
@@ -255,7 +272,7 @@ const SellBook = () => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.98 }}
                                 transition={{ duration: 0.4 }}
-                                className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100 relative"
+                                className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-brand-border relative"
                             >
                                 {/* Form content starts here */}
 
@@ -278,7 +295,7 @@ const SellBook = () => {
                                     >
                                         <AlertCircle size={20} className="shrink-0" />
                                         <p className="font-bold">
-                                            يجب <button onClick={() => navigate('/login')} className="text-brand-orange underline decoration-2 underline-offset-4 hover:text-orange-700 transition-colors">تسجيل الدخول</button> أولاً لتتمكن من إضافة كتاب للبيع.
+                                            يجب <button onClick={() => navigate('/login')} className="text-brand-primary underline decoration-2 underline-offset-4 hover:text-brand-accent transition-colors">تسجيل الدخول</button> أولاً لتتمكن من إضافة كتاب للبيع.
                                         </p>
                                     </motion.div>
                                 )}
@@ -286,8 +303,8 @@ const SellBook = () => {
                                 <form onSubmit={handleSubmit} className="space-y-8">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-3">
-                                            <label className="text-sm font-black text-gray-500 uppercase tracking-wider block mr-1 flex items-center gap-2">
-                                                <FileText size={16} className="text-brand-orange" />
+                                            <label className="text-sm font-black text-brand-muted uppercase tracking-wider block mr-1 flex items-center gap-2">
+                                                <FileText size={16} className="text-brand-primary" />
                                                 عنوان الكتاب *
                                             </label>
                                             <input
@@ -297,13 +314,13 @@ const SellBook = () => {
                                                 value={formData.title}
                                                 onChange={handleChange}
                                                 placeholder="مثال: مقدمة في الفيزياء"
-                                                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-brand-orange/10 focus:border-brand-orange border-transition text-gray-700 font-bold placeholder:text-gray-300 transition-all"
+                                                className="w-full bg-brand-surface border-2 border-brand-border rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary border-transition text-brand-secondary font-bold placeholder:text-brand-muted/70 transition-all"
                                                 disabled={isLoading}
                                             />
                                         </div>
                                         <div className="space-y-3">
-                                            <label className="text-sm font-black text-gray-500 uppercase tracking-wider block mr-1 flex items-center gap-2">
-                                                <Plus size={16} className="text-brand-orange" />
+                                            <label className="text-sm font-black text-brand-muted uppercase tracking-wider block mr-1 flex items-center gap-2">
+                                                <Plus size={16} className="text-brand-primary" />
                                                 اسم المؤلف *
                                             </label>
                                             <input
@@ -313,7 +330,7 @@ const SellBook = () => {
                                                 value={formData.author}
                                                 onChange={handleChange}
                                                 placeholder="مثال: د. أحمد محمد"
-                                                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-brand-orange/10 focus:border-brand-orange border-transition text-gray-700 font-bold placeholder:text-gray-300 transition-all"
+                                                className="w-full bg-brand-surface border-2 border-brand-border rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary border-transition text-brand-secondary font-bold placeholder:text-brand-muted/70 transition-all"
                                                 disabled={isLoading}
                                             />
                                         </div>
@@ -321,9 +338,9 @@ const SellBook = () => {
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-3">
-                                            <label className="text-sm font-black text-gray-500 uppercase tracking-wider block mr-1 flex items-center gap-2">
-                                                <BookOpen size={16} className="text-brand-orange" />
-                                                الجامعة / الكلية *
+                                            <label className="text-sm font-black text-brand-muted uppercase tracking-wider block mr-1 flex items-center gap-2">
+                                                <BookOpen size={16} className="text-brand-primary" />
+                                                مكان التسليم *
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -331,7 +348,7 @@ const SellBook = () => {
                                                     name="university"
                                                     value={formData.university}
                                                     onChange={handleChange}
-                                                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-brand-orange/10 focus:border-brand-orange border-transition text-gray-700 font-bold appearance-none cursor-pointer transition-all"
+                                                    className="w-full bg-brand-surface border-2 border-brand-border rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary border-transition text-brand-secondary font-bold appearance-none cursor-pointer transition-all"
                                                     disabled={isLoading}
                                                 >
                                                     <option value="">اختر الجامعة</option>
@@ -339,14 +356,14 @@ const SellBook = () => {
                                                         <option key={key} value={key}>{nameAr}</option>
                                                     ))}
                                                 </select>
-                                                <div className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                                <div className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none text-brand-muted/50">
                                                     <X size={20} className="rotate-45" />
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="space-y-3">
-                                            <label className="text-sm font-black text-gray-500 uppercase tracking-wider block mr-1 flex items-center gap-2">
-                                                <Plus size={16} className="text-brand-orange" />
+                                            <label className="text-sm font-black text-brand-muted uppercase tracking-wider block mr-1 flex items-center gap-2">
+                                                <Plus size={16} className="text-brand-primary" />
                                                 السعر المطلوب (ر.س) *
                                             </label>
                                             <input
@@ -357,24 +374,36 @@ const SellBook = () => {
                                                 onChange={handleChange}
                                                 placeholder="00"
                                                 min="1"
-                                                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-brand-orange/10 focus:border-brand-orange border-transition text-gray-700 font-bold placeholder:text-gray-300 transition-all"
+                                                className="w-full bg-brand-surface border-2 border-brand-border rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary border-transition text-brand-secondary font-bold placeholder:text-brand-muted/70 transition-all"
                                                 disabled={isLoading}
                                             />
                                         </div>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <label className="text-sm font-black text-gray-500 uppercase tracking-wider block mr-1 flex items-center gap-2">
-                                            <FileText size={16} className="text-brand-orange" />
-                                            رقم ISBN (اختياري)
-                                        </label>
+                                        <div className="flex items-center gap-2">
+                                            <label className="text-sm font-black text-brand-muted uppercase tracking-wider block flex items-center gap-2">
+                                                <FileText size={16} className="text-brand-primary" />
+                                                رقم ISBN (اختياري)
+                                            </label>
+                                            <div className="relative group cursor-help">
+                                                <Info size={16} className="text-brand-muted/60 hover:text-brand-primary transition-colors" />
+
+                                                {/* Tooltip */}
+                                                <div className="absolute bottom-full right-1/2 translate-x-1/2 mb-3 w-64 bg-slate-800 text-white text-xs p-3 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-center leading-relaxed">
+                                                    <div className="absolute -bottom-1 right-1/2 translate-x-1/2 w-3 h-3 bg-slate-800 rotate-45"></div>
+                                                    <p className="font-bold mb-1 text-brand-primary">أين أجده؟</p>
+                                                    هو المعرف الفريد للكتاب (13 رقم)، ستجده عادةً على الغلاف الخلفي فوق الباركود.
+                                                </div>
+                                            </div>
+                                        </div>
                                         <input
                                             type="text"
                                             name="isbn"
                                             value={formData.isbn}
                                             onChange={handleChange}
                                             placeholder="مثال: 978-3-16-148410-0"
-                                            className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-brand-orange/10 focus:border-brand-orange border-transition text-gray-700 font-bold placeholder:text-gray-300 transition-all"
+                                            className="w-full bg-brand-surface border-2 border-brand-border rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary border-transition text-brand-secondary font-bold placeholder:text-brand-muted/70 transition-all"
                                             disabled={isLoading}
                                         />
                                     </div>
@@ -383,8 +412,8 @@ const SellBook = () => {
 
 
                                     <div className="space-y-4">
-                                        <label className="text-sm font-black text-gray-500 uppercase tracking-wider block mr-1 flex items-center gap-2">
-                                            <Camera size={16} className="text-brand-orange" />
+                                        <label className="text-sm font-black text-brand-muted uppercase tracking-wider block mr-1 flex items-center gap-2">
+                                            <Camera size={16} className="text-brand-primary" />
                                             صورة الكتاب *
                                         </label>
                                         <input
@@ -428,13 +457,13 @@ const SellBook = () => {
                                                 whileHover={{ scale: 1.01, borderColor: '#C17554' }}
                                                 whileTap={{ scale: 0.99 }}
                                                 onClick={() => fileInputRef.current?.click()}
-                                                className="border-3 border-dashed border-gray-200 rounded-3xl p-12 flex flex-col items-center justify-center text-gray-400 hover:bg-orange-50/30 hover:shadow-inner transition-all cursor-pointer group bg-gray-50/50"
+                                                className="border-3 border-dashed border-gray-200 rounded-3xl p-12 flex flex-col items-center justify-center text-brand-muted hover:bg-brand-primary/5 hover:shadow-inner transition-all cursor-pointer group bg-gray-50"
                                             >
                                                 <div className="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform">
-                                                    <Upload size={40} className="text-brand-orange" />
+                                                    <Upload size={40} className="text-brand-primary" />
                                                 </div>
-                                                <span className="font-black text-gray-700 text-lg mb-2">اضغط هنا لرفع صورة الكتاب</span>
-                                                <span className="text-sm font-medium text-gray-400">PNG, JPG حتى 5MB</span>
+                                                <span className="font-black text-brand-secondary text-lg mb-2">اضغط هنا لرفع صورة الكتاب</span>
+                                                <span className="text-sm font-medium text-brand-muted">PNG, JPG حتى 5MB</span>
                                             </motion.div>
                                         )}
                                     </div>
@@ -445,7 +474,7 @@ const SellBook = () => {
                                             whileTap={{ scale: 0.98 }}
                                             type="submit"
                                             disabled={isLoading || !user}
-                                            className="w-full bg-gradient-to-r from-brand-orange to-orange-600 text-white font-black text-xl py-5 rounded-2xl shadow-xl hover:shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                                            className="w-full bg-brand-primary hover:bg-brand-accent text-white font-black text-xl py-5 rounded-2xl shadow-xl hover:shadow-brand-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                                         >
                                             {isLoading ? (
                                                 <>
@@ -462,65 +491,163 @@ const SellBook = () => {
                                     </div>
                                 </form>
                             </motion.div>
-                        ) : (
-                            <motion.div
-                                key="success-step"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="bg-white rounded-3xl shadow-2xl p-12 text-center"
-                            >
-                                <div className="inline-flex p-6 bg-emerald-50 text-emerald-600 rounded-3xl shadow-inner mb-8">
-                                    <CheckCircle size={80} />
-                                </div>
-                                <h2 className="text-4xl font-black text-gray-900 mb-6">تم قبول طلبك بنجاح!</h2>
+                        ) : step === 'uploading' ? (
+                            <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden font-sans rtl text-white">
+                                {/* Simple dark overlay */}
+                                <div className="absolute inset-0 bg-brand-secondary/95 backdrop-blur-xl"></div>
 
-                                <div className="max-w-md mx-auto mb-10 space-y-6">
-                                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-3xl p-8 relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 rounded-full blur-3xl -mr-16 -mt-16" />
-                                        <h3 className="text-xl font-black text-amber-900 mb-4 flex items-center gap-2 justify-center">
-                                            <AlertCircle size={24} />
-                                            <span>تذكير مهم جداً 📚</span>
-                                        </h3>
-                                        <p className="text-amber-800 font-bold leading-relaxed mb-6 text-right">
-                                            يرجى إحضار الكتاب إلى مكتبة <span className="text-brand-orange font-black underline">{UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}</span> كما هو موضح أدناه:
+                                <div className="relative z-10 flex flex-col items-center">
+                                    {/* Animation Container */}
+                                    <div className="relative w-64 h-64 mb-8">
+                                        {/* Store Icon (Destination) */}
+                                        <motion.div
+                                            initial={{ scale: 0.8, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            transition={{ delay: 0.5 }}
+                                            className="absolute top-0 left-1/2 -translate-x-1/2 z-10 p-4 bg-white/10 rounded-2xl border border-white/20 backdrop-blur-md"
+                                        >
+                                            <Store size={48} className="text-white" />
+                                        </motion.div>
+
+                                        {/* Book Image (Moving) */}
+                                        <motion.div
+                                            initial={{ y: 150, scale: 1.5, opacity: 0 }}
+                                            animate={{ y: 20, scale: 0.8, opacity: 1 }}
+                                            transition={{
+                                                duration: 1.5,
+                                                ease: "easeInOut",
+                                                times: [0, 1],
+                                                delay: 0.2
+                                            }}
+                                            className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20"
+                                        >
+                                            <div className="relative w-24 h-32 bg-white rounded-md shadow-2xl overflow-hidden skew-y-6 border border-white/20 transform rotate-[-5deg]">
+                                                {imagePreview ? (
+                                                    <img src={imagePreview} alt="Book Cover" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full bg-brand-primary flex items-center justify-center">
+                                                        <BookOpen size={40} className="text-white" />
+                                                    </div>
+                                                )}
+                                                {/* Glossy overlay effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-black/10 to-white/20 pointer-events-none"></div>
+                                            </div>
+                                        </motion.div>
+
+                                        {/* Particle/Wind Effects */}
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 0.8 }}
+                                            className="absolute inset-0 flex items-center justify-center"
+                                        >
+                                            {[...Array(3)].map((_, i) => (
+                                                <motion.div
+                                                    key={i}
+                                                    initial={{ y: 100, opacity: 0 }}
+                                                    animate={{ y: -50, opacity: [0, 0.5, 0] }}
+                                                    transition={{
+                                                        duration: 1,
+                                                        repeat: Infinity,
+                                                        delay: i * 0.3,
+                                                        ease: "linear"
+                                                    }}
+                                                    className="w-1 h-8 bg-white/30 rounded-full absolute"
+                                                    style={{ left: `${40 + i * 10}%` }}
+                                                />
+                                            ))}
+                                        </motion.div>
+                                    </div>
+
+                                    <h2 className="text-3xl font-black mb-2 animate-pulse">جاري إضافة الكتاب...</h2>
+                                    <p className="text-white/60 font-medium">يرجى الانتظار، نقوم بتجهيز الإعلان في المتجر</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto font-sans rtl text-white py-10">
+                                <style>{`
+                                    @keyframes gradient-xy {
+                                        0% { background-position: 0% 50%; }
+                                        50% { background-position: 100% 50%; }
+                                        100% { background-position: 0% 50%; }
+                                    }
+                                    .error-bg-animated {
+                                            background: linear-gradient(135deg, #C17554, #3A4958, #C17554);
+                                            background-size: 200% 200%;
+                                            animation: gradient-xy 3s ease infinite;
+                                    }
+                                `}</style>
+
+                                {/* Background with blur and gradient */}
+                                <div className="absolute inset-0 error-bg-animated opacity-95"></div>
+
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="relative z-10 w-full max-w-2xl px-4 flex flex-col items-center justify-center text-center"
+                                >
+                                    <div className="mb-8 p-6 bg-[#61BF8D] rounded-full border-4 border-white/30 shadow-2xl animate-bounce">
+                                        <CheckCircle size={64} className="text-white drop-shadow-lg" />
+                                    </div>
+
+                                    <h2 className="text-4xl md:text-6xl font-black mb-8 drop-shadow-lg">تم استلام طلبك!</h2>
+
+                                    <div className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 mb-8 text-right shadow-2xl transform transition-all hover:scale-[1.02]">
+                                        <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+                                            <AlertCircle className="text-brand-primary shrink-0" size={32} />
+                                            <h3 className="text-2xl font-black text-white">تذكير مهم جداً</h3>
+                                        </div>
+
+                                        <p className="text-xl font-bold text-white/90 leading-relaxed mb-6">
+                                            يرجى إحضار الكتاب إلى مكتبة <span className="text-brand-primary bg-white/10 px-2 py-1 rounded-lg underline decoration-2 underline-offset-4">{UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}</span>
                                         </p>
-                                        <div className="bg-white rounded-2xl p-5 shadow-sm text-right border border-amber-100">
-                                            <p className="font-black text-amber-900 text-sm mb-2">📍 موقع التسليم:</p>
-                                            <p className="text-amber-700 font-bold text-lg">
+
+                                        <div className="bg-black/20 rounded-2xl p-6 border border-white/10">
+                                            <p className="font-bold text-brand-primary text-sm mb-2 opacity-80 uppercase tracking-widest">📍 موقع التسليم</p>
+                                            <p className="text-white font-black text-2xl">
                                                 مكتبة {UNIVERSITIES[formData.university]?.nameAr || 'الجامعة'}
                                             </p>
                                         </div>
-                                    </div>
-                                    <p className="text-gray-500 font-medium leading-relaxed italic">
-                                        "بعد المراجعة، سيتم عرض الكتاب في المتجر ليراه آلاف الطلاب! شكراً لاختيارك منصتنا."
-                                    </p>
-                                </div>
 
-                                <div className="flex flex-col md:flex-row gap-4 justify-center pt-4">
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={handleAddAnother}
-                                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-black px-10 py-4 rounded-2xl transition-colors"
-                                    >
-                                        إضافة كتاب آخر
-                                    </motion.button>
-                                    <motion.button
-                                        whileHover={{ scale: 1.05, y: -4 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => navigate('/marketplace')}
-                                        className="bg-[#2c3e50] hover:bg-slate-800 text-white font-black px-10 py-4 rounded-2xl shadow-xl transition-all"
-                                    >
-                                        عرض المتجر
-                                    </motion.button>
-                                </div>
-                            </motion.div>
+                                        <p className="mt-6 text-white/70 text-sm font-medium italic">
+                                            "سيتم عرض الكتاب في المتجر بمجرد التحقق منه. شكراً لثقتك بنا."
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row gap-4 w-full">
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={handleAddAnother}
+                                            className="flex-1 bg-white/20 backdrop-blur-md border border-white/30 text-white font-black py-4 rounded-xl hover:bg-white/30 transition-all flex items-center justify-center gap-2 shadow-lg"
+                                        >
+                                            <Plus size={20} />
+                                            <span>إضافة كتاب آخر</span>
+                                        </motion.button>
+
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => navigate('/marketplace')}
+                                            className="flex-1 bg-white text-brand-secondary font-black py-4 rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center gap-2 shadow-xl"
+                                        >
+                                            <Store size={20} />
+                                            <span>الذهاب للمتجر</span>
+                                        </motion.button>
+                                    </div>
+                                </motion.div>
+                            </div>
                         )}
                     </AnimatePresence>
                 </div>
             </motion.main>
 
             <Footer />
+            <IbanRequiredModal
+                isOpen={showIbanModal}
+                onClose={() => setShowIbanModal(false)}
+                userName={user?.firstName || 'عزيزي المستخدم'}
+            />
         </div>
     );
 };

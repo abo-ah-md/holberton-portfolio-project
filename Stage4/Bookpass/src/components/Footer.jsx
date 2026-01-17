@@ -7,7 +7,7 @@ const Footer = () => {
     const isReviewer = user?.role === 'BOOKSTORE';
 
     return (
-        <footer className="border-t-[20px] border-[#c8876f] bg-[#3A4958] text-white font-sans" dir="rtl">
+        <footer className="border-t-[20px] border-brand-primary bg-[#3A4958] text-white font-sans" dir="rtl">
             <div className="flex flex-wrap justify-center md:justify-between items-start max-w-[1400px] mx-auto px-6 md:px-[60px] py-6 gap-8 text-center md:text-right">
 
                 {/* Brand Section - Right side (first in RTL) */}

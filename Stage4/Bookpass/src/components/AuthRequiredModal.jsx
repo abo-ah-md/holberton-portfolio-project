@@ -15,11 +15,11 @@ const AuthRequiredModal = ({ isOpen, onClose, message = "يجب عليك تسج�
                 dir="rtl"
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
-                    <h3 className="text-lg font-bold text-gray-800">تسجيل الدخول مطلوب</h3>
+                <div className="flex items-center justify-between p-4 border-b border-brand-border bg-brand-background">
+                    <h3 className="text-lg font-bold text-brand-secondary">تسجيل الدخول مطلوب</h3>
                     <button
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                        className="p-2 text-brand-muted hover:text-brand-secondary hover:bg-brand-border/50 rounded-full transition-colors"
                     >
                         <X size={20} />
                     </button>
@@ -27,10 +27,10 @@ const AuthRequiredModal = ({ isOpen, onClose, message = "يجب عليك تسج�
 
                 {/* Content */}
                 <div className="p-8 text-center">
-                    <div className="w-16 h-16 bg-brand-orange/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="w-8 h-8 text-brand-orange"
+                            className="w-8 h-8 text-brand-primary"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -39,21 +39,21 @@ const AuthRequiredModal = ({ isOpen, onClose, message = "يجب عليك تسج�
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                     </div>
-                    <h4 className="text-xl font-bold text-gray-900 mb-2">مرحباً بك</h4>
-                    <p className="text-gray-600 mb-8 leading-relaxed">
+                    <h4 className="text-xl font-bold text-brand-text mb-2">مرحباً بك</h4>
+                    <p className="text-brand-muted mb-8 leading-relaxed">
                         {message}
                     </p>
 
                     <div className="flex flex-col gap-3">
                         <button
                             onClick={() => { onClose(); navigate('/login'); }}
-                            className="w-full bg-brand-orange hover:bg-[#a95234] text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-orange-500/20"
+                            className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-brand-primary/20"
                         >
                             تسجيل الدخول
                         </button>
                         <button
                             onClick={() => { onClose(); navigate('/register'); }}
-                            className="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-3 px-6 rounded-xl border-2 border-gray-200 transition-all"
+                            className="w-full bg-brand-surface hover:bg-brand-background text-brand-secondary font-bold py-3 px-6 rounded-xl border-2 border-brand-border transition-all"
                         >
                             إنشاء حساب جديد
                         </button>

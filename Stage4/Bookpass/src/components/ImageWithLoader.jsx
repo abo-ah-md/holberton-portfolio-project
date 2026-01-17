@@ -7,8 +7,8 @@ const ImageWithLoader = ({
     alt,
     className = "",
     priority = false, // If true, sets loading="eager"
-    fillColor = "#C17554", // Brand Orange
-    placeholderColor = "#E5E7EB" // Gray-200
+    fillColor = "#C17554", // Brand Primary
+    placeholderColor = "#E0E4E8" // Brand Border
 }) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState(false);
@@ -30,11 +30,11 @@ const ImageWithLoader = ({
         <div className={`relative overflow-hidden ${className}`}>
             {/* Loading Placeholder with Fill Animation */}
             {!isLoaded && !error && (
-                <div className="absolute inset-0 bg-gray-50 flex items-center justify-center z-10">
+                <div className="absolute inset-0 bg-brand-background flex items-center justify-center z-10">
                     <div className="relative w-12 h-20">
                         {/* Background Grey Logo */}
                         <div className="absolute inset-0">
-                            <Logo className="w-full h-full text-gray-300" style={{ fill: placeholderColor, stroke: 'none' }} />
+                            <Logo className="w-full h-full text-brand-muted/30" style={{ fill: placeholderColor, stroke: 'none' }} />
                         </div>
 
                         {/* Foreground Colored Logo - Filling Animation */}
@@ -58,7 +58,7 @@ const ImageWithLoader = ({
 
             {/* Error Fallback */}
             {error && (
-                <div className="absolute inset-0 bg-gray-100 flex items-center justify-center text-gray-400">
+                <div className="absolute inset-0 bg-brand-surface flex items-center justify-center text-brand-muted">
                     <span className="text-xs">No Image</span>
                 </div>
             )}

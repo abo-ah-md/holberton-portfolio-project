@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     Users, BookOpen, DollarSign, TrendingUp, AlertCircle,
@@ -12,32 +13,58 @@ import { usePageLoading } from '../components/PageTransition';
 import { UNIVERSITIES } from '../constants/universities';
 
 // Reusable Stats Card Component
-const StatsCard = ({ title, value, subtext, icon: Icon, color, delay, iconPadding = "p-3" }) => (
+const StatsCard = ({ title, value, subtext, icon: Icon, delay, iconPadding = "p-3" }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: delay, duration: 0.4 }}
-        className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 relative overflow-hidden group"
+        className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 relative overflow-hidden group cursor-pointer"
+        whileHover={{
+            scale: 1.03,
+            boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+            transition: { type: "spring", stiffness: 300, damping: 20 }
+        }}
     >
-        {/* Background Decoration */}
-        <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-10 ${color} group-hover:scale-150 transition-transform duration-500`}></div>
-
-        <div className="relative z-10 flex items-start justify-between">
-            <div>
-                <p className="text-gray-500 text-sm font-bold mb-1">{title}</p>
+        {/* Diagonal Split Layout */}
+        <div className="flex h-full min-h-[110px]">
+            {/* Content - Right */}
+            <div className="flex-1 flex flex-col justify-center">
+                <p className="text-brand-secondary text-sm font-bold mb-2">{title}</p>
                 <div className="flex items-baseline gap-2">
-                    <h3 className="text-3xl font-black text-gray-800">{value}</h3>
+                    <motion.h3
+                        initial={{ scale: 0.9 }}
+                        animate={{ scale: 1 }}
+                        className="text-3xl font-black text-brand-primary"
+                    >
+                        {value}
+                    </motion.h3>
                 </div>
-                {subtext && <p className="text-xs text-gray-400 mt-2 font-medium">{subtext}</p>}
+                {subtext && <p className="text-xs text-brand-muted mt-2 font-medium">{subtext}</p>}
             </div>
-            <div className={`${iconPadding} rounded-xl ${color} bg-opacity-10 text-gray-700 shadow-sm`}>
-                <Icon size={24} className={`text-${color.replace('bg-', '')}-600`} />
-            </div>
+
+            {/* Icon - Left (Brand Primary) */}
+            <motion.div
+                whileHover={{ x: -4 }}
+                className="w-[35%] bg-gradient-to-br from-brand-primary to-brand-primary/80 flex items-center justify-center relative z-10 shadow-lg rounded-xl -ml-6 -my-6 mr-4"
+                style={{ clipPath: 'polygon(0 0, 100% 0%, 100% 100%, 0% 100%)' }}
+            >
+                <motion.div
+                    whileHover={{
+                        rotate: [0, -10, 10, -10, 0],
+                        transition: { duration: 0.5 }
+                    }}
+                >
+                    <Icon size={32} className="text-white" />
+                </motion.div>
+            </motion.div>
         </div>
     </motion.div>
 );
 
+import usePageTitle from '../hooks/usePageTitle';
+
 const AdminDashboard = () => {
+    usePageTitle('لوحة التحكم');
     const { setIsLoading, setLoadingMessage } = usePageLoading();
     const [stats, setStats] = useState(null);
     const [pendingCounts, setPendingCounts] = useState({ review: 0, pickup: 0 });
@@ -53,16 +80,27 @@ const AdminDashboard = () => {
                     getStoreSoldBooks()
                 ]);
 
+                // Check for errors in individual responses
+                if (statsRes.error || pendingRes.error || soldRes.error) {
+                    const errorMsg = statsRes.error || pendingRes.error || soldRes.error;
+                    if (errorMsg.includes('403') || errorMsg.includes('Not authenticated')) {
+                        setStats('ACCESS_DENIED');
+                        return; // Stop processing
+                    }
+                }
+
                 setStats(statsRes.data);
 
                 // Calculate unique counts
                 const uniqueReview = pendingRes.data ? new Set(pendingRes.data.map(b => b.id)).size : 0;
-                const uniquePickup = soldRes.data ? new Set(soldRes.data.map(b => b.id)).size : 0;
+                // Only count books that are SOLD but not yet PICKED
+                const uniquePickup = soldRes.data ? new Set(soldRes.data.filter(b => b.listingStatus === 'SOLD').map(b => b.id)).size : 0;
 
                 setPendingCounts({ review: uniqueReview, pickup: uniquePickup });
 
             } catch (error) {
                 console.error("Failed to load dashboard data", error);
+                setStats(null);
             } finally {
                 setIsLoading(false);
             }
@@ -71,6 +109,24 @@ const AdminDashboard = () => {
     }, [setIsLoading, setLoadingMessage]);
 
     if (!stats) return null;
+
+    if (stats === 'ACCESS_DENIED') {
+        return (
+            <div className="min-h-screen bg-brand-secondary pt-20 flex items-center justify-center text-center px-4">
+                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
+                    <ShieldCheck size={64} className="mx-auto text-brand-error mb-4" />
+                    <h1 className="text-2xl font-bold text-brand-secondary mb-2">تم رفض الوصول</h1>
+                    <p className="text-brand-muted mb-6">ليس لديك الصلاحيات الكافية لعرض هذه الصفحة أو انتهت جلسة تسجيل الدخول.</p>
+                    <Link to="/login" className="block w-full bg-brand-primary text-white font-bold py-3 rounded-xl hover:bg-brand-primary/90 transition">
+                        تسجيل الدخول مجدداً
+                    </Link>
+                    <Link to="/" className="block mt-4 text-brand-muted hover:text-brand-secondary text-sm font-bold">
+                        العودة للرئيسية
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     const { metrics, universityStats, recentUsers, recentBooks } = stats;
 
@@ -81,7 +137,7 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#2c3e50] font-sans pt-20" dir="rtl">
+        <div className="min-h-screen bg-brand-secondary font-sans pt-20" dir="rtl">
             <Navbar />
 
             <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8">
@@ -90,8 +146,8 @@ const AdminDashboard = () => {
                 <div className="flex flex-col md:flex-row justify-between items-center text-white mb-8 gap-4">
                     <div>
                         <h1 className="text-3xl font-bold">لوحة التحكم</h1>
-                        <p className="text-gray-300 mt-1 flex items-center gap-2">
-                            <ShieldCheck size={18} className="text-brand-orange" />
+                        <p className="text-brand-muted mt-1 flex items-center gap-2">
+                            <ShieldCheck size={18} className="text-brand-primary" />
                             مرحباً بك في لوحة تحكم الإدارة
                         </p>
                     </div>
@@ -107,7 +163,6 @@ const AdminDashboard = () => {
                         value={metrics.totalBooks}
                         subtext={`${metrics.availableBooks} متاح للبيع`}
                         icon={BookOpen}
-                        color="bg-blue-500"
                         delay={0.1}
                     />
                     <StatsCard
@@ -115,7 +170,7 @@ const AdminDashboard = () => {
                         value={`${metrics.totalRevenue} ر.س`}
                         subtext={`${metrics.soldBooks} كتاب تم بيعه`}
                         icon={DollarSign}
-                        color="bg-green-500"
+
                         delay={0.2}
                     />
                     <StatsCard
@@ -123,7 +178,6 @@ const AdminDashboard = () => {
                         value={metrics.totalUsers}
                         subtext={`${metrics.activeUsers} مستخدم نشط`}
                         icon={Users}
-                        color="bg-purple-500"
                         delay={0.3}
                     />
                     <StatsCard
@@ -131,7 +185,6 @@ const AdminDashboard = () => {
                         value={metrics.universities || metrics.reviewers}
                         subtext={null}
                         icon={() => <img src={new URL('../assets/ribbon-flag.svg', import.meta.url).href} alt="icon" className="w-10 h-10" />}
-                        color="bg-brand-orange"
                         delay={0.4}
                         iconPadding="p-1"
                     />
@@ -145,7 +198,7 @@ const AdminDashboard = () => {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="bg-gradient-to-br from-brand-orange/90 to-orange-600 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden"
+                        className="bg-gradient-to-br from-brand-primary/90 to-brand-accent rounded-2xl p-6 text-white shadow-xl relative overflow-hidden"
                     >
                         <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-x-10 -translate-y-10"></div>
 
@@ -169,13 +222,13 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
 
-                            <button
-                                onClick={() => window.location.href = '/admin/review'}
-                                className="w-full bg-white text-brand-orange font-bold py-3 rounded-xl shadow-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                            <Link
+                                to="/admin/review"
+                                className="w-full bg-white text-brand-primary font-bold py-3 rounded-xl shadow-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                             >
                                 <span>بدء المراجعة</span>
                                 <ArrowUpRight size={18} />
-                            </button>
+                            </Link>
                         </div>
                     </motion.div>
 
@@ -184,10 +237,10 @@ const AdminDashboard = () => {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.6 }}
-                        className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+                        className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg border border-brand-border"
                     >
-                        <h3 className="font-bold text-gray-800 mb-6 flex items-center gap-2">
-                            <TrendingUp size={20} className="text-brand-orange" />
+                        <h3 className="font-bold text-brand-secondary mb-6 flex items-center gap-2">
+                            <TrendingUp size={20} className="text-brand-primary" />
                             توزيع الكتب حسب الجامعة
                         </h3>
 
@@ -202,10 +255,10 @@ const AdminDashboard = () => {
                                             initial={{ width: 0 }}
                                             animate={{ width: `${metrics.totalBooks > 0 ? (uni.count / metrics.totalBooks) * 100 : 0}%` }}
                                             transition={{ duration: 1, delay: 0.8 + (idx * 0.1) }}
-                                            className={`h-full ${uni.color || 'bg-brand-orange'} rounded-full`}
+                                            className={`h-full ${uni.color || 'bg-brand-primary'} rounded-full`}
                                         ></motion.div>
                                     </div>
-                                    <div className="w-12 text-left text-xs font-bold text-gray-400">{uni.count}</div>
+                                    <div className="w-12 text-left text-xs font-bold text-brand-muted">{uni.count}</div>
                                 </div>
                             ))}
                         </div>
@@ -222,15 +275,15 @@ const AdminDashboard = () => {
                         transition={{ delay: 0.7 }}
                         className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
                     >
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                                <Users size={20} className="text-blue-500" />
+                        <div className="p-6 border-b border-brand-border flex justify-between items-center">
+                            <h3 className="font-bold text-brand-secondary flex items-center gap-2">
+                                <Users size={20} className="text-brand-primary" />
                                 آخر المستخدمين المسجلين
                             </h3>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-right">
-                                <thead className="bg-gray-50 text-xs text-gray-500">
+                                <thead className="bg-brand-background text-xs text-brand-muted">
                                     <tr>
                                         <th className="px-6 py-3 font-medium">الاسم</th>
                                         <th className="px-6 py-3 font-medium">الجامعة</th>
@@ -238,15 +291,15 @@ const AdminDashboard = () => {
                                         <th className="px-6 py-3 font-medium">التاريخ</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100">
+                                <tbody className="divide-y divide-brand-border">
                                     {recentUsers.map(user => (
-                                        <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
-                                            <td className="px-6 py-4 text-sm font-bold text-gray-800">{user.name}</td>
-                                            <td className="px-6 py-4 text-xs text-gray-600">{user.university || user.storeAddress}</td>
+                                        <tr key={user.id} className="hover:bg-brand-background/50 transition-colors">
+                                            <td className="px-6 py-4 text-sm font-bold text-brand-secondary">{user.name}</td>
+                                            <td className="px-6 py-4 text-xs text-brand-muted">{user.university || user.storeAddress}</td>
                                             <td className="px-6 py-4">
-                                                <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${user.role === 'ADMIN' ? 'bg-red-100 text-red-600' :
-                                                    user.role === 'BOOKSTORE' ? 'bg-purple-100 text-purple-600' :
-                                                        'bg-blue-100 text-blue-600'
+                                                <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${user.role === 'ADMIN' ? 'bg-brand-error/10 text-brand-error' :
+                                                    user.role === 'BOOKSTORE' ? 'bg-brand-accent/10 text-brand-accent' :
+                                                        'bg-brand-primary/10 text-brand-primary'
                                                     }`}>
                                                     {user.role}
                                                 </span>
@@ -266,15 +319,15 @@ const AdminDashboard = () => {
                         transition={{ delay: 0.8 }}
                         className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
                     >
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                                <BookOpen size={20} className="text-green-500" />
+                        <div className="p-6 border-b border-brand-border flex justify-between items-center">
+                            <h3 className="font-bold text-brand-secondary flex items-center gap-2">
+                                <BookOpen size={20} className="text-brand-success" />
                                 آخر الكتب المضافة
                             </h3>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-right">
-                                <thead className="bg-gray-50 text-xs text-gray-500">
+                                <thead className="bg-brand-background text-xs text-brand-muted">
                                     <tr>
                                         <th className="px-6 py-3 font-medium">الكتاب</th>
                                         <th className="px-6 py-3 font-medium">البائع</th>
@@ -282,19 +335,19 @@ const AdminDashboard = () => {
                                         <th className="px-6 py-3 font-medium">الحالة</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100">
+                                <tbody className="divide-y divide-brand-border">
                                     {recentBooks.map(book => (
-                                        <tr key={book.id} className="hover:bg-gray-50/50 transition-colors">
+                                        <tr key={book.id} className="hover:bg-brand-background/50 transition-colors">
                                             <td className="px-6 py-4">
-                                                <div className="text-sm font-bold text-gray-800 truncate max-w-[150px]">{book.title}</div>
-                                                <div className="text-xs text-gray-400">{book.author}</div>
+                                                <div className="text-sm font-bold text-brand-secondary truncate max-w-[150px]">{book.title}</div>
+                                                <div className="text-xs text-brand-muted">{book.author}</div>
                                             </td>
-                                            <td className="px-6 py-4 text-xs text-gray-600">{book.seller}</td>
-                                            <td className="px-6 py-4 text-sm font-bold text-brand-orange">{book.price} ر.س</td>
+                                            <td className="px-6 py-4 text-xs text-brand-muted">{book.seller}</td>
+                                            <td className="px-6 py-4 text-sm font-bold text-brand-primary">{book.price} ر.س</td>
                                             <td className="px-6 py-4">
-                                                <span className={`text-[10px] px-2 py-1 rounded-full font-bold flex items-center gap-1 w-fit ${book.status === 'AVAILABLE' ? 'bg-green-100 text-green-600' :
-                                                    book.status === 'PENDING' ? 'bg-orange-100 text-orange-600' :
-                                                        'bg-gray-100 text-gray-600'
+                                                <span className={`text-[10px] px-2 py-1 rounded-full font-bold flex items-center gap-1 w-fit ${book.status === 'AVAILABLE' ? 'bg-brand-success/10 text-brand-success' :
+                                                    book.status === 'PENDING' ? 'bg-brand-primary/10 text-brand-primary' :
+                                                        'bg-brand-muted/10 text-brand-muted'
                                                     }`}>
                                                     {book.status === 'AVAILABLE' ? <CheckCircle size={10} /> :
                                                         book.status === 'PENDING' ? <AlertCircle size={10} /> : null

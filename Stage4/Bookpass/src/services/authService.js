@@ -10,9 +10,6 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.book-pass.com'
 // Get token from Cookies
 export const getToken = () => {
   const token = Cookies.get('accessToken');
-  console.log('🔍 DEBUG - Token from cookie:', token ? `${token.substring(0, 20)}...` : 'NULL/UNDEFINED');
-  console.log('🔍 DEBUG - Token length:', token?.length || 0);
-  console.log('🔍 DEBUG - Token periods:', (token?.match(/\./g) || []).length);
   return token;
 };
 
