@@ -41,6 +41,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           build-args: |
             VITE_API_URL=https://api.book-pass.com
+            VITE_MOYASAR_PUBLIC_KEY=${{ secrets.MOYASAR_PUBLIC_KEY }}
 
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
