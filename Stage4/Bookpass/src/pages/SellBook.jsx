@@ -1,17 +1,18 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, CheckCircle, BookOpen, AlertCircle, X, Loader2, Plus, Camera, FileText, Store, Info } from 'lucide-react';
 import { addBook, uploadImage } from '../services/bookService';
 import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
 import { UNIVERSITIES } from '../constants/universities';
 import { useAuth } from '../context/AuthContext';
-import { usePageLoading } from '../components/PageTransition';
-import LoadingSpinner from '../components/LoadingSpinner';
-import IbanRequiredModal from '../components/IbanRequiredModal';
+import { usePageLoading } from '../components/ui/PageTransition';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
+import IbanRequiredModal from '../components/features/IbanRequiredModal';
 import usePageTitle from '../hooks/usePageTitle';
+import { Button } from '../components/ui/button';
 
 // Animation variants
 const container = {
@@ -296,7 +297,7 @@ const SellBook = () => {
                                     >
                                         <AlertCircle size={20} className="shrink-0" />
                                         <p className="font-bold">
-                                            يجب <button onClick={() => navigate('/login')} className="text-brand-primary underline decoration-2 underline-offset-4 hover:text-brand-accent transition-colors">تسجيل الدخول</button> أولاً لتتمكن من إضافة كتاب للبيع.
+                                            يجب <Button variant="link" onClick={() => navigate('/login')} className="text-brand-primary underline decoration-2 underline-offset-4 hover:text-brand-accent transition-colors p-0 h-auto font-bold">تسجيل الدخول</Button> أولاً لتتمكن من إضافة كتاب للبيع.
                                         </p>
                                     </motion.div>
                                 )}
@@ -442,20 +443,20 @@ const SellBook = () => {
                                                     </div>
                                                 )}
                                                 {!uploading && (
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.1 }}
-                                                        whileTap={{ scale: 0.9 }}
+                                                    <Button
                                                         type="button"
+                                                        variant="destructive-glass"
+                                                        size="icon"
                                                         onClick={removeImage}
-                                                        className="absolute top-4 left-4 bg-red-500/80 backdrop-blur-md text-white p-3 rounded-2xl hover:bg-red-600 transition shadow-xl"
+                                                        className="absolute top-4 left-4 rounded-xl"
                                                     >
                                                         <X size={20} />
-                                                    </motion.button>
+                                                    </Button>
                                                 )}
                                             </motion.div>
                                         ) : (
                                             <motion.div
-                                                whileHover={{ scale: 1.01, borderColor: '#C17554' }}
+                                                whileHover={{ scale: 1.01, borderColor: 'var(--color-brand-primary)' }}
                                                 whileTap={{ scale: 0.99 }}
                                                 onClick={() => fileInputRef.current?.click()}
                                                 className="border-3 border-dashed border-gray-200 rounded-3xl p-12 flex flex-col items-center justify-center text-brand-muted hover:bg-brand-primary/5 hover:shadow-inner transition-all cursor-pointer group bg-gray-50"
@@ -470,12 +471,12 @@ const SellBook = () => {
                                     </div>
 
                                     <div className="pt-6">
-                                        <motion.button
-                                            whileHover={{ scale: 1.02, y: -4 }}
-                                            whileTap={{ scale: 0.98 }}
+                                        <Button
                                             type="submit"
+                                            variant="premium"
+                                            size="xl"
                                             disabled={isLoading || !user}
-                                            className="w-full bg-brand-primary hover:bg-brand-accent text-white font-black text-xl py-5 rounded-2xl shadow-xl hover:shadow-brand-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                                            className="w-full rounded-2xl shadow-xl font-black text-xl"
                                         >
                                             {isLoading ? (
                                                 <>
@@ -488,12 +489,12 @@ const SellBook = () => {
                                                     <span>نشر إعلان الكتاب</span>
                                                 </>
                                             )}
-                                        </motion.button>
+                                        </Button>
                                     </div>
                                 </form>
                             </motion.div>
                         ) : step === 'uploading' ? (
-                            <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden font-sans rtl text-white">
+                            <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center overflow-hidden font-sans rtl text-white">
                                 {/* Simple dark overlay */}
                                 <div className="absolute inset-0 bg-brand-secondary/95 backdrop-blur-xl"></div>
 
@@ -565,7 +566,7 @@ const SellBook = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto font-sans rtl text-white py-10">
+                            <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center overflow-y-auto font-sans rtl text-white py-10">
                                 <style>{`
                                     @keyframes gradient-xy {
                                         0% { background-position: 0% 50%; }
@@ -573,7 +574,7 @@ const SellBook = () => {
                                         100% { background-position: 0% 50%; }
                                     }
                                     .error-bg-animated {
-                                            background: linear-gradient(135deg, #C17554, #3A4958, #C17554);
+                                            background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary), var(--color-brand-primary));
                                             background-size: 200% 200%;
                                             animation: gradient-xy 3s ease infinite;
                                     }
@@ -587,7 +588,7 @@ const SellBook = () => {
                                     animate={{ opacity: 1, scale: 1 }}
                                     className="relative z-10 w-full max-w-2xl px-4 flex flex-col items-center justify-center text-center"
                                 >
-                                    <div className="mb-8 p-6 bg-[#61BF8D] rounded-full border-4 border-white/30 shadow-2xl animate-bounce">
+                                    <div className="mb-8 p-6 bg-brand-success rounded-full border-4 border-white/30 shadow-2xl animate-bounce">
                                         <CheckCircle size={64} className="text-white drop-shadow-lg" />
                                     </div>
 
@@ -616,25 +617,22 @@ const SellBook = () => {
                                     </div>
 
                                     <div className="flex flex-col sm:flex-row gap-4 w-full">
-                                        <motion.button
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
+                                        <Button
                                             onClick={handleAddAnother}
-                                            className="flex-1 bg-white/20 backdrop-blur-md border border-white/30 text-white font-black py-4 rounded-xl hover:bg-white/30 transition-all flex items-center justify-center gap-2 shadow-lg"
+                                            variant="glass"
+                                            className="flex-1 h-auto py-4 rounded-xl font-black text-base shadow-lg"
                                         >
                                             <Plus size={20} />
                                             <span>إضافة كتاب آخر</span>
-                                        </motion.button>
+                                        </Button>
 
-                                        <motion.button
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
+                                        <Button
                                             onClick={() => navigate('/marketplace')}
-                                            className="flex-1 bg-white text-brand-secondary font-black py-4 rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center gap-2 shadow-xl"
+                                            className="flex-1 bg-white text-brand-secondary hover:bg-gray-100 h-auto py-4 rounded-xl font-black text-base shadow-xl"
                                         >
                                             <Store size={20} />
                                             <span>الذهاب للمتجر</span>
-                                        </motion.button>
+                                        </Button>
                                     </div>
                                 </motion.div>
                             </div>

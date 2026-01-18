@@ -1,14 +1,15 @@
 import React, { useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import BookCard from '../components/BookCard';
+import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
+import BookCard from '../components/features/BookCard';
 import { MOCK_BOOKS_EXTENDED } from '../constants/Books';
 import { getAllBooks, searchBooks } from '../services/bookService';
 import { UNIVERSITIES, getUniversityName } from '../constants/universities';
 import { Search, Filter, SortAsc, SlidersHorizontal, ChevronDown, X } from 'lucide-react';
-import { usePageLoading } from '../components/PageTransition';
+import { usePageLoading } from '../components/ui/PageTransition';
+import { Button } from '../components/ui/button';
 
 import usePageTitle from '../hooks/usePageTitle';
 
@@ -309,13 +310,15 @@ const Marketplace = () => {
                         <div className="flex items-center gap-2 text-xs text-brand-muted animate-in fade-in slide-in-from-top-1 px-1">
                             <span className="text-white/60">نتائج البحث: <span className="text-white font-bold">{filteredBooks.length}</span> كتاب</span>
                             {selectedUniversity && (
-                                <button
-                                    className="bg-brand-primary/20 hover:bg-red-500/20 text-brand-primary hover:text-red-400 border border-brand-primary/30 hover:border-red-500/30 px-3 py-1 rounded-full flex items-center gap-2 transition-all group"
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="bg-brand-primary/20 hover:bg-red-500/20 text-brand-primary hover:text-red-400 border border-brand-primary/30 hover:border-red-500/30 px-3 py-1 rounded-full h-auto gap-2 group transition-all"
                                     onClick={() => setSelectedUniversity('')}
                                 >
                                     {getUniversityName(selectedUniversity)}
                                     <X size={12} className="group-hover:scale-110" />
-                                </button>
+                                </Button>
                             )}
                         </div>
                     )}
@@ -337,13 +340,15 @@ const Marketplace = () => {
                         {/* Load More Button */}
                         {visibleCount < filteredBooks.length && (
                             <div className="flex justify-center pb-12">
-                                <button
+                                <Button
+                                    variant="secondary"
+                                    size="xl"
                                     onClick={() => setVisibleCount(c => c + 30)}
-                                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-12 rounded-full transition-all flex items-center gap-2 shadow-sm hover:shadow-md"
+                                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-12 rounded-full shadow-sm hover:shadow-md h-auto py-3"
                                 >
                                     <span>عرض المزيد</span>
                                     <ChevronDown size={20} />
-                                </button>
+                                </Button>
                             </div>
                         )}
                     </>
@@ -351,12 +356,13 @@ const Marketplace = () => {
                     <div className="flex flex-col items-center justify-center min-h-[400px] text-brand-muted">
                         <Search size={64} className="mb-4 opacity-20" />
                         <p className="text-xl font-bold">لا توجد نتائج مطابقة لبحثك</p>
-                        <button
+                        <Button
+                            variant="link"
                             onClick={() => { setSearchQuery(''); setSelectedUniversity(''); }}
-                            className="mt-4 text-brand-primary hover:underline"
+                            className="mt-4 text-brand-primary hover:underline font-normal"
                         >
                             مسح جميع الفلاتر
-                        </button>
+                        </Button>
                     </div>
                 )}
             </div>

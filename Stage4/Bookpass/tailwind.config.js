@@ -48,7 +48,7 @@ module.exports = {
                     accent: '#F0C29A',
                     muted: '#8FA2B2',
                     error: '#D9605A',
-                    success: '#3FA47A',
+                    success: '#61BF8D',
                     text: '#2B3540',
                     border: '#E0E4E8',
                 },

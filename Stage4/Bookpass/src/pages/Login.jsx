@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { usePageLoading } from '../components/PageTransition';
-import Logo from '../components/Logo';
-import ErrorPopup from '../components/ErrorPopup';
+import { usePageLoading } from '../components/ui/PageTransition';
+import Logo from '../components/layout/Logo';
+import ErrorPopup from '../components/ui/ErrorPopup';
+import { Button } from '../components/ui/button';
 
 import usePageTitle from '../hooks/usePageTitle';
 
@@ -125,13 +126,15 @@ const Login = () => {
               </Link>
             </div>
 
-            <button
+            <Button
               type="submit"
-              className="w-full p-3.5 bg-brand-primary hover:bg-brand-accent text-white rounded-lg font-bold text-base transition-all shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+              variant="premium"
+              size="xl"
+              className="w-full rounded-lg font-bold"
               disabled={isLoading}
             >
               {isLoading ? 'جاري الدخول...' : 'تسجيل الدخول'}
-            </button>
+            </Button>
           </form>
 
           <p className="mt-8 text-sm text-brand-muted font-medium">

@@ -6,11 +6,11 @@ import {
     CheckCircle, Clock, GraduationCap, ArrowUpRight, ShieldCheck
 } from 'lucide-react';
 import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
 import { getDashboardStats } from '../services/adminService';
 import { getStorePendingBooks, getStoreSoldBooks } from '../services/bookService';
-import { usePageLoading } from '../components/PageTransition';
+import { usePageLoading } from '../components/ui/PageTransition';
 import { UNIVERSITIES } from '../constants/universities';
 
 // Reusable Stats Card Component

@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Lock, Mail, CreditCard, ChevronLeft, Camera, Phone, Edit2, Save, X, AlertCircle, PackageCheck, ShoppingBag, DollarSign, BookOpen, TrendingUp, LogOut, Plus, Store, FileText, CheckCircle, ZoomIn, Clock, Book, MapPin } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { usePageLoading } from '../components/PageTransition';
+import { usePageLoading } from '../components/ui/PageTransition';
 import { updateUserProfile } from '../services/authService';
 import { uploadFile } from '../services/fileService';
 import { getMyPurchases, getMySales, getMyBooks, markBookAsPicked } from '../services/bookService';
 import { UNIVERSITIES } from '../constants/universities';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import ImageViewer from '../components/ImageViewer';
-import SoldBookCard from '../components/SoldBookCard';
+import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
+import ImageViewer from '../components/ui/ImageViewer';
+import SoldBookCard from '../components/features/SoldBookCard';
 import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
 
 
@@ -80,8 +80,8 @@ const OrderBookCard = ({ book }) => {
                 {/* Footer: ISBN & Price */}
                 <div className="flex items-center justify-between text-xs text-brand-muted border-t border-brand-border pt-2 mt-2">
                     <div className="flex items-center gap-1">
-                        <span className="font-bold">ISBN:</span>
-                        <span className="font-mono">{book.isbn || 'N/A'}</span>
+                        <span className="font-bold">رقم ISBN:</span>
+                        <span className="font-mono">{book.isbn || 'غير متوفر'}</span>
                     </div>
                     <span className="text-brand-primary font-black text-base flex items-center gap-1">
                         {book.price} <SaudiRiyalIcon size={14} />
@@ -103,7 +103,7 @@ const PendingBookCard = ({ book }) => (
     <div className="bg-white rounded-xl p-4 border border-brand-primary h-full flex flex-col relative overflow-hidden group hover:border-brand-primary/30 transition-colors">
         {/* Status Badge */}
         <div className="absolute top-3 left-3 z-10">
-            <span className="bg-orange-50 text-orange-600 text-[10px] font-bold px-2 py-1 rounded-full border border-orange-100 flex items-center gap-1">
+            <span className="bg-brand-primary/10 text-brand-primary text-[10px] font-bold px-2 py-1 rounded-full border border-brand-primary/20 flex items-center gap-1">
                 <Clock size={12} />
                 بانتظار التسليم
             </span>
@@ -138,7 +138,7 @@ const PendingBookCard = ({ book }) => (
         {/* Footer/Progress Note */}
         <div className="mt-auto pt-3 border-t border-dashed border-gray-100">
             <p className="text-[10px] text-brand-muted flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse"></div>
                 يرجى تسليم الكتاب للمكتبة للمراجعة
             </p>
         </div>
@@ -674,7 +674,7 @@ const Profile = () => {
                             whileHover={{ scale: 1.02, y: -4 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleLogout}
-                            className="bg-white hover:bg-red-50 text-red-600 border-2 border-red-200 hover:border-red-300 px-6 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg"
+                            className="bg-white hover:bg-brand-error/10 text-brand-error border-2 border-brand-error/20 hover:border-brand-error/40 px-6 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg"
                         >
                             <LogOut size={24} />
                             <span>تسجيل الخروج</span>
@@ -702,7 +702,7 @@ const Profile = () => {
 
                                         {/* Red Notification Badge for Unpicked Items */}
                                         {tab.badge && (
-                                            <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm animate-pulse">
+                                            <span className="bg-brand-error text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm animate-pulse">
                                                 {tab.badge}
                                             </span>
                                         )}
@@ -743,8 +743,8 @@ const Profile = () => {
                                                         {/* Section 1: Waiting for Pickup */}
                                                         {purchases.filter(b => b.listingStatus === 'SOLD').length > 0 && (
                                                             <div className="space-y-4">
-                                                                <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
-                                                                    <div className="flex items-center gap-2 text-orange-700 font-bold mb-2">
+                                                                <div className="bg-brand-primary/10 rounded-xl p-4 border border-brand-primary/20">
+                                                                    <div className="flex items-center gap-2 text-brand-primary font-bold mb-2">
                                                                         <PackageCheck size={20} />
                                                                         <h3>كتب بانتظار الاستلام ({purchases.filter(b => b.listingStatus === 'SOLD').length})</h3>
                                                                     </div>
@@ -824,8 +824,8 @@ const Profile = () => {
                                                     <div className="space-y-8">
                                                         {/* Optional: Header for Pending if present */}
                                                         {pendingListings.length > 0 && (
-                                                            <div className="bg-orange-50 rounded-xl p-4 border border-orange-100 mb-4">
-                                                                <div className="flex items-center gap-2 text-orange-700 font-bold mb-2">
+                                                            <div className="bg-brand-primary/10 rounded-xl p-4 border border-brand-primary/20 mb-4">
+                                                                <div className="flex items-center gap-2 text-brand-primary font-bold mb-2">
                                                                     <Clock size={20} />
                                                                     <h3>كتب بانتظار التسليم ({pendingListings.length})</h3>
                                                                 </div>

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import WhiteLogo from '../components/WhiteLogo';
+import WhiteLogo from '../components/layout/WhiteLogo';
 
 const Logout = () => {
     const { signOut } = useAuth();

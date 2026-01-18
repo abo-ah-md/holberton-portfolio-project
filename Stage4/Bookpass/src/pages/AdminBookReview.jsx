@@ -1,9 +1,9 @@
 import React from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import ReviewBookCard from '../components/ReviewBookCard';
-import SoldBookCard from '../components/SoldBookCard';
-import { usePageLoading } from '../components/PageTransition';
+import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
+import ReviewBookCard from '../components/features/ReviewBookCard';
+import SoldBookCard from '../components/features/SoldBookCard';
+import { usePageLoading } from '../components/ui/PageTransition';
 import { getStorePendingBooks, getStoreSoldBooks, reviewBook, markBookAsPicked } from '../services/bookService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';

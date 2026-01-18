@@ -1,20 +1,35 @@
 import RibbonLogoCombined from './RibbonLogoCombined';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from "../../context/AuthContext";
 
 const Footer = () => {
     const { user } = useAuth();
     const isReviewer = user?.role === 'BOOKSTORE';
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const scrollToSection = (id) => {
+        if (location.pathname !== '/') {
+            navigate('/');
+            setTimeout(() => {
+                const element = document.getElementById(id);
+                if (element) element.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        } else {
+            const element = document.getElementById(id);
+            if (element) element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
     return (
         <footer className="border-t-[20px] border-brand-primary bg-[#3A4958] text-white font-sans" dir="rtl">
-            <div className="flex flex-wrap justify-center md:justify-between items-start max-w-[1400px] mx-auto px-6 md:px-[60px] py-6 gap-8 text-center md:text-right">
+            <div className="flex flex-wrap justify-center md:justify-between items-start max-w-7xl mx-auto px-4 md:px-8 py-6 gap-8 text-center md:text-right">
 
                 {/* Brand Section - Right side (first in RTL) */}
                 <div className="flex-[1.2] min-w-[200px] flex flex-col items-center md:items-start w-full md:w-auto">
                     <div className="mb-4">
                         <RibbonLogoCombined className="w-[200px] h-auto" />
-                        <p className="text-sm text-[#b0bcc5] mt-4 leading-relaxed max-w-[250px] font-medium">
+                        <p className="text-sm text-gray-400 mt-4 leading-relaxed max-w-[250px] font-medium">
                             جميع الحقوق محفوظة لمطورين منصة بوك باس
                         </p>
                     </div>
@@ -43,27 +58,30 @@ const Footer = () => {
 
                 {/* Platform Section */}
                 <div className="flex-[1.3] min-w-[150px]">
-                    <h3 className="text-base font-semibold mb-4 text-white">المنصة</h3>
+                    <h3 className="text-xl font-bold mb-4 text-white">المنصة</h3>
                     <nav className="flex flex-col gap-2">
                         {!isReviewer && (
-                            <Link to="/" className="text-[#b0bcc5] hover:text-white transition-colors text-sm no-underline">من نحن</Link>
+                            <>
+                                <button onClick={() => scrollToSection('about-us')} className="text-gray-400 hover:text-white transition-colors text-sm text-center md:text-right">من نحن</button>
+                                <Link to="/marketplace" className="text-gray-400 hover:text-white transition-colors text-sm no-underline">تصفح الكتب</Link>
+                            </>
                         )}
-                        <Link to="/terms" className="text-[#b0bcc5] hover:text-white transition-colors text-sm no-underline">الشروط والأحكام وسياسة الإستخدام</Link>
+                        <Link to="/terms" className="text-gray-400 hover:text-white transition-colors text-sm no-underline">الشروط والأحكام وسياسة الإستخدام</Link>
                     </nav>
                 </div>
 
                 {/* Support Section */}
                 <div className="flex-[0.8] min-w-[150px]">
-                    <h3 className="text-base font-semibold mb-4 text-white">الدعم</h3>
-                    <p className="text-[#b0bcc5] mb-1 text-xs">رقم الهاتف</p>
-                    <p className="text-white text-sm text-right font-medium" dir="ltr">+966590234209</p>
+                    <h3 className="text-xl font-bold mb-4 text-white">الدعم</h3>
+                    <p className="text-gray-400 mb-1 text-xs">رقم الهاتف</p>
+                    <a href="tel:+966590234209" className="text-white text-sm font-medium hover:text-brand-primary transition-colors block" dir="ltr">+966 59 023 4209</a>
                 </div>
 
                 {/* Newsletter Section - Left side (last in RTL) */}
                 <div className="flex-[1.5] min-w-[200px]">
-                    <h3 className="text-base font-semibold mb-4 text-white">كن على اطلاع بمستجداتنا</h3>
+                    <h3 className="text-xl font-bold mb-4 text-white">كن على اطلاع بمستجداتنا</h3>
                     <div className="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden" dir="ltr">
-                        <button type="submit" className="flex items-center justify-center bg-transparent border-none px-4 py-3 cursor-pointer text-[#b0bcc5] hover:text-white transition-colors" aria-label="Subscribe">
+                        <button type="submit" className="flex items-center justify-center bg-transparent border-none px-4 py-3 cursor-pointer text-gray-400 hover:text-white transition-colors" aria-label="Subscribe">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="22" y1="2" x2="11" y2="13"></line>
                                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -72,7 +90,7 @@ const Footer = () => {
                         <input
                             type="email"
                             placeholder="بريدك الإلكتروني"
-                            className="flex-1 bg-transparent border-none px-4 py-3 text-sm text-white outline-none text-right placeholder-[#b0bcc5]"
+                            className="flex-1 bg-transparent border-none px-4 py-3 text-sm text-white outline-none text-right placeholder-gray-400"
                         />
                     </div>
                 </div>

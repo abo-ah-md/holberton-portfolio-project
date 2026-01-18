@@ -16,62 +16,61 @@
     /* #F5F5F7 is close to cool grey */
     --foreground: 212 19% 21%;
     /* #2B3540 */
-
     --card: 0 0% 100%;
     /* #FFFFFF */
     --card-foreground: 212 19% 21%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 212 19% 21%;
-
     --primary: 17 48% 54%;
     /* #C17554 */
     --primary-foreground: 0 0% 100%;
-
     --secondary: 210 20% 29%;
     /* #3A4958 */
     --secondary-foreground: 0 0% 100%;
-
     --muted: 208 17% 63%;
     /* #8FA2B2 */
     --muted-foreground: 212 19% 21%;
-
     --accent: 28 75% 77%;
     /* #F0C29A */
     --accent-foreground: 212 19% 21%;
-
     --destructive: 0 62% 60%;
     /* #D9605A */
     --destructive-foreground: 0 0% 100%;
-
     --border: 210 14% 89%;
     /* #E0E4E8 */
     --input: 210 14% 89%;
     --ring: 17 48% 54%;
     /* Primary Ring */
-
     --radius: 0.5rem;
+
+    /* Z-Index Scale (Semantic) */
+    --z-negative: -1;
+    --z-elevate: 1;
+    --z-sticky: 100;
+    --z-drawer: 200;
+    --z-overlay: 300;
+    --z-modal: 400;
+    --z-popover: 500;
+    --z-toast: 600;
+    --z-tooltip: 700;
+    --z-max: 9999;
   }
 
   .dark {
-    /* Dark mode reversed palette if needed, but keeping Light Mode focus per request */
     --background: 210 20% 10%;
     --foreground: 210 20% 98%;
-    /* ... rest of dark mode defaults */
   }
-}
 
-:root {
-  scroll-behavior: smooth;
-  direction: rtl;
+  html {
+    scroll-behavior: smooth;
+    direction: rtl;
+  }
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: #F5F5F7;
-  /* Brand Background */
-  color: #2B3540;
-  /* Brand Body Text */
+  background-color: var(--color-brand-background);
+  color: var(--color-brand-text);
   line-height: normal;
   min-height: 100vh;
 }

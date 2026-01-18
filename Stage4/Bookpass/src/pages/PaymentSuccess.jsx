@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
 import { CheckCircle, XCircle, Home, RotateCcw, ShoppingBag, AlertCircle } from 'lucide-react';
 import { checkoutCart } from '../services/bookService';
 import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
@@ -105,7 +105,7 @@ const PaymentSuccess = () => {
     const getStatusConfig = (currentStatus) => {
         switch (currentStatus) {
             case 'paid':
-                return { text: 'مقبولة ومؤكدة', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle };
+                return { text: 'مقبولة ومؤكدة', color: 'text-brand-success', bg: 'bg-brand-success/10', icon: CheckCircle };
             case 'authorized':
                 return { text: 'مفوضة (بانتظار السحب)', color: 'text-blue-600', bg: 'bg-blue-100', icon: CheckCircle };
             case 'refunded':
@@ -124,7 +124,7 @@ const PaymentSuccess = () => {
     const totalAmount = checkoutResult?.totalAmount || 0;
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto font-sans rtl text-white py-10">
+        <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center overflow-y-auto font-sans rtl text-white py-10">
             <style>{`
                 @keyframes gradient-xy {
                     0% { background-position: 0% 50%; }
@@ -132,7 +132,7 @@ const PaymentSuccess = () => {
                     100% { background-position: 0% 50%; }
                 }
                 .error-bg-animated {
-                        background: linear-gradient(135deg, #C17554, #3A4958, #C17554);
+                        background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary), var(--color-brand-primary));
                         background-size: 200% 200%;
                         animation: gradient-xy 3s ease infinite;
                 }
@@ -159,7 +159,7 @@ const PaymentSuccess = () => {
                         <>
                             {/* Icon & Title */}
                             <div className="mb-10">
-                                <div className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center shadow-2xl animate-in zoom-in duration-500 ${isSuccess ? 'bg-[#61BF8D] text-white' : 'bg-red-500 text-white'}`}>
+                                <div className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center shadow-2xl animate-in zoom-in duration-500 ${isSuccess ? 'bg-brand-success text-white' : 'bg-brand-error text-white'}`}>
                                     {isSuccess ? <CheckCircle size={48} /> : <XCircle size={48} />}
                                 </div>
                                 <h1 className="text-4xl md:text-5xl font-black mb-4 drop-shadow-lg">
@@ -183,7 +183,7 @@ const PaymentSuccess = () => {
                                     )}
                                     <div className="flex justify-between items-center py-3 border-b border-white/10">
                                         <span className="text-white/60 font-bold">الحالة</span>
-                                        <span className="text-[#61BF8D] font-black flex items-center gap-2">
+                                        <span className="text-brand-success font-black flex items-center gap-2">
                                             <CheckCircle size={16} />
                                             مقبولة
                                         </span>

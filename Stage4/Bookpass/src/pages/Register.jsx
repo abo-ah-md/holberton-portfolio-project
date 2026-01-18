@@ -1,6 +1,6 @@
 import React from 'react';
-import RegistrationWizard from '../components/RegistrationWizard';
-import RegisterForm from '../components/RegisterForm';
+import RegistrationWizard from '../components/features/RegistrationWizard';
+import RegisterForm from '../components/features/RegisterForm';
 import usePageTitle from '../hooks/usePageTitle';
 
 const Register = () => {

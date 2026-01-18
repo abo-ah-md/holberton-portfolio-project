@@ -19,7 +19,7 @@ const ErrorPage = ({ type = '404' }) => {
     const { code, message } = config[type] || config['404'];
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden font-sans rtl text-white">
+        <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center overflow-hidden font-sans rtl text-white">
             <style>{`
                 @keyframes gradient-xy {
                     0% { background-position: 0% 50%; }

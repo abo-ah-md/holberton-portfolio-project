@@ -6,7 +6,7 @@ const RestrictedAccessPage = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden font-sans rtl text-white">
+        <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center overflow-hidden font-sans rtl text-white">
             <style>{`
                 @keyframes gradient-xy {
                     0% { background-position: 0% 50%; }
@@ -14,7 +14,7 @@ const RestrictedAccessPage = () => {
                     100% { background-position: 0% 50%; }
                 }
                 .error-bg-animated {
-                        background: linear-gradient(135deg, #C17554, #3A4958, #C17554);
+                        background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary), var(--color-brand-primary));
                         background-size: 200% 200%;
                         animation: gradient-xy 3s ease infinite;
                 }
@@ -40,14 +40,14 @@ const RestrictedAccessPage = () => {
                     <div className="flex flex-col md:flex-row gap-6 mt-4 w-full justify-center">
                         <button
                             onClick={() => navigate('/admin/review')}
-                            className="flex items-center justify-center gap-3 bg-white text-[#C17554] px-8 py-4 rounded-xl font-black text-lg hover:bg-opacity-90 transition-all shadow-xl hover:scale-105 min-w-[200px]"
+                            className="flex items-center justify-center gap-3 bg-white text-brand-primary px-8 py-4 rounded-xl font-black text-lg hover:bg-opacity-90 transition-all shadow-xl hover:scale-105 min-w-[200px]"
                         >
                             <span>لوحة المراجعة</span>
                         </button>
 
                         <button
                             onClick={() => navigate('/logout')}
-                            className="flex items-center justify-center gap-3 bg-[#2c3e50] text-white px-8 py-4 rounded-xl font-black text-lg hover:bg-[#3a4f63] transition-all shadow-xl hover:scale-105 min-w-[200px] border border-white/20"
+                            className="flex items-center justify-center gap-3 bg-brand-secondary text-white px-8 py-4 rounded-xl font-black text-lg hover:bg-brand-secondary/90 transition-all shadow-xl hover:scale-105 min-w-[200px] border border-white/20"
                         >
                             <LogOut size={20} />
                             <span>تسجيل الخروج</span>

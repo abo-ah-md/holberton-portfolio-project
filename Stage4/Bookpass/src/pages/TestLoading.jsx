@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import LoadingSpinner from '../components/LoadingSpinner';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
+import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
 
 const TestLoading = () => {
     const [isLoading, setIsLoading] = useState(true);

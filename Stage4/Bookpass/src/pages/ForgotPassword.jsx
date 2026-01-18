@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Logo from '../components/Logo';
+import Logo from '../components/layout/Logo';
 import { requestPasswordReset } from '../services/authService';
-import { usePageLoading } from '../components/PageTransition';
+import { usePageLoading } from '../components/ui/PageTransition';
 import { CheckCircle } from 'lucide-react';
 
-import ErrorPopup from '../components/ErrorPopup';
+import ErrorPopup from '../components/ui/ErrorPopup';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -94,7 +94,7 @@ const ForgotPassword = () => {
                             </p>
                         </>
                     ) : (
-                        <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto font-sans rtl text-white py-10">
+                        <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center overflow-y-auto font-sans rtl text-white py-10">
                             <style>{`
                                 @keyframes gradient-xy {
                                     0% { background-position: 0% 50%; }

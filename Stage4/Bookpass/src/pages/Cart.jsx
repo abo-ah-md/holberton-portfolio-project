@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Trash2, ArrowRight, BookOpen } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -28,6 +28,7 @@ const fadeInUp = {
     }
 };
 
+import { usePageLoading } from '../components/ui/PageTransition';
 import usePageTitle from '../hooks/usePageTitle';
 
 const Cart = () => {
@@ -102,7 +103,7 @@ const Cart = () => {
                             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden min-h-[400px] border border-gray-100">
                                 <AnimatePresence mode="popLayout">
                                     {cartItems.length > 0 ? (
-                                        <div className="divide-y divide-gray-100">
+                                        <div className="divide-y divide-brand-border">
                                             {cartItems.map((item) => (
                                                 <motion.div
                                                     layout
@@ -110,9 +111,9 @@ const Cart = () => {
                                                     initial={{ opacity: 0 }}
                                                     animate={{ opacity: 1 }}
                                                     exit={{ opacity: 0, x: -50 }}
-                                                    className="p-8 flex flex-col sm:flex-row gap-8 items-center hover:bg-gray-50/50 transition-colors"
+                                                    className="p-8 flex flex-col sm:flex-row gap-8 items-center hover:bg-brand-primary/5 transition-colors"
                                                 >
-                                                    <div className="w-28 h-36 flex-shrink-0 bg-gray-100 rounded-2xl overflow-hidden shadow-lg border border-gray-200">
+                                                    <div className="w-28 h-36 flex-shrink-0 bg-brand-background rounded-2xl overflow-hidden shadow-lg border border-brand-border">
                                                         {item.image &&
                                                             <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                                                         }
@@ -133,7 +134,7 @@ const Cart = () => {
                                                             whileHover={{ scale: 1.1 }}
                                                             whileTap={{ scale: 0.9 }}
                                                             onClick={() => removeFromCart(item.cartId)}
-                                                            className="text-red-400 hover:text-red-600 p-3 rounded-2xl hover:bg-red-50 transition-all border-2 border-transparent hover:border-red-100"
+                                                            className="text-brand-muted hover:text-brand-error p-3 rounded-2xl hover:bg-brand-error/10 transition-all border-2 border-transparent hover:border-brand-error/20"
                                                         >
                                                             <Trash2 size={24} />
                                                         </motion.button>
@@ -143,10 +144,10 @@ const Cart = () => {
                                         </div>
                                     ) : (
                                         <div className="flex flex-col items-center justify-center p-20 text-center">
-                                            <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
-                                                <ShoppingCart size={48} className="text-gray-300" />
+                                            <div className="w-24 h-24 bg-brand-background rounded-full flex items-center justify-center mb-6">
+                                                <ShoppingCart size={48} className="text-brand-muted" />
                                             </div>
-                                            <p className="text-2xl font-black text-gray-400 mb-8">السلة فارغة حالياً</p>
+                                            <p className="text-2xl font-black text-brand-muted mb-8">السلة فارغة حالياً</p>
                                             <motion.button
                                                 whileHover={{ scale: 1.05, y: -4 }}
                                                 whileTap={{ scale: 0.95 }}
@@ -169,11 +170,11 @@ const Cart = () => {
                                     <h2 className="font-black text-2xl text-brand-secondary mb-8 pb-4 border-b-2 border-brand-background">ملخص الطلب</h2>
 
                                     <div className="space-y-6 mb-10">
-                                        <div className="flex justify-between items-center text-gray-500 font-bold text-lg">
+                                        <div className="flex justify-between items-center text-brand-muted font-bold text-lg">
                                             <span>عدد الكتب</span>
-                                            <span className="text-gray-900">{cartItems.length}</span>
+                                            <span className="text-brand-secondary">{cartItems.length}</span>
                                         </div>
-                                        <div className="h-0.5 bg-gray-50 w-full" />
+                                        <div className="h-0.5 bg-brand-border w-full" />
                                         <div className="flex justify-between items-center pt-2">
                                             <span className="font-black text-xl text-brand-secondary">الإجمالي النهائي</span>
                                             <div className="text-right">
@@ -216,7 +217,7 @@ const Cart = () => {
                                         </motion.button>
                                         <button
                                             onClick={() => navigate('/marketplace')}
-                                            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-5 rounded-2xl transition-all border-none"
+                                            className="w-full bg-white hover:bg-brand-secondary text-brand-secondary hover:text-white font-bold py-5 rounded-2xl transition-all border border-brand-border"
                                         >
                                             متابعة التسوق
                                         </button>

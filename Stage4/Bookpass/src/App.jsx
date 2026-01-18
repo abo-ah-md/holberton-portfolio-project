@@ -2,10 +2,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
-import ProtectedRoute from './components/ProtectedRoute';
-import PageTransition from './components/PageTransition';
-import Navbar from './components/Navbar'; // Assuming Navbar is used inside pages or layout, but verifying App structure it's not used directly here? Wait, App.jsx doesn't use Navbar directly, pages do.
-import ReviewerGuard from './components/ReviewerGuard';
+import ProtectedRoute from './components/features/ProtectedRoute';
+import PageTransition from './components/ui/PageTransition';
+import ReviewerGuard from './components/features/ReviewerGuard';
 
 // Pages
 import Home from './pages/Home';

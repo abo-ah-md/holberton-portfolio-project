@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ShoppingCart, CheckCircle, Zap, ShieldCheck } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import Navbar from '../components/layout/Navbar.jsx';
 import { motion } from 'framer-motion';
-import Hero from '../components/Hero';
-import WhatIsBookPass from '../components/WhatIsBookPass';
-import Testimonials from '../components/Testimonials';
-import FAQ from '../components/FAQ';
-import CurvedSection from '../components/WhyBookPass';
-import Footer from '../components/Footer';
-import BookRating from '../components/BookRating';
-import whiteBookmark from '../components/white-bookmark';
-import { MiddleLogoComplex, Step } from '../components/BookPassUI';
+import Hero from '../components/features/Hero';
+import WhatIsBookPass from '../components/features/WhatIsBookPass';
+import Testimonials from '../components/features/Testimonials';
+import FAQ from '../components/features/FAQ';
+import CurvedSection from '../components/features/WhyBookPass';
+import Footer from '../components/layout/Footer.jsx';
+import BookRating from '../components/features/BookRating';
+import whiteBookmark from '../components/layout/white-bookmark';
+import { MiddleLogoComplex, Step } from '../components/features/BookPassUI';
 import { MOCK_BOOKS } from '../constants/Books';
-import LatestBooks from '../components/LatestBooks';
-import { usePageLoading } from '../components/PageTransition';
+import LatestBooks from '../components/features/LatestBooks';
+import { usePageLoading } from '../components/ui/PageTransition';
 import usePageTitle from '../hooks/usePageTitle';
 
 
