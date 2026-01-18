@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Trash2, ArrowRight, BookOpen } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
 
 // Animation variants
 const container = {
@@ -125,7 +126,9 @@ const Cart = () => {
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-col items-center sm:items-end gap-6 w-full sm:w-auto">
-                                                        <span className="font-black text-3xl text-brand-primary leading-none">{item.price} <span className="text-base font-bold">ر.س</span></span>
+                                                        <span className="font-black text-3xl text-brand-primary leading-none flex items-center gap-1">
+                                                            {item.price} <SaudiRiyalIcon size={18} />
+                                                        </span>
                                                         <motion.button
                                                             whileHover={{ scale: 1.1 }}
                                                             whileTap={{ scale: 0.9 }}
@@ -174,7 +177,9 @@ const Cart = () => {
                                         <div className="flex justify-between items-center pt-2">
                                             <span className="font-black text-xl text-brand-secondary">الإجمالي النهائي</span>
                                             <div className="text-right">
-                                                <div className="text-4xl font-black text-brand-primary">{calculateTotal()} <span className="text-lg">ر.س</span></div>
+                                                <div className="text-4xl font-black text-brand-primary flex items-center justify-end gap-1">
+                                                    {calculateTotal()} <SaudiRiyalIcon size={24} />
+                                                </div>
                                                 <p className="text-xs text-brand-muted font-bold mt-1">شامل كافة الرسوم</p>
                                             </div>
                                         </div>

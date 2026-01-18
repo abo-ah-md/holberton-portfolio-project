@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShoppingCart, User, Menu, X, Home, BookOpen, Info, LayoutDashboard, Plus } from 'lucide-react';
 import Logo from '../components/Logo';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { getAllBooks } from '../services/bookService';
@@ -171,7 +172,9 @@ const Navbar = () => {
                                                     </div>
                                                     <span className="text-gray-800 font-medium text-sm truncate max-w-[150px]">{book.title}</span>
                                                 </div>
-                                                <span className="text-[#C17554] font-bold text-xs whitespace-nowrap">{book.price} ر.س</span>
+                                                <span className="text-[#C17554] font-bold text-xs whitespace-nowrap flex items-center gap-1">
+                                                    {book.price} <SaudiRiyalIcon size={12} />
+                                                </span>
                                             </Link>
                                         ))}
                                     </div>

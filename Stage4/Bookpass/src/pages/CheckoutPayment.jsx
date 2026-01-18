@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import { usePageLoading } from '../components/PageTransition';
 import { getBookById } from '../services/bookService';
 import usePageTitle from '../hooks/usePageTitle';
+import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
 
 const container = {
     hidden: { opacity: 0 },
@@ -265,8 +266,8 @@ const CheckoutPayment = () => {
                             <div className="bg-brand-secondary text-white rounded-3xl shadow-2xl overflow-hidden sticky top-24 border border-white/10">
                                 <div className="p-10 bg-brand-primary">
                                     <h3 className="text-white/80 font-black text-sm uppercase tracking-widest mb-2 text-right">إجمالي المبلغ المستحق</h3>
-                                    <div className="text-5xl font-black text-white text-right drop-shadow-xl">
-                                        {total.toFixed(2)} <span className="text-xl">ر.س</span>
+                                    <div className="text-5xl font-black text-white text-right drop-shadow-xl flex items-center justify-end gap-2">
+                                        {total.toFixed(2)} <SaudiRiyalIcon size={32} />
                                     </div>
                                     {items.length > 1 && (
                                         <div className="mt-4 flex items-center gap-2 text-white/90 font-bold bg-white/10 self-start px-4 py-2 rounded-xl backdrop-blur-md border border-white/20 w-fit mr-0 ml-auto">
@@ -292,7 +293,10 @@ const CheckoutPayment = () => {
                                                 <div className="flex-1 min-w-0 flex flex-col justify-center text-right">
                                                     <h4 className="font-black text-lg truncate leading-tight mb-1 text-white group-hover:text-brand-primary transition-colors">{item.title}</h4>
                                                     <p className="text-sm text-white/50 font-bold mb-2 uppercase tracking-wide">{item.author}</p>
-                                                    <span className="text-brand-primary font-black text-lg">{item.price} ر.س</span>
+                                                    <div className="flex items-center justify-end gap-1 text-brand-primary font-black text-lg">
+                                                        <span>{item.price}</span>
+                                                        <SaudiRiyalIcon size={16} />
+                                                    </div>
                                                 </div>
                                             </motion.div>
                                         ))}
@@ -302,7 +306,10 @@ const CheckoutPayment = () => {
                                     <div className="pt-8 border-t border-white/10">
                                         <div className="flex justify-between items-center text-xl font-black">
                                             <span className="text-white opacity-80">الإجمالي</span>
-                                            <span className="text-brand-primary text-3xl">{total.toFixed(2)} ر.س</span>
+                                            <div className="flex items-center gap-1 text-brand-primary text-3xl">
+                                                <span>{total.toFixed(2)}</span>
+                                                <SaudiRiyalIcon size={24} />
+                                            </div>
                                         </div>
                                         <p className="text-center text-white/40 font-bold text-xs mt-6 flex items-center gap-2 justify-center">
                                             <ShieldCheck size={14} />

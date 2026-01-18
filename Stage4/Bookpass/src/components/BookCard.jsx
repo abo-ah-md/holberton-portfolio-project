@@ -10,6 +10,7 @@ import { getUniversityName } from '../constants/universities';
 import { getStatusLabel } from '../constants/status';
 
 import ImageWithLoader from './ImageWithLoader';
+import SaudiRiyalIcon from './icons/SaudiRiyalIcon';
 
 const BookCard = ({ book }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -197,8 +198,8 @@ const BookCard = ({ book }) => {
 
                     <div className="mt-auto pt-3 border-t border-dashed border-gray-200 flex flex-col gap-3">
                         <div className="flex items-center justify-between">
-                            <span className={`font-black text-lg ${book.isSold || isPending ? 'text-brand-muted decoration-slate-400' : 'text-brand-primary'} `}>
-                                {book.price} <span className="text-xs text-brand-muted">ر.س</span>
+                            <span className={`font-black text-lg ${book.isSold || isPending ? 'text-brand-muted decoration-slate-400' : 'text-brand-primary'} flex items-center gap-1`}>
+                                {book.price} <SaudiRiyalIcon size={14} className={book.isSold || isPending ? 'text-brand-muted' : 'text-brand-primary'} />
                             </span>
                         </div>
 
@@ -346,8 +347,8 @@ const BookCard = ({ book }) => {
                                 <div className="mt-6 md:mt-8 flex items-center justify-between gap-4 pt-6 border-t border-gray-100">
                                     <div className="flex flex-col">
                                         <span className="text-xs text-brand-muted font-bold">السعر المطلوب</span>
-                                        <span className="text-2xl md:text-3xl font-black text-brand-secondary flex items-end gap-1">
-                                            {book.price} <span className="text-sm font-bold text-brand-muted mb-1">ر.س</span>
+                                        <span className="text-2xl md:text-3xl font-black text-brand-secondary flex items-center gap-1">
+                                            {book.price} <SaudiRiyalIcon size={20} className="text-brand-secondary" />
                                         </span>
                                     </div>
 

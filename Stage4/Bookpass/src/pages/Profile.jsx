@@ -12,6 +12,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ImageViewer from '../components/ImageViewer';
 import SoldBookCard from '../components/SoldBookCard';
+import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
 
 
 
@@ -82,7 +83,9 @@ const OrderBookCard = ({ book }) => {
                         <span className="font-bold">ISBN:</span>
                         <span className="font-mono">{book.isbn || 'N/A'}</span>
                     </div>
-                    <span className="text-brand-primary font-black text-base">{book.price} ر.س</span>
+                    <span className="text-brand-primary font-black text-base flex items-center gap-1">
+                        {book.price} <SaudiRiyalIcon size={14} />
+                    </span>
                 </div>
             </div>
 
@@ -379,7 +382,11 @@ const Profile = () => {
         {
             id: 'spending',
             label: 'إجمالي الإنفاق',
-            value: `${purchases.reduce((sum, book) => sum + (book.price || 0), 0)} ر.س`,
+            value: (
+                <span className="flex items-center gap-1">
+                    {purchases.reduce((sum, book) => sum + (book.price || 0), 0)} <SaudiRiyalIcon size={28} />
+                </span>
+            ),
             sublabel: 'هذا الشهر',
             icon: TrendingUp,
             color: 'from-brand-primary to-brand-primary/80',

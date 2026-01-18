@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { CheckCircle, XCircle, Home, RotateCcw, ShoppingBag, AlertCircle } from 'lucide-react';
 import { checkoutCart } from '../services/bookService';
+import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
 import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
 
@@ -189,7 +190,9 @@ const PaymentSuccess = () => {
                                     </div>
                                     <div className="flex justify-between items-center pt-4">
                                         <span className="text-white/80 font-bold text-lg">الإجمالي</span>
-                                        <span className="text-3xl font-black text-brand-primary drop-shadow-md">{totalAmount.toFixed(2)} ر.س</span>
+                                        <div className="text-3xl font-black text-brand-primary drop-shadow-md flex items-center gap-1">
+                                            {totalAmount.toFixed(2)} <SaudiRiyalIcon size={24} />
+                                        </div>
                                     </div>
 
                                     {/* Pickup Info Alert inside Glass */}

@@ -3,6 +3,7 @@ import { CheckCircle, Phone, User, ShoppingBag, ZoomIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ImageViewer from './ImageViewer';
 import { getUniversityName } from '../constants/universities';
+import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
 
 const SoldBookCard = ({ book, onPicked }) => {
     const [isViewerOpen, setIsViewerOpen] = useState(false);
@@ -69,7 +70,9 @@ const SoldBookCard = ({ book, onPicked }) => {
             <div className="p-4 bg-brand-background/50 flex flex-col gap-4">
                 <div className="flex items-center justify-between px-2">
                     <span className="text-brand-muted font-bold">المبلغ المحصل</span>
-                    <span className="text-2xl font-black text-brand-primary">{book.price} ر.س</span>
+                    <span className="text-2xl font-black text-brand-primary flex items-center gap-1">
+                        {book.price} <SaudiRiyalIcon size={18} />
+                    </span>
                 </div>
 
                 {onPicked && (

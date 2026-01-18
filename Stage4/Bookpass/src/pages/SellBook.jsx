@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, CheckCircle, BookOpen, AlertCircle, X, Loader2, Plus, Camera, FileText, Store, Info } from 'lucide-react';
 import { addBook, uploadImage } from '../services/bookService';
+import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
 import { UNIVERSITIES } from '../constants/universities';
 import { useAuth } from '../context/AuthContext';
 import { usePageLoading } from '../components/PageTransition';
@@ -364,7 +365,7 @@ const SellBook = () => {
                                         <div className="space-y-3">
                                             <label className="text-sm font-black text-brand-muted uppercase tracking-wider block mr-1 flex items-center gap-2">
                                                 <Plus size={16} className="text-brand-primary" />
-                                                السعر المطلوب (ر.س) *
+                                                <span className="flex items-center gap-1">السعر المطلوب (<SaudiRiyalIcon size={14} />) *</span>
                                             </label>
                                             <input
                                                 required

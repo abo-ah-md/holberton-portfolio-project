@@ -5,6 +5,7 @@ import {
     Users, BookOpen, DollarSign, TrendingUp, AlertCircle,
     CheckCircle, Clock, GraduationCap, ArrowUpRight, ShieldCheck
 } from 'lucide-react';
+import SaudiRiyalIcon from '../components/icons/SaudiRiyalIcon';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getDashboardStats } from '../services/adminService';
@@ -167,7 +168,11 @@ const AdminDashboard = () => {
                     />
                     <StatsCard
                         title="إجمالي المبيعات"
-                        value={`${metrics.totalRevenue} ر.س`}
+                        value={
+                            <div className="flex items-center gap-1">
+                                {metrics.totalRevenue} <SaudiRiyalIcon size={30} />
+                            </div>
+                        }
                         subtext={`${metrics.soldBooks} كتاب تم بيعه`}
                         icon={DollarSign}
 
@@ -343,7 +348,9 @@ const AdminDashboard = () => {
                                                 <div className="text-xs text-brand-muted">{book.author}</div>
                                             </td>
                                             <td className="px-6 py-4 text-xs text-brand-muted">{book.seller}</td>
-                                            <td className="px-6 py-4 text-sm font-bold text-brand-primary">{book.price} ر.س</td>
+                                            <td className="px-6 py-4 text-sm font-bold text-brand-primary flex items-center gap-1">
+                                                {book.price} <SaudiRiyalIcon size={14} />
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <span className={`text-[10px] px-2 py-1 rounded-full font-bold flex items-center gap-1 w-fit ${book.status === 'AVAILABLE' ? 'bg-brand-success/10 text-brand-success' :
                                                     book.status === 'PENDING' ? 'bg-brand-primary/10 text-brand-primary' :
