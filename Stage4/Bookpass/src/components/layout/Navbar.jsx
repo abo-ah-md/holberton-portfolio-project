@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShoppingCart, User, Menu, X, BookOpen, Info, LayoutDashboard, Plus, LogOut, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, BookOpen, Info, LayoutDashboard, Plus, LogOut, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import Logo from './Logo';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import SaudiRiyalIcon from "../icons/SaudiRiyalIcon";
@@ -19,7 +19,6 @@ const Navbar = () => {
 
     // Smart Navbar State
     const [isVisible, setIsVisible] = useState(true);
-    const [lastScrollY, setLastScrollY] = useState(0);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -42,25 +41,34 @@ const Navbar = () => {
     }, [isReviewer]);
 
     // Scroll Handler for Hide/Show Behavior
+    // Scroll Handler for Hide/Show Behavior - Optimized
+
+
+    // FIX: We need to use useRef to track lastScrollY to avoid re-binding
+    const lastScrollYRef = React.useRef(0);
     useEffect(() => {
         const controlNavbar = () => {
             const currentScrollY = window.scrollY;
+            const lastY = lastScrollYRef.current;
+            const isMobile = window.innerWidth < 768; // Mobile check
 
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                // Scrolling DOWN -> Hide
+            // On Mobile, NEVER hide the navbar (it's sticky/persistent)
+            // On Desktop, hide on scroll down
+            if (!isMobile && currentScrollY > lastY && currentScrollY > 100) {
+                // Scrolling DOWN
                 setIsVisible(false);
-                setIsMobileMenuOpen(false); // Close mobile menu on scroll down
+                setIsMobileMenuOpen(false);
             } else {
-                // Scrolling UP -> Show
+                // Scrolling UP or Mobile
                 setIsVisible(true);
             }
 
-            setLastScrollY(currentScrollY);
+            lastScrollYRef.current = currentScrollY;
         };
 
         window.addEventListener('scroll', controlNavbar);
         return () => window.removeEventListener('scroll', controlNavbar);
-    }, [lastScrollY]);
+    }, []);
 
     const handleSellClick = (e) => {
         if (!user) {
@@ -99,7 +107,7 @@ const Navbar = () => {
             )}
 
             <header
-                className={`w-full bg-brand-secondary text-white font-sans fixed top-0 left-0 right-0 z-50 shadow-lg transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'
+                className={`w-full bg-brand-secondary/85 backdrop-blur-md text-white font-sans fixed top-0 left-0 right-0 z-50 shadow-lg transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'
                     }`}
                 dir="rtl"
             >
@@ -114,7 +122,9 @@ const Navbar = () => {
                             </div>
                         </Link>
 
-                        {/* Compact Search Bar - Hidden for Reviewer AND Marketplace Page */}
+                        {/* Compact Search Bar - Hidden for Reviewer (Visible on Desktop Marketplace now if desired, but user said Mobile) */}
+                        {/* Current rule: !isReviewer && location.pathname !== '/marketplace' */}
+                        {/* We keep hiding it on Desktop Marketplace to avoid duplication with the main page header */}
                         {!isReviewer && location.pathname !== '/marketplace' && (
                             <div className={`relative hidden md:block transition-all duration-300 ${isSearchFocused ? 'w-96' : 'w-64'}`}>
                                 <input
@@ -147,7 +157,8 @@ const Navbar = () => {
                                         if (e.key === 'Enter') {
                                             setSearchResults([]);
                                             setIsSearchFocused(false);
-                                            navigate('/marketplace', { state: { initialQuery: searchQuery } });
+                                            // Use URL Params for better sync
+                                            navigate(`/marketplace?q=${encodeURIComponent(searchQuery)}`);
                                         }
                                     }}
                                 />
@@ -250,12 +261,23 @@ const Navbar = () => {
                         )}
 
                         {/* Mobile Search Toggle */}
-                        {!isReviewer && location.pathname !== '/marketplace' && (
+                        {/* Show on Mobile Marketplace too now */}
+                        {!isReviewer && (
                             <button
                                 onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
                                 className="md:hidden text-white hover:text-brand-primary transition-colors p-2"
                             >
                                 <Search size={22} />
+                            </button>
+                        )}
+
+                        {/* Mobile Filter Trigger (Only on Marketplace) */}
+                        {!isReviewer && location.pathname === '/marketplace' && (
+                            <button
+                                onClick={() => window.dispatchEvent(new CustomEvent('open-filter-modal'))}
+                                className="md:hidden text-white hover:text-brand-primary transition-colors p-2"
+                            >
+                                <SlidersHorizontal size={22} />
                             </button>
                         )}
 
@@ -379,7 +401,8 @@ const Navbar = () => {
                 </div>
 
                 {/* Mobile Only Search Bar (Expandable) */}
-                {!isReviewer && location.pathname !== '/marketplace' && (
+                {/* Enabled on Marketplace now */}
+                {!isReviewer && (
                     <div className={`md:hidden px-4 overflow-hidden transition-all duration-300 ease-in-out ${isMobileSearchOpen ? 'max-h-16 py-3 opacity-100' : 'max-h-0 py-0 opacity-0'
                         }`}>
                         <div className="relative flex items-center bg-white rounded-lg overflow-hidden h-10 focus-within:ring-2 focus-within:ring-brand-primary transition-all shadow-sm">
@@ -387,6 +410,12 @@ const Navbar = () => {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        navigate(`/marketplace?q=${encodeURIComponent(searchQuery)}`);
+                                        setIsMobileSearchOpen(false);
+                                    }
+                                }}
                                 placeholder="ابحث عن كتاب..."
                                 className="flex-1 bg-white border-none outline-none px-4 text-right text-gray-800 placeholder-gray-500 text-sm h-full w-full"
                             />

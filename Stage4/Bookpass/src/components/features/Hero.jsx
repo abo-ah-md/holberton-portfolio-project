@@ -54,15 +54,21 @@ const Hero = ({ title, subtitle, description, primaryButtonText, secondaryButton
     };
 
     // Background Image (Subtle Zoom Out Reveal)
+    // Background Image (Subtle Zoom Out Reveal)
+    // Disabled on Mobile to prevent perceived movement during scroll
+    const isMobile = window.innerWidth < 768; // Simple check, or could use hook
     const bgVariants = {
-        hidden: { scale: 1.1, opacity: 0 },
+        hidden: {
+            scale: isMobile ? 1 : 1.1,
+            opacity: 0
+        },
         visible: {
             scale: 1,
             opacity: 1,
             transition: {
                 duration: 1.8,
                 ease: "easeOut",
-                delay: 0.1 // Slight delay to ensure smooth start
+                delay: 0.1
             }
         }
     };
@@ -104,17 +110,20 @@ const Hero = ({ title, subtitle, description, primaryButtonText, secondaryButton
             <div className="absolute inset-0 bg-slate-900/80 z-0"></div>
 
             {/* Bottom Shine/Fade - Condensed & Animated "Breathing" Glow */}
+            {/* Bottom Shine/Fade - Condensed & Animated "Breathing" Glow */}
+            {/* Optimized: Animates scaleY instead of height to prevent layout thrashing */}
             <motion.div
                 animate={{
                     opacity: [0.7, 1, 0.7],
-                    height: ["8rem", "10rem", "8rem"] // Subtle expansion/contraction (h-32 is 8rem)
+                    scaleY: [1, 1.2, 1] // Scaling vertically is GPU optimized
                 }}
                 transition={{
                     duration: 4,
                     repeat: Infinity,
                     ease: "easeInOut"
                 }}
-                className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brand-primary via-brand-primary/30 to-transparent z-20 pointer-events-none"
+                style={{ originY: 1 }} // Anchor to bottom
+                className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-brand-primary via-brand-primary/30 to-transparent z-20 pointer-events-none"
             />
 
             {/* Main Grid Container */}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
@@ -68,11 +68,24 @@ const Marketplace = () => {
     const [error, setError] = useState(null);
     const { setIsLoading, setLoadingMessage } = usePageLoading();
 
+    const [searchParams] = useSearchParams(); // Use URL params for auto-sync
+
+    // Sync with URL params or Location State
     useEffect(() => {
-        if (location.state?.initialQuery) {
+        const queryFromUrl = searchParams.get('q');
+        if (queryFromUrl) {
+            setSearchQuery(queryFromUrl);
+        } else if (location.state?.initialQuery) {
             setSearchQuery(location.state.initialQuery);
         }
-    }, [location.state]);
+    }, [searchParams, location.state]);
+
+    // Listen for Navbar Filter Button Event
+    useEffect(() => {
+        const openModal = () => setIsMobileFilterOpen(true);
+        window.addEventListener('open-filter-modal', openModal);
+        return () => window.removeEventListener('open-filter-modal', openModal);
+    }, []);
     const [searchType, setSearchType] = useState('title'); // title, isbn, author
     const [selectedUniversity, setSelectedUniversity] = useState('');
     const [sortBy, setSortBy] = useState('newest'); // newest, price_low, price_high
@@ -229,7 +242,8 @@ const Marketplace = () => {
             <Navbar />
 
             {/* Filter Header Section - Glassmorphism */}
-            <div className={`sticky z-40 transition-all duration-300 ${isNavbarVisible ? 'top-20' : 'top-0'} backdrop-blur-xl bg-brand-secondary/60 border-b border-white/10 shadow-2xl`}>
+            {/* HIDDEN ON MOBILE: Now handled by Navbar + Modal */}
+            <div className={`hidden md:block sticky z-40 transition-all duration-300 ${isNavbarVisible ? 'top-20' : 'top-0'} backdrop-blur-xl bg-brand-secondary/60 border-b border-white/10 shadow-2xl`}>
                 <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
 
                     {/* Top Row: Search & Main Filters */}
@@ -237,13 +251,8 @@ const Marketplace = () => {
 
                         {/* Search Group */}
                         <div className="flex w-full md:w-auto flex-1 gap-2 items-center">
-                            {/* Mobile Filter Trigger */}
-                            <button
-                                onClick={() => setIsMobileFilterOpen(true)}
-                                className="md:hidden bg-white/5 border border-white/10 text-brand-primary p-3 rounded-xl backdrop-blur-md hover:bg-white/10 transition-colors"
-                            >
-                                <SlidersHorizontal size={20} />
-                            </button>
+                            {/* Mobile Filter Trigger - REMOVED (Moved to Navbar) */}
+                            {/* <button className="md:hidden ...">...</button> */}
 
                             {/* Search Type Propdown - Hidden on Mobile */}
                             <div className="relative hidden md:block">
