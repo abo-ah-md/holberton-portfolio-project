@@ -75,20 +75,8 @@ export const registerUser = async (email, password, firstName, lastName, phoneNu
     // Store token in Cookie
     setToken(data.token);
 
-    // Store user data in LocalStorage (without token)
-    const user = {
-      id: data.email,
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      role: data.role,
-      phoneNumber: data.phoneNumber,
-      profilePicture: data.profilePicture,
-      iban: data.iban
-    };
-    setStoredUser(user);
-
-    return { data: user, error: null };
+    // Fetch full profile to ensure we get the UUID
+    return await getCurrentUser();
   } catch (error) {
     console.error('Registration error:', error);
     return { data: null, error: error.message || 'Network error' };
@@ -114,31 +102,15 @@ export const loginUser = async (email, password) => {
 
     const data = await response.json();
 
-    console.log('🔍 DEBUG - Login response:', data);
-    console.log('🔍 DEBUG - Token in response:', data.token);
-
     if (!response.ok) {
       return { data: null, error: data.message || 'Invalid credentials' };
     }
 
     // Store token in Cookie
-    console.log('🔍 DEBUG - About to store token:', data.token);
     setToken(data.token);
 
-    // Store user data in LocalStorage (without token)
-    const user = {
-      id: data.email,
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      role: data.role,
-      phoneNumber: data.phoneNumber,
-      profilePicture: data.profilePicture,
-      iban: data.iban
-    };
-    setStoredUser(user);
-
-    return { data: user, error: null };
+    // Fetch full profile to ensure we get the UUID (Login response might be slim)
+    return await getCurrentUser();
   } catch (error) {
     console.error('Login error:', error);
     return { data: null, error: error.message || 'Network error' };
@@ -188,8 +160,9 @@ export const getCurrentUser = async () => {
     }
 
     const data = await response.json();
+
     const user = {
-      id: data.email,
+      id: data.id || data.userId || data.email, // Prefer actual ID (UUID)
       email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,

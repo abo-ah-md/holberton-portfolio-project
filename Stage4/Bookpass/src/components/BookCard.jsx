@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ShoppingCart, X, Slash, Check, Clock, ZoomIn } from 'lucide-react';
+import { ShoppingCart, X, Slash, Check, Clock, ZoomIn, Plus } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -19,6 +19,8 @@ const BookCard = ({ book }) => {
     const navigate = useNavigate();
     const { addToCart } = useCart();
     const { user } = useAuth();
+
+
 
     // Check both listingStatus and status for "PENDING" to ensure we catch all cases
     // Also ensure not sold - Sold takes precedence
@@ -160,21 +162,7 @@ const BookCard = ({ book }) => {
                         </div>
                     )}
 
-                    {/* Hover Overlay - Hidden on Mobile */}
-                    {!book.isSold && !isPending && (
-                        <div className="absolute inset-0 bg-transparent flex flex-col items-center justify-end pb-4 z-20 pointer-events-none">
-                            {/* Quick Add to Cart Button - Visible on Image Hover */}
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-4 group-hover:translate-y-0 duration-300 pointer-events-auto">
-                                <button
-                                    onClick={handleAddToCart}
-                                    className={`text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-2 hover:scale-105 ${isAdded ? 'bg-brand-success hover:bg-green-500' : 'bg-brand-primary hover:bg-brand-primary/90'} `}
-                                >
-                                    {isAdded ? <Check size={16} /> : <ShoppingCart size={16} />}
-                                    <span>{isAdded ? 'تمت الإضافة' : 'أضف للسلة'}</span>
-                                </button>
-                            </div>
-                        </div>
-                    )}
+
 
                     {/* Hover Overlay for Pending - just View */}
                     {/* This overlay is now redundant as the shimmer overlay covers it and the CTA buttons are removed */}
@@ -225,6 +213,26 @@ const BookCard = ({ book }) => {
                                 <Slash size={16} />
                                 <span>مباع</span>
                             </div>
+                        ) : (user && (user.email === book.sellerId || user.id === book.sellerId)) ? (
+                            <div className="w-full relative overflow-hidden text-white font-bold text-sm py-3 rounded-xl text-center flex items-center justify-center gap-2 shadow-md">
+                                <style>{`
+                                    @keyframes gradient-xy {
+                                        0% { background-position: 0% 50%; }
+                                        50% { background-position: 100% 50%; }
+                                        100% { background-position: 0% 50%; }
+                                    }
+                                    .shimmer-btn {
+                                         background: linear-gradient(135deg, #C17554, #E09F85, #C17554);
+                                         background-size: 200% 200%;
+                                         animation: gradient-xy 3s ease infinite;
+                                    }
+                                `}</style>
+                                <div className="absolute inset-0 shimmer-btn"></div>
+                                <span className="relative z-10 flex items-center gap-2">
+                                    <Check size={18} />
+                                    تم عرض الكتاب
+                                </span>
+                            </div>
                         ) : (
                             <div className="flex gap-2">
                                 <Link
@@ -243,10 +251,17 @@ const BookCard = ({ book }) => {
                                 </Link>
                                 <button
                                     onClick={handleAddToCart}
-                                    className={`flex-1 text-sm font-bold py-3.5 px-4 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap min-h-[44px] border-2 ${isAdded ? 'bg-brand-success border-brand-success text-white hover:bg-green-500' : 'bg-transparent border-brand-primary text-brand-primary hover:bg-brand-primary/5'}`}
+                                    className={`w-[50px] text-sm font-bold py-3.5 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap min-h-[44px] border-2 ${isAdded ? 'bg-brand-primary border-brand-primary text-white hover:bg-brand-primary/90' : 'bg-transparent border-brand-primary text-brand-primary hover:bg-brand-primary/5'}`}
+                                    title={isAdded ? "تمت الإضافة للسلة" : "أضف للسلة"}
                                 >
-                                    {isAdded ? <Check size={14} /> : <ShoppingCart size={14} />}
-                                    <span>{isAdded ? 'تمت' : 'سلة'}</span>
+                                    {isAdded ? (
+                                        <Check size={18} />
+                                    ) : (
+                                        <div className="relative">
+                                            <ShoppingCart size={18} />
+                                            <Plus size={10} strokeWidth={4} className="absolute -top-1.5 -right-1.5" />
+                                        </div>
+                                    )}
                                 </button>
                             </div>
                         )}
@@ -352,6 +367,14 @@ const BookCard = ({ book }) => {
                                                 <span className="text-xs text-gray-400">نأسف، هذا الكتاب لم يعد متاحاً</span>
                                             </div>
                                         </div>
+                                    ) : (user && (user.email === book.sellerId || user.id === book.sellerId)) ? (
+                                        <div className="flex-1 relative overflow-hidden text-white font-bold py-3.5 px-6 rounded-xl text-center flex items-center justify-center gap-3 shadow-lg">
+                                            <div className="absolute inset-0 shimmer-btn"></div>
+                                            <span className="relative z-10 flex items-center gap-2 text-lg">
+                                                <Check size={24} />
+                                                تم عرض الكتاب
+                                            </span>
+                                        </div>
                                     ) : (
                                         <div className="flex gap-2 md:gap-3 flex-1">
                                             <Link
@@ -370,7 +393,7 @@ const BookCard = ({ book }) => {
                                             </Link>
                                             <button
                                                 onClick={handleAddToCart}
-                                                className={`flex-1 text-white font-bold py-3 px-4 md:py-3.5 md:px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base ${isAdded ? 'bg-brand-success hover:bg-green-500' : 'bg-brand-primary hover:bg-brand-primary/90'}`}
+                                                className={`flex-1 font-bold py-3 px-4 md:py-3.5 md:px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 whitespace-nowrap text-sm md:text-base ${isAdded ? 'bg-brand-primary hover:bg-brand-primary/90 text-white' : 'bg-brand-primary hover:bg-brand-primary/90 text-white'}`}
                                             >
                                                 {isAdded ? <Check size={20} /> : <ShoppingCart size={20} />}
                                                 <span className="hidden md:inline">{isAdded ? 'تمت الإضافة' : 'الإضافة للسلة'}</span>

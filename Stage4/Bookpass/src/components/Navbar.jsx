@@ -127,7 +127,11 @@ const Navbar = () => {
                                         setSearchQuery(q);
                                         if (q.length > 0) {
                                             const filtered = books.filter(b =>
-                                                b.title.toLowerCase().includes(q.toLowerCase())
+                                                b.title.toLowerCase().includes(q.toLowerCase()) &&
+                                                !b.isSold &&
+                                                b.listingStatus !== 'PENDING' &&
+                                                b.status !== 'PENDING' &&
+                                                b.status !== 'pending'
                                             ).slice(0, 5);
                                             setSearchResults(filtered);
                                         } else {
@@ -399,8 +403,8 @@ const Navbar = () => {
                     message="لعرض كتابك للبيع، يرجى تسجيل الدخول أو إنشاء حساب."
                 />
             </header>
-            </>
-            );
+        </>
+    );
 };
 
-            export default Navbar;
+export default Navbar;

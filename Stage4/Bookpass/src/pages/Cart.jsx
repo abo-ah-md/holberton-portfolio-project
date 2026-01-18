@@ -187,16 +187,20 @@ const Cart = () => {
                                             whileTap={{ scale: 0.98 }}
                                             onClick={async () => {
                                                 // Run a final check before proceeding
-                                                await validateCart();
+                                                const validItems = await validateCart();
 
-                                                // Ideally we should check if items were removed, but for now 
-                                                // we navigate. The Checkout page re-validates or accepts the passed state.
-                                                // If items were removed by validateCart, they will disappear from UI 
-                                                // on next render.
+                                                if (validItems.length === 0) {
+                                                    // If all items were removed (sold), the UI will update re-render empty state automatically
+                                                    return;
+                                                }
+
+                                                // Update total calculation based on valid items
+                                                const newTotal = validItems.reduce((acc, item) => acc + item.price, 0);
+
                                                 navigate('/checkout', {
                                                     state: {
-                                                        cartItems: cartItems,
-                                                        total: calculateTotal()
+                                                        cartItems: validItems,
+                                                        total: newTotal
                                                     }
                                                 });
                                             }}

@@ -12,10 +12,7 @@ const Logout = () => {
         // Perform the sign out action
         const performLogout = async () => {
             await signOut();
-            // Optional: Redirect after a few seconds or let them stay
-            setTimeout(() => {
-                navigate('/');
-            }, 6000);
+            navigate('/');
         };
         performLogout();
     }, [signOut, navigate]);

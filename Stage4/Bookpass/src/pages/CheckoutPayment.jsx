@@ -34,17 +34,7 @@ const CheckoutPayment = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { clearCart } = useCart();
-    const { setIsLoading, setLoadingMessage } = usePageLoading(); // Assuming this hook is available or I need to import it if not. Wait, I didn't verify if usePageLoading is used here. Let me check the file content again or just valid existing imports. 
-    // Wait, the previous view_file showed imports. I should check if usePageLoading is imported.
-    // Lines 1-8 of previous view showed:
-    // import React, { useEffect, useState } from 'react';
-    // import { useLocation, useNavigate } from 'react-router-dom';
-    // ...
-    // It did NOT show usePageLoading. I should check if I need to import it or if I can just manage loading locally.
-    // The component has local state. I'll add a local loading state if needed or use the global one if I import it.
-    // Better to use global if I can.
-
-    // Let's stick to modifying the useEffect logic first. I will fetch the book inside useEffect.
+    const { setIsLoading, setLoadingMessage } = usePageLoading();
 
     const [items, setItems] = useState([]);
     const [total, setTotal] = useState(0);
@@ -196,7 +186,7 @@ const CheckoutPayment = () => {
                                         <motion.button
                                             whileHover={{ scale: 1.02, backgroundColor: '#f0f9ff' }}
                                             whileTap={{ scale: 0.98 }}
-                                            onClick={() => {
+                                            onClick={async () => {
                                                 const form = document.querySelector('.mysr-form');
                                                 if (form) {
                                                     const fields = {
@@ -205,16 +195,53 @@ const CheckoutPayment = () => {
                                                         'mysr-cc-csc': '123',
                                                         'mysr-cc-exp': '12 / 26'
                                                     };
-                                                    Object.entries(fields).forEach(([id, value]) => {
+
+                                                    const typeCharByChar = async (element, text) => {
+                                                        element.focus();
+                                                        element.value = '';
+
+                                                        const valueDescriptor = Object.getOwnPropertyDescriptor(element, 'value');
+                                                        const valueSetter = valueDescriptor ? valueDescriptor.set : null;
+                                                        const prototype = Object.getPrototypeOf(element);
+                                                        const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value') ? Object.getOwnPropertyDescriptor(prototype, 'value').set : null;
+
+                                                        const setNative = (val) => {
+                                                            if (valueSetter && valueSetter !== prototypeValueSetter) {
+                                                                prototypeValueSetter.call(element, val);
+                                                            } else if (prototypeValueSetter) {
+                                                                prototypeValueSetter.call(element, val);
+                                                            } else {
+                                                                element.value = val;
+                                                            }
+                                                        };
+
+                                                        for (let i = 0; i < text.length; i++) {
+                                                            const char = text[i];
+
+                                                            element.dispatchEvent(new KeyboardEvent('keydown', { key: char, bubbles: true }));
+                                                            element.dispatchEvent(new KeyboardEvent('keypress', { key: char, bubbles: true }));
+
+                                                            const currentVal = element.value + char;
+                                                            setNative(currentVal);
+
+                                                            element.dispatchEvent(new Event('input', { bubbles: true }));
+                                                            element.dispatchEvent(new Event('change', { bubbles: true }));
+                                                            element.dispatchEvent(new KeyboardEvent('keyup', { key: char, bubbles: true }));
+
+                                                            await new Promise(resolve => setTimeout(resolve, 10));
+                                                        }
+
+                                                        element.blur();
+                                                        element.dispatchEvent(new Event('blur', { bubbles: true }));
+                                                    };
+
+                                                    for (const [id, value] of Object.entries(fields)) {
                                                         const input = document.getElementById(id);
                                                         if (input) {
-                                                            input.value = value;
-                                                            // Dispatch events to trigger Moyasar's validation/state updates
-                                                            input.dispatchEvent(new Event('input', { bubbles: true }));
-                                                            input.dispatchEvent(new Event('change', { bubbles: true }));
-                                                            input.dispatchEvent(new Event('blur', { bubbles: true }));
+                                                            await typeCharByChar(input, value);
+                                                            await new Promise(resolve => setTimeout(resolve, 600));
                                                         }
-                                                    });
+                                                    }
                                                 }
                                             }}
                                             className="w-full flex items-center justify-center gap-3 text-blue-700 font-black p-5 bg-blue-50/50 rounded-2xl transition-all border-2 border-blue-100 hover:border-blue-200 shadow-sm"
