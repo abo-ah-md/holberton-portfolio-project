@@ -114,8 +114,8 @@ const Navbar = () => {
                             </div>
                         </Link>
 
-                        {/* Compact Search Bar - Hidden for Reviewer */}
-                        {!isReviewer && (
+                        {/* Compact Search Bar - Hidden for Reviewer AND Marketplace Page */}
+                        {!isReviewer && location.pathname !== '/marketplace' && (
                             <div className={`relative hidden md:block transition-all duration-300 ${isSearchFocused ? 'w-96' : 'w-64'}`}>
                                 <input
                                     type="text"
@@ -250,7 +250,7 @@ const Navbar = () => {
                         )}
 
                         {/* Mobile Search Toggle */}
-                        {!isReviewer && (
+                        {!isReviewer && location.pathname !== '/marketplace' && (
                             <button
                                 onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
                                 className="md:hidden text-white hover:text-brand-primary transition-colors p-2"
@@ -379,7 +379,7 @@ const Navbar = () => {
                 </div>
 
                 {/* Mobile Only Search Bar (Expandable) */}
-                {!isReviewer && (
+                {!isReviewer && location.pathname !== '/marketplace' && (
                     <div className={`md:hidden px-4 overflow-hidden transition-all duration-300 ease-in-out ${isMobileSearchOpen ? 'max-h-16 py-3 opacity-100' : 'max-h-0 py-0 opacity-0'
                         }`}>
                         <div className="relative flex items-center bg-white rounded-lg overflow-hidden h-10 focus-within:ring-2 focus-within:ring-brand-primary transition-all shadow-sm">

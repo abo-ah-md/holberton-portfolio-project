@@ -62,6 +62,7 @@ const Marketplace = () => {
     const [isNavbarVisible, setIsNavbarVisible] = useState(true);
     const lastScrollY = useRef(0);
     // State for Filter Inputs
+    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [books, setBooks] = useState([]);
     const [error, setError] = useState(null);
@@ -235,9 +236,17 @@ const Marketplace = () => {
                     <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-4">
 
                         {/* Search Group */}
-                        <div className="flex w-full md:w-auto flex-1 gap-2">
-                            {/* Search Type Propdown */}
-                            <div className="relative">
+                        <div className="flex w-full md:w-auto flex-1 gap-2 items-center">
+                            {/* Mobile Filter Trigger */}
+                            <button
+                                onClick={() => setIsMobileFilterOpen(true)}
+                                className="md:hidden bg-white/5 border border-white/10 text-brand-primary p-3 rounded-xl backdrop-blur-md hover:bg-white/10 transition-colors"
+                            >
+                                <SlidersHorizontal size={20} />
+                            </button>
+
+                            {/* Search Type Propdown - Hidden on Mobile */}
+                            <div className="relative hidden md:block">
                                 <select
                                     value={searchType}
                                     onChange={(e) => setSearchType(e.target.value)}
@@ -267,8 +276,8 @@ const Marketplace = () => {
                             </div>
                         </div>
 
-                        {/* Filters Group (University & Sort) */}
-                        <div className="flex w-full md:w-auto gap-3 overflow-x-auto pb-2 md:pb-0">
+                        {/* Filters Group (University & Sort) - Hidden on Mobile */}
+                        <div className="hidden md:flex w-full md:w-auto gap-3">
 
                             {/* University Filter */}
                             <div className="relative flex-1 min-w-[140px]">
@@ -366,6 +375,100 @@ const Marketplace = () => {
                     </div>
                 )}
             </div>
+
+            {/* Mobile Filter Modal */}
+            {isMobileFilterOpen && (
+                <div className="fixed inset-0 z-50 bg-brand-secondary/95 backdrop-blur-xl animate-in fade-in slide-in-from-bottom-4 flex flex-col">
+                    {/* Modal Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-white/10">
+                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                            <Filter size={20} className="text-brand-primary" />
+                            تصفية متقدمة
+                        </h2>
+                        <button
+                            onClick={() => setIsMobileFilterOpen(false)}
+                            className="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
+
+                    {/* Modal Content */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                        {/* 1. Search Scope */}
+                        <div className="space-y-3">
+                            <label className="text-brand-primary font-bold text-sm block">البحث في</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {[
+                                    { id: 'title', label: 'العنوان' },
+                                    { id: 'author', label: 'المؤلف' },
+                                    { id: 'isbn', label: 'ISBN' }
+                                ].map((type) => (
+                                    <button
+                                        key={type.id}
+                                        onClick={() => setSearchType(type.id)}
+                                        className={`py-3 px-2 rounded-lg text-sm font-bold transition-all ${searchType === type.id
+                                            ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20'
+                                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                            }`}
+                                    >
+                                        {type.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* 2. University */}
+                        <div className="space-y-3">
+                            <label className="text-brand-primary font-bold text-sm block">الجامعة</label>
+                            <select
+                                value={selectedUniversity}
+                                onChange={(e) => setSelectedUniversity(e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 text-white rounded-xl p-4 outline-none focus:ring-2 focus:ring-brand-primary/50 text-right appearance-none"
+                            >
+                                <option className="bg-brand-secondary text-gray-400" value="">كل الجامعات</option>
+                                {Object.entries(UNIVERSITIES).map(([key, { nameAr }]) => (
+                                    <option className="bg-brand-secondary text-white" key={key} value={key}>{nameAr}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* 3. Sort */}
+                        <div className="space-y-3">
+                            <label className="text-brand-primary font-bold text-sm block">الترتيب</label>
+                            <div className="space-y-2">
+                                {[
+                                    { id: 'newest', label: 'الأحدث' },
+                                    { id: 'price_low', label: 'الأقل سعراً' },
+                                    { id: 'price_high', label: 'الأعلى سعراً' }
+                                ].map((option) => (
+                                    <button
+                                        key={option.id}
+                                        onClick={() => setSortBy(option.id)}
+                                        className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${sortBy === option.id
+                                            ? 'bg-brand-primary/10 border border-brand-primary text-brand-primary'
+                                            : 'bg-white/5 border border-transparent text-gray-400'
+                                            }`}
+                                    >
+                                        <span className="font-bold">{option.label}</span>
+                                        {sortBy === option.id && <div className="w-3 h-3 rounded-full bg-brand-primary shadow-sm" />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Modal Footer */}
+                    <div className="p-4 border-t border-white/10 bg-brand-secondary/50 backdrop-blur-xl">
+                        <Button
+                            onClick={() => setIsMobileFilterOpen(false)}
+                            className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white py-4 rounded-xl font-bold custom-shadow text-lg"
+                        >
+                            إظهار النتائج ({filteredBooks.length})
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             <Footer />
         </div>
